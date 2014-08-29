@@ -15,6 +15,7 @@ AC_PROG_LIBTOOL
 AC_PROG_RANLIB
 
 # Checks for libraries.
+AC_CHECK_LIB([png], png_read_png)
 AC_CHECK_LIB([jpeg], jpeg_start_decompress)
 
 # Checks for header files.
