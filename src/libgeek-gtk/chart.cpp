@@ -8,13 +8,9 @@ using namespace Geek::Gtk;
 
 ChartWidget::ChartWidget()
 {
-#if 0
-    int i;
-    for (i = 0; i < 360 * 10; i++)
-    {
-        m_data.push_back(cos(((float)i * 1.0f) * (M_PI / 180.0f)) + 2.0f);
-    }
-#endif
+    m_showZero = false;
+
+    set_size_request(250, 200);
 }
 
 ChartWidget::~ChartWidget()
@@ -72,6 +68,18 @@ bool ChartWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
         if (point > max)
         {
             max = point;
+        }
+    }
+
+    if (m_showZero)
+    {
+        if (min > 0 && max > 0)
+        {
+            min = 0;
+        }
+        else if (min < 0 && max < 0)
+        {
+            max = 0;
         }
     }
 
@@ -168,4 +176,10 @@ bool ChartWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 
     return true;
 }
+
+void ChartWidget::setShowZero(bool showZero)
+{
+    m_showZero = showZero;
+}
+
 

@@ -14,6 +14,7 @@ class ChartWidget : public ::Gtk::DrawingArea
 {
  private:
     std::vector<float> m_data;
+    bool m_showZero;
 
  public:
 
@@ -23,6 +24,8 @@ class ChartWidget : public ::Gtk::DrawingArea
     void addValue(float value);
 
     virtual bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr);
+
+    void setShowZero(bool showZero);
 };
 
 };
