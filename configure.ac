@@ -28,8 +28,11 @@ AC_CHECK_HEADER_STDBOOL
 AC_CONFIG_FILES([
     Makefile
     src/Makefile
+    src/libgeek-core/Makefile
     src/libgeek-gtk/Makefile
     src/libgeek-gfx/Makefile
+    tests/Makefile
+    tests/core/Makefile
     include/Makefile
     include/geek/Makefile
 ])
