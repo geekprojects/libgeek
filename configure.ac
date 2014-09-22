@@ -33,6 +33,7 @@ AC_CONFIG_FILES([
     src/libgeek-gfx/Makefile
     tests/Makefile
     tests/core/Makefile
+    tests/gtk/Makefile
     include/Makefile
     include/geek/Makefile
 ])
