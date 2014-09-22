@@ -8,7 +8,10 @@ using namespace Geek::Gtk;
 
 ChartWidget::ChartWidget()
 {
+    m_end = -1;
     m_showZero = false;
+
+    m_dataProvider = NULL;
 
     set_size_request(250, 200);
 }
@@ -17,16 +20,19 @@ ChartWidget::~ChartWidget()
 {
 }
 
-void ChartWidget::addValue(float value)
+void ChartWidget::setDataProvider(DataProvider* dp)
 {
-    m_data.push_back(value);
+    m_dataProvider = dp;
+}
 
+void ChartWidget::dataUpdated()
+{
     queue_draw();
 }
 
 bool ChartWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 {
-    if (m_data.empty())
+    if (m_dataProvider == NULL || m_dataProvider->isEmpty())
     {
         return true;
     }
@@ -46,21 +52,41 @@ bool ChartWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 
     drawWidth -= leftMargin;
 
-    if (drawWidth > (int)m_data.size())
+    /*
+     *      +-----+
+     *  +---+-----+---+
+     *  |   |     |   |
+     *  +---+-----+---+
+     *      +-----+
+     * Min  S     E  Max
+     *
+     *      +-----+
+     *  +---+--+  |
+     *  |   |  |  |
+     *  +---+--+  |
+     *      +-----+
+     * Min  S Max E  Max
+     */
+
+    int endX = m_dataProvider->getMaxX();
+    int startX = endX - drawWidth;
+
+    if (startX < m_dataProvider->getMinX())
     {
-        drawWidth = (int)m_data.size();
+        startX = m_dataProvider->getMinX();
+        drawWidth = (endX - startX) + 1;
     }
 
     int i;
     for (i = 0; i < drawWidth; i++)
     {
-        unsigned int n = (m_data.size() - drawWidth) + i;
-        if (n >= m_data.size())
+        unsigned int n = startX + i;
+        float point = m_dataProvider->getValue(n);
+        if (isnan(point))
         {
-            drawWidth = i - 1;
-            break;
+            continue;
         }
-        float point = m_data[n];
+
         if (point < min)
         {
             min = point;
@@ -123,14 +149,13 @@ bool ChartWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
     font.set_family("Monospace");
     font.set_weight(Pango::WEIGHT_BOLD);
 
-    Glib::RefPtr<Pango::Layout> layout;
     char buffer[16];
     int text_width;
     int text_height;
 
     sprintf(buffer, "%0.1f", max);
 
-    layout = create_pango_layout(buffer);
+    Glib::RefPtr<Pango::Layout> layout = create_pango_layout(buffer);
     layout->set_font_description(font);
     layout->get_pixel_size(text_width, text_height);
 
@@ -148,8 +173,12 @@ bool ChartWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 
     for (i = 0; i < drawWidth; i++)
     {
-        unsigned int n = (m_data.size() - drawWidth) + i;
-        float point = m_data[n];
+        unsigned int n = startX + i;
+        float point = m_dataProvider->getValue(n);
+        if (isnan(point))
+        {
+            continue;
+        }
         float y = point;
 
         y -= min;
@@ -180,6 +209,25 @@ bool ChartWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 void ChartWidget::setShowZero(bool showZero)
 {
     m_showZero = showZero;
+}
+
+DataProvider::DataProvider() :
+    m_data(NAN)
+{
+}
+
+DataProvider::~DataProvider()
+{
+}
+
+void DataProvider::addValue(int32_t x, float value)
+{
+    m_data.insert(x, value);
+}
+
+float DataProvider::getValue(int32_t x)
+{
+    return m_data[x];
 }
 
 
