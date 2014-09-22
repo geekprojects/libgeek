@@ -48,6 +48,8 @@ template<typename _Value> class DynamicArray
             m_capacity = 10;
             m_array = alloc(m_capacity);
             m_arrayStart = i;
+            m_minIndex = i;
+            m_maxIndex = i;
         }
         else
         {
@@ -108,6 +110,11 @@ template<typename _Value> class DynamicArray
             return m_default;
         }
         return m_array[index - m_arrayStart];
+    }
+
+    bool isEmpty()
+    {
+        return m_capacity == 0;
     }
 
     int getMinIndex()
