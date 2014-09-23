@@ -35,6 +35,7 @@ AC_CONFIG_FILES([
     tools/noise/Makefile
     tests/Makefile
     tests/core/Makefile
+    tests/gtk/Makefile
     include/Makefile
     include/geek/Makefile
 ])
