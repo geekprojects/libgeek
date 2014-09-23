@@ -42,7 +42,7 @@ ChartWindow::~ChartWindow()
 bool ChartWindow::on_timeout()
 {
     m_dataProvider.addValue(
-        m_i,
+        m_i * 2,
         cos(((float)m_i * 1.0f) * (M_PI / 180.0f)) + 0.0f);
     m_chart.dataUpdated();
 
