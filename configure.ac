@@ -31,6 +31,8 @@ AC_CONFIG_FILES([
     src/libgeek-core/Makefile
     src/libgeek-gtk/Makefile
     src/libgeek-gfx/Makefile
+    tools/Makefile
+    tools/noise/Makefile
     tests/Makefile
     tests/core/Makefile
     tests/gtk/Makefile
