@@ -9,7 +9,7 @@ using namespace Geek::Gtk;
 ChartWidget::ChartWidget()
 {
     m_end = -1;
-    m_showZero = false;
+    m_showZero = true;
 
     m_dataProvider = NULL;
 
@@ -37,6 +37,7 @@ bool ChartWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
         return true;
     }
 
+
     ::Gtk::Allocation allocation = get_allocation();
     const int width = allocation.get_width();
     const int height = allocation.get_height();
@@ -48,9 +49,9 @@ bool ChartWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
     float min = FLT_MAX;
     float max = FLT_MIN;
 
-    int drawWidth = width;
+    int chartWidth = width;
 
-    drawWidth -= leftMargin;
+    chartWidth -= leftMargin;
 
     /*
      *      +-----+
@@ -68,6 +69,7 @@ bool ChartWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
      * Min  S Max E  Max
      */
 
+    int drawWidth = chartWidth;
     int endX = m_dataProvider->getMaxX();
     int startX = endX - drawWidth;
 
@@ -119,7 +121,7 @@ bool ChartWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
         range += 2;
     }
 
-    cr->set_line_width(1.0);
+    cr->set_line_width(1.5f);
 
     cr->set_source_rgb(0.0, 0.0, 0.0);
 
@@ -130,7 +132,7 @@ bool ChartWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
         y *= (height - (topMargin + bottomMargin));
         y += bottomMargin;
         cr->move_to(leftMargin, height - y);
-        cr->line_to(drawWidth, height - y);
+        cr->line_to(chartWidth + leftMargin, height - y);
     }
 
     // Draw Y Axis
@@ -147,7 +149,7 @@ bool ChartWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 
     Pango::FontDescription font;
     font.set_family("Monospace");
-    font.set_weight(Pango::WEIGHT_BOLD);
+    font.set_weight(Pango::WEIGHT_SEMIBOLD);
 
     char buffer[16];
     int text_width;
@@ -170,6 +172,10 @@ bool ChartWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 
     cr->move_to(0, height - text_height);
     layout->show_in_cairo_context(cr);
+
+    cr->stroke();
+    cr->set_line_width(2.0f);
+    cr->set_source_rgb(0.0, 0.5, 1.0);
 
     for (i = 0; i < drawWidth; i++)
     {
