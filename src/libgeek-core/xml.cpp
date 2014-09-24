@@ -24,31 +24,43 @@ string XMLDocument::getFilename()
     return m_filename;
 }
 
-xmlNodePtr XMLDocument::evalPath(std::string path)
+vector<xmlNodePtr> XMLDocument::evalPath(std::string path)
 {
+    vector<xmlNodePtr> results;
+
     xmlXPathContextPtr xpathCtx;
     xmlXPathObjectPtr xpathObj;
     xpathCtx = xmlXPathNewContext(m_doc);
     xpathObj = xmlXPathEvalExpression((xmlChar*)path.c_str(), xpathCtx);
 
-    if (xpathObj == NULL || xpathObj->nodesetval->nodeNr == 0)
+    if (xpathObj == NULL)
     {
-        xmlXPathFreeContext(xpathCtx);
-        return NULL;
+        return results;
     }
 
-    xmlNodePtr node = xpathObj->nodesetval->nodeTab[0];
+    int i;
+    for (i = 0; i < xpathObj->nodesetval->nodeNr; i++)
+    {
+        xmlNodePtr node = xpathObj->nodesetval->nodeTab[i];
+        results.push_back(node);
+    }
 
     xmlXPathFreeObject(xpathObj);
     xmlXPathFreeContext(xpathCtx);
 
-    return node;
+    return results;
 }
 
 string XMLDocument::readTextNode(std::string path)
 {
-    xmlNodePtr node = evalPath(path);
-    string result((char*)node->children->content);
+    vector<xmlNodePtr> nodes = evalPath(path);
+
+    string result = "";
+    if (!nodes.empty())
+    {
+        xmlNodePtr node = nodes.at(0);
+        result = string((char*)node->children->content);
+    }
     return result;
 }
 
