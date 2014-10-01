@@ -26,14 +26,19 @@ string XMLDocument::getFilename()
 
 vector<xmlNodePtr> XMLDocument::evalPath(std::string path)
 {
+    return evalPath(path, xmlDocGetRootElement(m_doc));
+}
+
+vector<xmlNodePtr> XMLDocument::evalPath(std::string path, xmlNodePtr start)
+{
     vector<xmlNodePtr> results;
 
     xmlXPathContextPtr xpathCtx;
     xmlXPathObjectPtr xpathObj;
     xpathCtx = xmlXPathNewContext(m_doc);
-    xpathObj = xmlXPathEvalExpression((xmlChar*)path.c_str(), xpathCtx);
+    xpathObj = xmlXPathNodeEval(start, (xmlChar*)path.c_str(), xpathCtx);
 
-    if (xpathObj == NULL)
+    if (xpathObj == NULL || xpathObj->nodesetval == NULL)
     {
         return results;
     }
@@ -51,17 +56,38 @@ vector<xmlNodePtr> XMLDocument::evalPath(std::string path)
     return results;
 }
 
+xmlNodePtr XMLDocument::evalPathFirst(std::string path, xmlNodePtr parent)
+{
+    vector<xmlNodePtr> nodes = evalPath(path, parent);
+    if (!nodes.empty())
+    {
+        return nodes.at(0);
+    }
+    return NULL;
+}
+
 string XMLDocument::readTextNode(std::string path)
 {
-    vector<xmlNodePtr> nodes = evalPath(path);
+    return readTextNode(path, xmlDocGetRootElement(m_doc));
+}
+
+string XMLDocument::readTextNode(std::string path, xmlNodePtr parent)
+{
+    vector<xmlNodePtr> nodes = evalPath(path, parent);
 
     string result = "";
     if (!nodes.empty())
     {
         xmlNodePtr node = nodes.at(0);
-        result = string((char*)node->children->content);
+        if (node->children != NULL)
+        {
+            xmlChar* str = node->children->content;
+            if (str != NULL)
+            {
+                result = string((char*)str);
+            }
+        }
     }
     return result;
 }
-
 

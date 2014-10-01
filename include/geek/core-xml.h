@@ -24,7 +24,10 @@ class XMLDocument
     std::string getFilename();
 
     std::string readTextNode(std::string path);
+    std::string readTextNode(std::string path, xmlNodePtr parent);
     std::vector<xmlNodePtr> evalPath(std::string path);
+    std::vector<xmlNodePtr> evalPath(std::string path, xmlNodePtr parent);
+    xmlNodePtr evalPathFirst(std::string path, xmlNodePtr node);
 };
 
 }
