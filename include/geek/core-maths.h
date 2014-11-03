@@ -1,5 +1,5 @@
-#ifndef __BEYOND_MATHS_H_
-#define __BEYOND_MATHS_H_
+#ifndef __GEEK_CORE_MATHS_H_
+#define __GEEK_CORE_MATHS_H_
 
 #include <stdio.h> // for snprintf
 #include <stdint.h>

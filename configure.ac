@@ -25,6 +25,9 @@ AC_CHECK_HEADER_STDBOOL
 
 # Checks for library functions.
 
+LIBS="`xml2-config --libs` $LIBS"
+CPPFLAGS="`xml2-config --cflags` $CPPFLAGS"
+
 AC_CONFIG_FILES([
     Makefile
     src/Makefile
