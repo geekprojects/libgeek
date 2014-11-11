@@ -12,8 +12,69 @@ namespace Geek
 namespace Core
 {
 
+template<typename _Value> class DynamicArray;
+
+template<typename _Value> class DynamicArrayIterator
+{
+ private:
+    DynamicArray<_Value>* m_array;
+    int m_position;
+
+ public:
+    DynamicArrayIterator()
+    {
+        m_array = NULL;
+    }
+
+    DynamicArrayIterator(DynamicArray<_Value>* array)
+    {
+        m_array = array;
+        m_position = m_array->getMinIndex();
+    }
+
+    DynamicArrayIterator(DynamicArray<_Value>* array, int pos)
+    {
+        m_array = array;
+        m_position = pos;
+    }
+
+    bool operator != (DynamicArrayIterator<_Value> rhs)
+    {
+        return
+            this->m_array != rhs.m_array ||
+            this->m_position != rhs.m_position;
+    }
+
+    DynamicArrayIterator<_Value>& operator ++(int)
+    {
+        while (!m_array->hasValue(++m_position))
+        {
+            if (m_position > m_array->getMaxIndex())
+            {
+                m_position = -1;
+                break;
+            }
+        }
+        return *this;
+    }
+
+    int getIndex()
+    {
+        return m_position;
+    }
+
+    _Value& operator *()
+    {
+        return (*m_array)[m_position];
+    }
+};
+
 template<typename _Value> class DynamicArray
 {
+ public:
+    typedef DynamicArrayIterator<_Value> iterator;
+
+ private:
     _Value* m_array;
     int m_capacity;
     int m_arrayStart;
@@ -22,7 +83,7 @@ template<typename _Value> class DynamicArray
     _Value m_default;
 
  public:
-    DynamicArray(_Value def)
+    DynamicArray(const _Value def)
     {
         m_array = NULL;
         m_capacity = 0;
@@ -102,12 +163,12 @@ template<typename _Value> class DynamicArray
         m_array[i - m_arrayStart] = value;
     }
 
-    _Value operator[](int index) const
+    _Value& operator[](int index)
     {
-        if (index < m_arrayStart || index > m_maxIndex)
+        if (m_array == NULL || index < m_arrayStart || index > m_maxIndex)
         {
-            // Definitely not in the array. Return the default
-            return m_default;
+            // Definitely not in the array. Create an entry with the default
+            insert(index, m_default);
         }
         return m_array[index - m_arrayStart];
     }
@@ -115,6 +176,15 @@ template<typename _Value> class DynamicArray
     bool isEmpty()
     {
         return m_capacity == 0;
+    }
+
+    bool hasValue(int index)
+    {
+        if (m_array == NULL || index < m_arrayStart || index > m_maxIndex)
+        {
+            return false;
+        }
+        return m_array[index - m_arrayStart] != m_default;
     }
 
     int getMinIndex()
@@ -125,6 +195,16 @@ template<typename _Value> class DynamicArray
     int getMaxIndex()
     {
         return m_maxIndex;
+    }
+
+    iterator begin()
+    {
+        return DynamicArray<_Value>::iterator(this);
+    }
+
+    iterator end()
+    {
+        return DynamicArray<_Value>::iterator(this, -1);
     }
 
 #ifdef __DEBUG_DYNAMICARRAY
@@ -150,6 +230,8 @@ template<typename _Value> class DynamicArray
         }
         return arr;
     }
+
+ public:
 };
 
 };
