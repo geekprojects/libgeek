@@ -145,6 +145,7 @@ Surface* Surface::loadJPEGInternal(struct jpeg_decompress_struct* cinfo)
     JSAMPARRAY buffer = (*cinfo->mem->alloc_sarray)
         ((j_common_ptr)cinfo, JPOOL_IMAGE, row_stride, 1);
 
+    uint32_t* data = (uint32_t*)surface->getData();
     while (cinfo->output_scanline < cinfo->output_height)
     {
         jpeg_read_scanlines(cinfo, buffer, 1);
@@ -156,10 +157,7 @@ Surface* Surface::loadJPEGInternal(struct jpeg_decompress_struct* cinfo)
             uint8_t r = *ptr++;
             uint8_t g = *ptr++;
             uint8_t b = *ptr++;
-            surface->drawPixel(
-                x,
-                cinfo->output_scanline,
-                255 << 24 | r << 0 | g << 8 | b << 16);
+            *(data++) = 0xff000000 | r << 0 | g << 8 | b << 16;
         }
     }
 
