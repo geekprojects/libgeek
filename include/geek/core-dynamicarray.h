@@ -83,6 +83,18 @@ template<typename _Value> class DynamicArray
     _Value m_default;
 
  public:
+
+    /* Note, this constructor will only work with pointer types! */
+    DynamicArray()
+    {
+        m_array = NULL;
+        m_capacity = 0;
+        m_arrayStart = 0;
+        m_minIndex = 0;
+        m_maxIndex = 0;
+        m_default = NULL;
+    }
+
     DynamicArray(const _Value def)
     {
         m_array = NULL;
