@@ -584,9 +584,9 @@ bool Drawable::saveJPEG(struct jpeg_compress_struct* cinfo)
             {
                 c = getPixel(x, cinfo->next_scanline);
             }
-            row_pointer[0][(x * 3) + 0] = c >> 0;
+            row_pointer[0][(x * 3) + 0] = c >> 16;
             row_pointer[0][(x * 3) + 1] = c >> 8;
-            row_pointer[0][(x * 3) + 2] = c >> 16;
+            row_pointer[0][(x * 3) + 2] = c >> 0;
         }
         jpeg_write_scanlines(cinfo, row_pointer, 1);
     }
