@@ -32,6 +32,9 @@ class Surface : public Drawable
 
     virtual inline ::Geek::Rect absolute() { return ::Geek::Rect(0, 0, m_width, m_height); }
 
+    Geek::Gfx::Surface* scaleToFit(int width, int height, bool fp = false);
+    Geek::Gfx::Surface* scale(float factor, bool fp = false);
+
     static Surface* loadJPEG(uint8_t* data, uint32_t length);
     static Surface* loadJPEG(std::string path);
     static Surface* loadPNG(std::string path);
@@ -185,6 +188,7 @@ class SurfaceViewPort : public Surface
     {
         return m_parentSurface->getPixel(m_offsetX + x, m_offsetY + y);
     }
+
 };
 
 }; // Geek::Gfx
