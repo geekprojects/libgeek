@@ -10,6 +10,8 @@ using namespace std;
 using namespace Geek;
 using namespace Geek::Gfx;
 
+typedef int v4si __attribute__ ((vector_size (16)));
+
 Surface::Surface()
     : Drawable(0, 0, 0)
 {
@@ -145,6 +147,7 @@ Surface* Surface::loadJPEGInternal(struct jpeg_decompress_struct* cinfo)
     JSAMPARRAY buffer = (*cinfo->mem->alloc_sarray)
         ((j_common_ptr)cinfo, JPOOL_IMAGE, row_stride, 1);
 
+    uint32_t* data = (uint32_t*)surface->getData();
     while (cinfo->output_scanline < cinfo->output_height)
     {
         jpeg_read_scanlines(cinfo, buffer, 1);
@@ -156,10 +159,7 @@ Surface* Surface::loadJPEGInternal(struct jpeg_decompress_struct* cinfo)
             uint8_t r = *ptr++;
             uint8_t g = *ptr++;
             uint8_t b = *ptr++;
-            surface->drawPixel(
-                x,
-                cinfo->output_scanline,
-                255 << 24 | r << 0 | g << 8 | b << 16);
+            *(data++) = 0xff000000 | r << 0 | g << 8 | b << 16;
         }
     }
 
@@ -234,9 +234,9 @@ Surface* Surface::loadPNG(string path)
             {
                 uint32_t c;
                 c = 255 < 24;
-                c |= *(src++) << 16;
+                c |= *(src++) << 0;
                 c |= *(src++) << 8;
-                c |= *(src++);
+                c |= *(src++) << 16;
                 surface->drawPixel(x, y, c);
             }
         }
@@ -245,5 +245,72 @@ Surface* Surface::loadPNG(string path)
     png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
     fclose(fd);
     return surface;
+}
+
+Surface* Surface::scaleToFit(int width, int height, bool fp)
+{
+    float zx = (float)width / (float)m_width;
+    float zy = (float)height / (float)m_height;
+    return scale(MIN(zx, zy), fp);
+}
+
+Surface* Surface::scale(float factor, bool fp)
+{
+    int width = m_width * factor;
+    int height = m_height * factor;
+
+    Surface* scaled = new Surface(width, height, 4);
+
+    float stepX = (float)m_width / (float)width;
+    float stepY = (float)m_height / (float)height;
+    int stepXi = (int)round(stepX);
+    int stepYi = (int)round(stepY);
+    int blockCount = (stepXi * stepYi);
+    int blockDelta = (m_width - stepXi) * 4;
+
+    uint32_t* data = (uint32_t*)scaled->getData();
+    uint8_t* srcdata = (uint8_t*)getData();
+
+    int y;
+    for (y = 0; y < height; y++)
+    {
+        int blockY = floor((float)y * stepY);
+        int x;
+        for (x = 0; x < width; x++)
+        {
+
+            int blockX = floor((float)x * stepX);
+            int bx;
+            int by;
+            v4si totals = {0, 0, 0, 0};
+
+            uint8_t* imgrow = srcdata;
+            imgrow += ((m_width * blockY) + (blockX)) * 4;
+
+            for (by = 0; by < stepYi; by++)
+            {
+                for (bx = 0; bx < stepXi; bx++)
+                {
+                    v4si pv = {
+                        imgrow[0],
+                        imgrow[1],
+                        imgrow[2],
+                        imgrow[3]};
+                    totals += pv;
+                    imgrow += 4;
+                }
+                imgrow += blockDelta;
+            }
+            v4si avg = totals / blockCount;
+            if (fp)
+            {
+                avg &= 0xc0;
+            }
+
+            *(data++) = 0xff000000 | (avg[0] << 16) | (avg[1] << 8) | (avg[2] << 0);
+        }
+    }
+
+    return scaled;
 }
 

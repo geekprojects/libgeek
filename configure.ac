@@ -25,11 +25,20 @@ AC_CHECK_HEADER_STDBOOL
 
 # Checks for library functions.
 
+LIBS="`xml2-config --libs` $LIBS"
+CPPFLAGS="`xml2-config --cflags` $CPPFLAGS"
+
 AC_CONFIG_FILES([
     Makefile
     src/Makefile
+    src/libgeek-core/Makefile
     src/libgeek-gtk/Makefile
     src/libgeek-gfx/Makefile
+    tools/Makefile
+    tools/noise/Makefile
+    tests/Makefile
+    tests/core/Makefile
+    tests/gtk/Makefile
     include/Makefile
     include/geek/Makefile
 ])

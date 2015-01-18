@@ -554,7 +554,7 @@ bool Drawable::saveJPEG(struct jpeg_compress_struct* cinfo)
     cinfo->err = jpeg_std_error(&jerr);
 
     cinfo->image_width = getWidth();
-    cinfo->image_height = getHeight();
+    cinfo->image_height = getHeight() - 1;
     cinfo->input_components = 3;
     cinfo->in_color_space = JCS_RGB;
 
@@ -569,15 +569,24 @@ bool Drawable::saveJPEG(struct jpeg_compress_struct* cinfo)
     row_pointer[0] = (JSAMPROW)malloc(stride);
     memset(row_pointer[0], 0, stride);
 
+    uint32_t* data = (uint32_t*)getDrawingBuffer();
     while (cinfo->next_scanline < cinfo->image_height)
     {
         int x;
         for (x = 0; x < cinfo->image_width; x++)
         {
-            uint32_t c = getPixel(x, cinfo->next_scanline);
-            row_pointer[0][(x * 3) + 0] = c >> 0;
+            uint32_t c;
+            if (m_bytesPerPixel == 4)
+            {
+                c = *(data++);
+            }
+            else
+            {
+                c = getPixel(x, cinfo->next_scanline);
+            }
+            row_pointer[0][(x * 3) + 0] = c >> 16;
             row_pointer[0][(x * 3) + 1] = c >> 8;
-            row_pointer[0][(x * 3) + 2] = c >> 16;
+            row_pointer[0][(x * 3) + 2] = c >> 0;
         }
         jpeg_write_scanlines(cinfo, row_pointer, 1);
     }
