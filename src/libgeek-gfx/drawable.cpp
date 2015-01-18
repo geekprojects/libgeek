@@ -554,7 +554,7 @@ bool Drawable::saveJPEG(struct jpeg_compress_struct* cinfo)
     cinfo->err = jpeg_std_error(&jerr);
 
     cinfo->image_width = getWidth();
-    cinfo->image_height = getHeight();
+    cinfo->image_height = getHeight() - 1;
     cinfo->input_components = 3;
     cinfo->in_color_space = JCS_RGB;
 
