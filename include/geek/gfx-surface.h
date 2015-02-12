@@ -22,6 +22,7 @@ class Surface : public Drawable
     Surface();
     Surface(uint32_t width, uint32_t height, uint8_t bpp);
     Surface(uint32_t width, uint32_t height, uint8_t bpp, uint8_t* data);
+    Surface(Surface* src);
     virtual ~Surface();
 
     virtual inline uint8_t* getDrawingBuffer() const { return m_drawingBuffer; }
@@ -34,6 +35,8 @@ class Surface : public Drawable
 
     Geek::Gfx::Surface* scaleToFit(int width, int height, bool fp = false);
     Geek::Gfx::Surface* scale(float factor, bool fp = false);
+
+    bool swapData(Geek::Gfx::Surface* other);
 
     static Surface* loadJPEG(uint8_t* data, uint32_t length);
     static Surface* loadJPEG(std::string path);

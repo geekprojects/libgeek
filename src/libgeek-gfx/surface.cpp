@@ -10,7 +10,7 @@ using namespace std;
 using namespace Geek;
 using namespace Geek::Gfx;
 
-typedef int v4si __attribute__ ((vector_size (16)));
+typedef int v4si __attribute__ ((vector_size (32)));
 
 Surface::Surface()
     : Drawable(0, 0, 0)
@@ -31,6 +31,15 @@ Surface::Surface(uint32_t width, uint32_t height, uint8_t bpp, uint8_t* data)
     m_drawingBuffer = new uint8_t[m_drawingBufferLength];
 
     memcpy(m_drawingBuffer, data, m_drawingBufferLength);
+}
+
+Surface::Surface(Surface* src)
+    : Drawable(src->m_width, src->m_height, src->m_bytesPerPixel)
+{
+    m_drawingBufferLength = m_width * m_height * m_bytesPerPixel;
+    m_drawingBuffer = new uint8_t[m_drawingBufferLength];
+
+    memcpy(m_drawingBuffer, src->m_drawingBuffer, m_drawingBufferLength);
 }
 
 Surface::~Surface()
@@ -82,6 +91,19 @@ bool SurfaceViewPort::resize(uint32_t width, uint32_t height)
     m_width = width;
     m_height = height;
 
+    return true;
+}
+
+bool Surface::swapData(Surface* other)
+{
+    if (other->m_drawingBufferLength != m_drawingBufferLength)
+    {
+        return false;
+    }
+
+    uint8_t* tmp = other->m_drawingBuffer;
+    other->m_drawingBuffer = m_drawingBuffer;
+    m_drawingBuffer = tmp;
     return true;
 }
 
