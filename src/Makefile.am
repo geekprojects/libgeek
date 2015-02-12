@@ -1,3 +1,3 @@
 
-SUBDIRS=libgeek-core libgeek-gtk libgeek-gfx
+SUBDIRS=core gtk gfx
 
