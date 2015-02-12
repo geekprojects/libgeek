@@ -82,6 +82,48 @@ bool Surface::resize(uint32_t width, uint32_t height)
     return true;
 }
 
+void Surface::rotate(int angle)
+{
+    if (angle == 0)
+    {
+        return;
+    }
+    else if (angle != 90 && angle != 270)
+    {
+        printf("Surface::rotate: Angle %d not supported\n", angle);
+        return;
+    }
+
+    Surface* rotated = new Surface(getHeight(), getWidth(), getBytesPerPixel());
+
+    int w = m_width;
+    int h = m_height;
+
+    // Hardly the fastest rotation ever, but It Works(tm)
+    uint32_t* data = (uint32_t*)getData();
+    int y;
+    for (y = 0; y < getHeight(); y++)
+    {
+        int x;
+        for (x = 0; x < getWidth(); x++)
+        {
+            if (angle == 90)
+            {
+                rotated->drawPixel(y, x, *data);
+            }
+            else
+            {
+                rotated->drawPixel(y, (w - x) - 1, *data);
+            }
+            data++;
+        }
+    }
+    swapData(rotated);
+    m_width = h;
+    m_height = w;
+    delete rotated;
+}
+
 SurfaceViewPort::~SurfaceViewPort()
 {
 }

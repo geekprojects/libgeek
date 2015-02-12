@@ -35,12 +35,14 @@ class Surface : public Drawable
 
     Geek::Gfx::Surface* scaleToFit(int width, int height, bool fp = false);
     Geek::Gfx::Surface* scale(float factor, bool fp = false);
+    void rotate(int angle);
 
     bool swapData(Geek::Gfx::Surface* other);
 
     static Surface* loadJPEG(uint8_t* data, uint32_t length);
     static Surface* loadJPEG(std::string path);
     static Surface* loadPNG(std::string path);
+
 };
 
 class SurfaceViewPort : public Surface
