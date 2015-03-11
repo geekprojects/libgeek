@@ -31,9 +31,9 @@ CPPFLAGS="`xml2-config --cflags` $CPPFLAGS"
 AC_CONFIG_FILES([
     Makefile
     src/Makefile
-    src/libgeek-core/Makefile
-    src/libgeek-gtk/Makefile
-    src/libgeek-gfx/Makefile
+    src/core/Makefile
+    src/gtk/Makefile
+    src/gfx/Makefile
     tools/Makefile
     tools/noise/Makefile
     tests/Makefile
