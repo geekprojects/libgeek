@@ -204,7 +204,7 @@ Surface* Surface::loadJPEGInternal(struct jpeg_decompress_struct* cinfo)
 
     surface = new Surface(
         cinfo->output_width,
-        cinfo->output_height + 1,
+        cinfo->output_height,
         4);//cinfo.output_components);
     surface->clear(0);
 
