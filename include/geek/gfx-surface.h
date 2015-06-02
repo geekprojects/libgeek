@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include <geek/core-maths.h>
+#include <geek/core-logger.h>
 #include <geek/gfx-drawable.h>
 
 namespace Geek
@@ -11,7 +12,7 @@ namespace Geek
 namespace Gfx
 {
 
-class Surface : public Drawable
+class Surface : public Drawable, public Geek::Logger
 {
  private:
     static Surface* loadJPEGInternal(struct jpeg_decompress_struct* cinfo);

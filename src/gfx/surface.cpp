@@ -12,20 +12,23 @@ using namespace Geek::Gfx;
 
 typedef int v4si __attribute__ ((vector_size (32)));
 
-Surface::Surface()
-    : Drawable(0, 0, 0)
+Surface::Surface() :
+    Drawable(0, 0, 0),
+    Logger("Surface")
 {
 }
 
-Surface::Surface(uint32_t width, uint32_t height, uint8_t bpp)
-    : Drawable(width, height, bpp)
+Surface::Surface(uint32_t width, uint32_t height, uint8_t bpp) :
+    Drawable(width, height, bpp),
+    Logger("Surface")
 {
     m_drawingBufferLength = m_width * m_height * m_bytesPerPixel;
     m_drawingBuffer = new uint8_t[m_drawingBufferLength];
 }
 
-Surface::Surface(uint32_t width, uint32_t height, uint8_t bpp, uint8_t* data)
-    : Drawable(width, height, bpp)
+Surface::Surface(uint32_t width, uint32_t height, uint8_t bpp, uint8_t* data) :
+    Drawable(width, height, bpp),
+     Logger("Surface")
 {
     m_drawingBufferLength = m_width * m_height * m_bytesPerPixel;
     m_drawingBuffer = new uint8_t[m_drawingBufferLength];
@@ -33,8 +36,9 @@ Surface::Surface(uint32_t width, uint32_t height, uint8_t bpp, uint8_t* data)
     memcpy(m_drawingBuffer, data, m_drawingBufferLength);
 }
 
-Surface::Surface(Surface* src)
-    : Drawable(src->m_width, src->m_height, src->m_bytesPerPixel)
+Surface::Surface(Surface* src) :
+    Drawable(src->m_width, src->m_height, src->m_bytesPerPixel),
+    Logger("Surface")
 {
     m_drawingBufferLength = m_width * m_height * m_bytesPerPixel;
     m_drawingBuffer = new uint8_t[m_drawingBufferLength];
@@ -90,7 +94,7 @@ void Surface::rotate(int angle)
     }
     else if (angle != 90 && angle != 270)
     {
-        printf("Surface::rotate: Angle %d not supported\n", angle);
+        log(ERROR, "rotate: Angle %d not supported", angle);
         return;
     }
 
