@@ -14,6 +14,8 @@ AC_PROG_CC
 AC_PROG_LIBTOOL
 AC_PROG_RANLIB
 
+PKG_PROG_PKG_CONFIG(0.16)
+
 # Checks for libraries.
 AC_CHECK_LIB([png], png_read_png)
 AC_CHECK_LIB([jpeg], jpeg_start_decompress)
@@ -27,6 +29,22 @@ AC_CHECK_HEADER_STDBOOL
 
 LIBS="`xml2-config --libs` $LIBS"
 CPPFLAGS="`xml2-config --cflags` $CPPFLAGS"
+
+######################
+# Optional Libraries #
+######################
+
+# Check for gtkmm
+AC_MSG_CHECKING([for gtkmm 3.0])
+have_gtkmm=no
+PKG_CHECK_EXISTS(
+    gtkmm-3.0,
+    have_gtkmm=yes
+)
+AC_MSG_RESULT([$have_gtkmm])
+
+AM_CONDITIONAL(HAVE_GTKMM, test "x$have_gtkmm" = xyes)
+
 
 AC_CONFIG_FILES([
     Makefile
