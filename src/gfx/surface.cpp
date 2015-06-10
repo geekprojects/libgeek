@@ -369,10 +369,25 @@ Surface* Surface::scale(float factor, bool fp)
                 }
                 imgrow += blockDelta;
             }
+#ifndef __clang__
             v4si avg = totals / blockCount;
+#else
+            v4si avg = totals;
+            avg[0] /= blockCount;
+            avg[1] /= blockCount;
+            avg[2] /= blockCount;
+            avg[3] /= blockCount;
+#endif
             if (fp)
             {
+#ifndef __clang__
                 avg &= 0xc0;
+#else
+                avg[0] &= 0xc0;
+                avg[1] &= 0xc0;
+                avg[2] &= 0xc0;
+                avg[3] &= 0xc0;
+#endif
             }
 
             *(data++) = 0xff000000 | (avg[0] << 16) | (avg[1] << 8) | (avg[2] << 0);
