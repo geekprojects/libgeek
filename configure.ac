@@ -13,11 +13,11 @@ AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_LIBTOOL
 AC_PROG_RANLIB
+PKG_PROG_PKG_CONFIG
 
 PKG_PROG_PKG_CONFIG(0.16)
 
 # Checks for libraries.
-AC_CHECK_LIB([png], png_read_png)
 AC_CHECK_LIB([jpeg], jpeg_start_decompress)
 
 # Checks for header files.
@@ -27,8 +27,13 @@ AC_CHECK_HEADER_STDBOOL
 
 # Checks for library functions.
 
-LIBS="`xml2-config --libs` $LIBS"
-CPPFLAGS="`xml2-config --cflags` $CPPFLAGS"
+PKG_CHECK_MODULES(libxml2, libxml-2.0 >= 2.9)
+LIBS="$LIBS $libxml2_LIBS"
+CPPFLAGS="$CPPFLAGS $libxml2_CFLAGS"
+
+PKG_CHECK_MODULES(libpng, libpng >= 1.6)
+LIBS="$LIBS $libpng_LIBS"
+CPPFLAGS="$CPPFLAGS $libpng_CFLAGS"
 
 ######################
 # Optional Libraries #
@@ -59,6 +64,7 @@ AC_CONFIG_FILES([
     tests/gtk/Makefile
     include/Makefile
     include/geek/Makefile
+    libgeek.pc
 ])
 
 AC_OUTPUT

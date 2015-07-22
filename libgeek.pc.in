@@ -1,0 +1,15 @@
+# libgeek pkg-config source file
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+bindir=@bindir@
+
+Name: libgeek
+Description: GeekProjects.com's utility library
+Version: 1.0.0
+Requires:
+Conflicts:
+Libs: -lgeek-core -lgeek-gfx @LIBS@
+Cflags: -I@includedir@ @CPPFLAGS@
