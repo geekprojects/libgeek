@@ -128,6 +128,23 @@ void Surface::rotate(int angle)
     delete rotated;
 }
 
+void Surface::setAlpha(float alpha)
+{
+    uint32_t aint = (int)(255.0 * alpha) << 24;
+    uint32_t* data = (uint32_t*)getData();
+    int y;
+    for (y = 0; y < getHeight(); y++)
+    {
+        int x;
+        for (x = 0; x < getWidth(); x++)
+        {
+            uint32_t p = (*data) & 0x00ffffff;
+            *data = p | aint;
+            data++;
+        }
+    }
+}
+
 SurfaceViewPort::~SurfaceViewPort()
 {
 }

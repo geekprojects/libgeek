@@ -38,6 +38,8 @@ class Surface : public Drawable, public Geek::Logger
     Geek::Gfx::Surface* scale(float factor, bool fp = false);
     void rotate(int angle);
 
+    void setAlpha(float alpha);
+
     bool swapData(Geek::Gfx::Surface* other);
 
     static Surface* loadJPEG(uint8_t* data, uint32_t length);
