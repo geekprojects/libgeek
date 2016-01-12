@@ -66,7 +66,7 @@ printf("dynamicarray iterator: %d = %0.2f\n", it.getIndex(), *it);
     }
     else
     {
-        printf("dynamicarray iterator test: FAIL %ld != %ld\n", checksum, readChecksum);
+        printf("dynamicarray iterator test: FAIL %lld != %lld\n", checksum, readChecksum);
     }
 
 
@@ -93,7 +93,7 @@ printf("dynamicarray iterator: %d = %0.2f\n", it.getIndex(), *it);
     }
     else
     {
-        printf("dynamicarray min/max test: FAIL %ld != %ld\n", checksum, readChecksum);
+        printf("dynamicarray min/max test: FAIL %lld != %lld\n", checksum, readChecksum);
     }
 
     return 0;
