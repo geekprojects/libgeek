@@ -341,7 +341,7 @@ bool Drawable::blit(
     bool res;
     if (data == NULL)
     {
-        return NULL;
+        return false;
     }
     res = Drawable::blit(getDrawingBuffer(), x, y, data, w, h, bytesPerPixel, alpha);
     if (res)
@@ -364,6 +364,20 @@ bool Drawable::blit(
     return Drawable::blit(x, y, surface->getData(), surface->getWidth(), surface->getHeight(), surface->getBytesPerPixel(), alpha);
 }
 
+bool Drawable::blit(int32_t destX, int32_t destY, Surface* surface, int viewX, int viewY, int viewW, int viewH, bool forceAlpha)
+{
+    return Drawable::blit(
+        getDrawingBuffer(),
+        destX, destY,
+        surface->getDrawingBuffer(),
+        surface->getWidth(), surface->getHeight(), surface->getBytesPerPixel(),
+        viewX,
+        viewY,
+        viewW,
+        viewH,
+        forceAlpha);
+}
+
 bool Drawable::blit(
     uint8_t* destBuffer,
     int32_t x,
@@ -380,7 +394,7 @@ bool Drawable::blit(
 {
     if (data == NULL)
     {
-        return NULL;
+        return false;
     }
 
     if (x < 0)
@@ -584,9 +598,9 @@ bool Drawable::saveJPEG(struct jpeg_compress_struct* cinfo)
             {
                 c = getPixel(x, cinfo->next_scanline);
             }
-            row_pointer[0][(x * 3) + 0] = c >> 16;
+            row_pointer[0][(x * 3) + 2] = c >> 16;
             row_pointer[0][(x * 3) + 1] = c >> 8;
-            row_pointer[0][(x * 3) + 2] = c >> 0;
+            row_pointer[0][(x * 3) + 0] = c >> 0;
         }
         jpeg_write_scanlines(cinfo, row_pointer, 1);
     }

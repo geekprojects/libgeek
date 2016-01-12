@@ -163,6 +163,17 @@ class SurfaceViewPort : public Surface
             alpha);
     }
 
+    virtual bool blit(int32_t destX, int32_t destY, Surface* surface, int viewX, int viewY, int viewW, int viewH, bool forceAlpha = false)
+    {
+        return m_parentSurface->blit(
+            m_offsetX + destX, m_offsetY + destY,
+            surface,
+            viewX, viewY,
+            viewW, viewH,
+            forceAlpha);
+    }
+
+
     virtual bool blit(
         uint8_t* destBuffer,
         int32_t x,

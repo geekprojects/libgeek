@@ -75,6 +75,7 @@ class Drawable
     virtual bool blit(uint8_t* destBuffer, int32_t x, int32_t y, uint8_t* data, uint32_t w, uint32_t h, uint32_t bbp, bool alpha = false);
     virtual bool blit(int32_t x, int32_t y, uint8_t* data, uint32_t w, uint32_t h, uint32_t bbp, bool alpha = false);
     virtual bool blit(int32_t x, int32_t y, Surface* surface, bool forceAlpha = false);
+    virtual bool blit(int32_t destX, int32_t destY, Surface* surface, int viewX, int viewY, int viewW, int viewH, bool forceAlpha = false);
 
     virtual bool blit(
         uint8_t* destBuffer,
