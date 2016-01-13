@@ -414,3 +414,136 @@ Surface* Surface::scale(float factor, bool fp)
     return scaled;
 }
 
+Surface* Surface::loadTGA(string path)
+{
+    FILE* fd = fopen(path.c_str(), "r");
+    if (fd == NULL)
+    {
+        printf("Surface::loadTGA: ERROR: Unable to open file: %s\n", path.c_str());
+        return NULL;
+    }
+
+    uint8_t idLen = fgetc(fd);
+    uint8_t colourMapType = fgetc(fd);
+    uint8_t imageType = fgetc(fd);
+
+#if 0
+    printf("Surface::loadTGA: ldLen=%d, colourMapType=%d, imageType=%d\n", idLen, colourMapType, imageType);
+#endif
+
+    if (colourMapType != 0)
+    {
+        printf("Surface::loadTGA: ERROR: Unsupported colour map type: %d\n", colourMapType);
+        return NULL;
+    }
+
+    if (imageType != 2 && imageType != 10)
+    {
+        printf("Surface::loadTGA: ERROR: Unsupported image type: %d\n", imageType);
+        return NULL;
+    }
+
+    fseek(fd, 5 + 4, SEEK_CUR);
+
+    // TODO: Little Endian Only!
+    uint16_t width;
+    uint16_t height;
+    fread(&width, 2, 1, fd);
+    fread(&height, 2, 1, fd);
+    uint8_t bpp = fgetc(fd);
+    uint8_t imageDesc = fgetc(fd);
+
+#if 0
+    printf("Surface::loadTGA: width=%d, height=%d, bpp=%d, imageDesc=0x%x\n", width, height, bpp, imageDesc);
+#endif
+
+    if (bpp != 24)
+    {
+        printf("Surface::loadTGA: ERROR: Unsupported BPP: %d\n", bpp);
+        return NULL;
+    }
+
+    fseek(fd, idLen, SEEK_CUR);
+
+    Surface* surface = new Surface(width, height, 4);
+
+    int x = 0;
+    int y = 0;
+    if (imageType == 2)
+    {
+        // Uncompressed. Easy!
+        for (y = 0; y < height; y++)
+        {
+            for (x = 0; x < width; x++)
+            {
+                uint8_t b = fgetc(fd);
+                uint8_t g = fgetc(fd);
+                uint8_t r = fgetc(fd);
+                surface->drawPixel(x, height - (y + 1), 0xff000000 | (b << 16) | (g << 8) | r);
+            }
+        }
+    }
+    else
+    {
+        while (y < height && !feof(fd))
+        {
+            uint8_t c = fgetc(fd);
+            int length = (c & 0x7f) + 1;
+
+            uint32_t p;
+            if (c & 0x80)
+            {
+                // Run Length
+                uint8_t b = fgetc(fd);
+                uint8_t g = fgetc(fd);
+                uint8_t r = fgetc(fd);
+                p = 0xff000000 | (b << 16) | (g << 8) | r;
+            }
+
+            int i;
+            for (i = 0; i < length && (y < height) ; i++)
+            {
+                if (!(c & 0x80))
+                {
+                    // Raw pixel
+                    uint8_t b = fgetc(fd);
+                    uint8_t g = fgetc(fd);
+                    uint8_t r = fgetc(fd);
+                    p = 0xff000000 | (b << 16) | (g << 8) | r;
+                }
+                surface->drawPixel(x, height - (y + 1), p);
+
+                x++;
+                if (x >= width)
+                {
+                    x = 0;
+                    y++;
+                }
+            }
+        }
+    }
+
+    fclose(fd);
+    return surface;
+}
+
+Surface* Surface::loadImage(std::string path)
+{
+    unsigned int pos = path.rfind('.');
+    string ext = path.substr(pos);
+    if (ext == ".jpg" || ext == ".jpeg")
+    {
+        return loadJPEG(path);
+    }
+    else if (ext == ".png")
+    {
+        return loadPNG(path);
+    }
+    else if (ext == ".tga")
+    {
+        return loadTGA(path);
+    }
+    printf("Surface::loadImage: Unknown image type: %s\n", ext.c_str());
+    return NULL;
+}
+

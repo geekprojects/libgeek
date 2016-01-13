@@ -18,6 +18,8 @@ PKG_PROG_PKG_CONFIG
 PKG_PROG_PKG_CONFIG(0.16)
 
 # Checks for libraries.
+CPPFLAGS="$CPPFLAGS -I/usr/local/include"
+LIBS="$LIBS -L/usr/local/lib"
 AC_CHECK_LIB([jpeg], jpeg_start_decompress)
 
 # Checks for header files.
@@ -26,7 +28,6 @@ AC_CHECK_LIB([jpeg], jpeg_start_decompress)
 AC_CHECK_HEADER_STDBOOL
 
 # Checks for library functions.
-
 PKG_CHECK_MODULES(libxml2, libxml-2.0 >= 2.9)
 LIBS="$LIBS $libxml2_LIBS"
 CPPFLAGS="$CPPFLAGS $libxml2_CFLAGS"
@@ -61,6 +62,7 @@ AC_CONFIG_FILES([
     tools/noise/Makefile
     tests/Makefile
     tests/core/Makefile
+    tests/gfx/Makefile
     tests/gtk/Makefile
     include/Makefile
     include/geek/Makefile

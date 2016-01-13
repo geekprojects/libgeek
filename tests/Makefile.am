@@ -3,5 +3,5 @@ if HAVE_GTKMM
 gtk = gtk
 endif
 
-SUBDIRS=core $(gtk)
+SUBDIRS=core gfx $(gtk)
 

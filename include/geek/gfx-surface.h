@@ -42,9 +42,11 @@ class Surface : public Drawable, public Geek::Logger
 
     bool swapData(Geek::Gfx::Surface* other);
 
+    static Surface* loadImage(std::string path);
     static Surface* loadJPEG(uint8_t* data, uint32_t length);
     static Surface* loadJPEG(std::string path);
     static Surface* loadPNG(std::string path);
+    static Surface* loadTGA(std::string path);
 
 };
 
