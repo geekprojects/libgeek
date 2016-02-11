@@ -36,6 +36,10 @@ PKG_CHECK_MODULES(libpng, libpng >= 1.6)
 LIBS="$LIBS $libpng_LIBS"
 CPPFLAGS="$CPPFLAGS $libpng_CFLAGS"
 
+PKG_CHECK_MODULES(SDL, sdl2 >= 2.0)
+CPPFLAGS="$CPPFLAGS $SDL_CFLAGS"
+LIBS="$LIBS $SDL_LIBS"
+
 ######################
 # Optional Libraries #
 ######################
