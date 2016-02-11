@@ -531,15 +531,15 @@ Surface* Surface::loadImage(std::string path)
 {
     unsigned int pos = path.rfind('.');
     string ext = path.substr(pos);
-    if (ext == ".jpg" || ext == ".jpeg")
+    if (!strncasecmp(ext.c_str(), ".jpg", 4) || !strncasecmp(ext.c_str(), ".jpeg", 5))
     {
         return loadJPEG(path);
     }
-    else if (ext == ".png")
+    else if (!strncasecmp(ext.c_str(), ".png", 4))
     {
         return loadPNG(path);
     }
-    else if (ext == ".tga")
+    else if (!strncasecmp(ext.c_str(), ".tga", 4))
     {
         return loadTGA(path);
     }
