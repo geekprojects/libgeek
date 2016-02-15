@@ -25,6 +25,8 @@
 #include <stdint.h>
 #include <math.h>
 
+#include <cinttypes>
+
 using namespace Geek::Core;
 
 int main(int argc, char** argv)
@@ -86,7 +88,7 @@ printf("dynamicarray iterator: %d = %0.2f\n", it.getIndex(), *it);
     }
     else
     {
-        printf("dynamicarray iterator test: FAIL %lu != %lu\n", checksum, readChecksum);
+        printf("dynamicarray iterator test: FAIL %" PRIu64 " != %" PRIu64 "\n", checksum, readChecksum);
     }
 
 
@@ -113,7 +115,7 @@ printf("dynamicarray iterator: %d = %0.2f\n", it.getIndex(), *it);
     }
     else
     {
-        printf("dynamicarray min/max test: FAIL %lu != %lu\n", checksum, readChecksum);
+        printf("dynamicarray min/max test: FAIL %" PRIu64 " != %" PRIu64 "\n", checksum, readChecksum);
     }
 
     return 0;
