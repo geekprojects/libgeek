@@ -32,13 +32,21 @@ PKG_CHECK_MODULES(libxml2, libxml-2.0 >= 2.9)
 LIBS="$LIBS $libxml2_LIBS"
 CPPFLAGS="$CPPFLAGS $libxml2_CFLAGS"
 
-PKG_CHECK_MODULES(libpng, libpng >= 1.6)
+PKG_CHECK_MODULES(libpng, libpng >= 1.2)
 LIBS="$LIBS $libpng_LIBS"
 CPPFLAGS="$CPPFLAGS $libpng_CFLAGS"
 
-PKG_CHECK_MODULES(SDL, sdl2 >= 2.0)
-CPPFLAGS="$CPPFLAGS $SDL_CFLAGS"
-LIBS="$LIBS $SDL_LIBS"
+have_sdl=no
+PKG_CHECK_MODULES(SDL, sdl2 >= 2.0,
+  [
+    have_sdl=yes
+    CPPFLAGS="$CPPFLAGS $SDL_CFLAGS"
+    LIBS="$LIBS $SDL_LIBS"
+  ], [
+    have_sdl=no
+  ])
+AM_CONDITIONAL(HAVE_SDL2, test "x$have_sdl" = xyes)
+
 
 ######################
 # Optional Libraries #
