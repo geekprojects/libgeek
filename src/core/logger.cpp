@@ -29,6 +29,7 @@ using namespace Geek;
 Logger::Logger(std::string name)
 {
     m_name = name;
+    m_depth = 0;
 }
 
 Logger::~Logger()
@@ -63,6 +64,13 @@ void Logger::log(LoggerLevel_t level, const char* msg, ...)
             break;
     }
 
+    string spaces = "";
+    int i;
+    for (i = 0; i < m_depth; i++)
+    {
+        spaces += "  ";
+    }
+
     char timeStr[256];
     time_t t;
     struct tm *tm;
@@ -70,6 +78,6 @@ void Logger::log(LoggerLevel_t level, const char* msg, ...)
     tm = localtime(&t);
     strftime(timeStr, 256, "%Y/%m/%d %H:%M:%S", tm);
 
-    printf("%s: %s: %s: %s\n", timeStr, levelStr.c_str(), m_name.c_str(), buf);
+    printf("%s: %s: %s: %s%s\n", timeStr, levelStr.c_str(), m_name.c_str(), spaces.c_str(), buf);
 
 }

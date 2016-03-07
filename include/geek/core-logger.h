@@ -37,12 +37,17 @@ class Logger
 {
  private:
     std::string m_name;
+    int m_depth;
 
  public:
     Logger(std::string name);
     ~Logger();
 
     void log(LoggerLevel_t level, const char* __format, ...);
+
+    // Not thread safe!
+    void pushDepth() { m_depth++; }
+    void popDepth()  { m_depth--; }
 };
 
 };
