@@ -53,10 +53,17 @@ vector<xmlNodePtr> XMLDocument::evalPath(std::string path, xmlNodePtr start)
 {
     vector<xmlNodePtr> results;
 
+    if (start == NULL)
+    {
+        return results;
+    }
+
     xmlXPathContextPtr xpathCtx;
     xmlXPathObjectPtr xpathObj;
     xpathCtx = xmlXPathNewContext(m_doc);
-    xpathObj = xmlXPathNodeEval(start, (xmlChar*)path.c_str(), xpathCtx);
+
+    xpathCtx->node = start;
+    xpathObj = xmlXPathEval((xmlChar*)path.c_str(), xpathCtx);
 
     if (xpathObj == NULL || xpathObj->nodesetval == NULL)
     {
