@@ -17,6 +17,8 @@ PKG_PROG_PKG_CONFIG
 
 PKG_PROG_PKG_CONFIG(0.16)
 
+CPPFLAGS="$CPPFLAGS -std=c++0x"
+
 # Checks for libraries.
 CPPFLAGS="$CPPFLAGS -I/usr/local/include"
 LIBS="$LIBS -L/usr/local/lib"
