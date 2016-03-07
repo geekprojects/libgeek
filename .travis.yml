@@ -1,7 +1,14 @@
 
 language: cpp
+sudo: required
 
-script: ./autogen.sh --verbose && ./configure && make && make test
+before_script:
+  - if [ $TRAVIS_OS_NAME == linux ]; then sudo apt-get install libxml2-dev libpng12-dev libjpeg-dev ; fi
+  - if [ $TRAVIS_OS_NAME == osx ]; then brew install libpng libxml2 jpeg; fi
+  - ./autogen.sh --verbose 
+  - ./configure
+
+script: make && make test
 
 compiler:
   - clang
