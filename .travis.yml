@@ -2,7 +2,7 @@
 language: cpp
 
 script:
-  - ./autogen.sh
+  - ./autogen.sh --verbose
   - ./configure
   - make
   - make test
