@@ -1,11 +1,7 @@
 
 language: cpp
 
-script:
-  - ./autogen.sh --verbose
-  - ./configure
-  - make
-  - make test
+script: ./autogen.sh --verbose && ./configure && make && make test
 
 compiler:
   - clang
