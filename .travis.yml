@@ -1,7 +1,17 @@
 
 language: cpp
 
+script:
+  - ./autogen.sh
+  - ./configure
+  - make
+  - make test
+
 compiler:
   - clang
   - gcc
+
+os:
+  - linux
+  - osx
 
