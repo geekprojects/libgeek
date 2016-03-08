@@ -8,6 +8,7 @@ addons:
       - libxml2-dev
       - libpng12-dev
       - libjpeg-dev
+      - libjpeg8
 
 before_script:
   - if [ $TRAVIS_OS_NAME == osx ]; then brew install libpng libxml2 jpeg; fi
