@@ -406,7 +406,7 @@ Surface* Surface::scale(float factor, bool fp)
                 }
                 imgrow += blockDelta;
             }
-#ifndef __clang__
+#ifdef GEEK_SUPPORTS_VECTOR_MATHS
             v4si avg = totals / blockCount;
 #else
             v4si avg = totals;
@@ -417,7 +417,7 @@ Surface* Surface::scale(float factor, bool fp)
 #endif
             if (fp)
             {
-#ifndef __clang__
+#ifdef GEEK_SUPPORTS_VECTOR_MATHS
                 avg &= 0xc0;
 #else
                 avg[0] &= 0xc0;
