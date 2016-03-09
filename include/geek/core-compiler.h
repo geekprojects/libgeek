@@ -21,6 +21,9 @@
 #ifndef __LIBGEEK_CORE_COMPILER_H_
 #define __LIBGEEK_CORE_COMPILER_H_
 
+namespace Geek
+{
+
 #if !defined(__clang__) && defined(__GNUC__)
 
    /*
@@ -42,5 +45,15 @@
 #else
 #undef GEEK_SUPPORTS_VECTOR_MATHS
 #endif
+
+#if defined(GEEK_SUPPORTS_VECTOR_MATHS) || defined(__clang__)
+#define GEEK_SUPPORTS_VECTOR_TYPE 1
+typedef int v4si __attribute__ ((vector_size (32)));
+#else
+#undef GEEK_SUPPORTS_VECTOR_TYPE
+typedef uint8_t v4si[4];
+#endif
+
+}
 
 #endif

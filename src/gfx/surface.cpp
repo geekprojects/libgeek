@@ -31,8 +31,6 @@ using namespace std;
 using namespace Geek;
 using namespace Geek::Gfx;
 
-typedef int v4si __attribute__ ((vector_size (32)));
-
 Surface::Surface() :
     Drawable(0, 0, 0),
     Logger("Surface")
@@ -388,7 +386,7 @@ Surface* Surface::scale(float factor, bool fp)
             int blockX = floor((float)x * stepX);
             int bx;
             int by;
-            v4si totals = {0, 0, 0, 0};
+            Geek::v4si totals = {0, 0, 0, 0};
 
             uint8_t* imgrow = srcdata;
             imgrow += ((m_width * blockY) + (blockX)) * 4;
@@ -397,7 +395,7 @@ Surface* Surface::scale(float factor, bool fp)
             {
                 for (bx = 0; bx < stepXi; bx++)
                 {
-                    v4si pv = {
+                    Geek::v4si pv = {
                         imgrow[0],
                         imgrow[1],
                         imgrow[2],
@@ -408,9 +406,9 @@ Surface* Surface::scale(float factor, bool fp)
                 imgrow += blockDelta;
             }
 #ifdef GEEK_SUPPORTS_VECTOR_MATHS
-            v4si avg = totals / blockCount;
+            Geek::v4si avg = totals / blockCount;
 #else
-            v4si avg = totals;
+            Geek::v4si avg = totals;
             avg[0] /= blockCount;
             avg[1] /= blockCount;
             avg[2] /= blockCount;
