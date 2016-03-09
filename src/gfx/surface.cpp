@@ -25,6 +25,7 @@
 #include <png.h>
 
 #include <geek/gfx-surface.h>
+#include <geek/core-compiler.h>
 
 using namespace std;
 using namespace Geek;
