@@ -22,7 +22,8 @@ CPPFLAGS="$CPPFLAGS -std=c++0x"
 # Checks for libraries.
 CPPFLAGS="$CPPFLAGS -I/usr/local/include"
 LIBS="$LIBS -L/usr/local/lib"
-AC_CHECK_LIB([jpeg], jpeg_start_decompress)
+
+AC_CHECK_LIB(jpeg, jpeg_mem_src)
 
 # Checks for header files.
 
