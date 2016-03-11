@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.59])
 AC_INIT([libgeek], [0.0.1], [libgeek@geekprojects.com])
-AM_INIT_AUTOMAKE([-Wall -Werror])
+AM_INIT_AUTOMAKE([foreign -Wall -Werror])
 AC_CONFIG_SRCDIR([include/geek/gtk-chart.h])
 AC_CONFIG_HEADERS([include/config.h])
 

@@ -1,6 +1,8 @@
 libgeek - The GeekProjects.com utlity suite
 ===========================================
 
+[![Build Status](https://travis-ci.org/geekprojects/libgeek.svg?branch=develop)](https://travis-ci.org/geekprojects/libgeek)
+
 What?
 -----------
 
