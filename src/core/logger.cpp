@@ -41,8 +41,8 @@ void Logger::log(LoggerLevel_t level, const char* msg, ...)
     va_list va;
     va_start(va, msg);
 
-    char buf[256];
-    vsnprintf(buf, 256, msg, va);
+    char buf[4096];
+    vsnprintf(buf, 4096, msg, va);
 
     std::string levelStr = "";
     switch (level)
