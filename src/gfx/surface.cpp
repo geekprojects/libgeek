@@ -326,22 +326,37 @@ Surface* Surface::loadPNG(string path)
     for (y = 0; y < height; y++)
     {
         uint8_t* src = (uint8_t*)row_pointers[y];
-        if (channels == 4)
+        uint8_t* dst = surface->m_drawingBuffer + surface->getOffset(0, y);
+
+        int x;
+        for (x = 0; x < width; x++)
         {
-            uint8_t* dst = surface->m_drawingBuffer + surface->getOffset(0, y);
-            memcpy(dst, src, surface->getStride());
-        }
-        else if (channels == 3)
-        {
-            int x;
-            for (x = 0; x < width; x++)
+#if 0
+            uint32_t c = 0;
+            c |= *(src++) << 0;
+            c |= *(src++) << 8;
+            c |= *(src++) << 16;
+            if (channels == 4)
             {
-                uint32_t c;
-                c = 255 < 24;
-                c |= *(src++) << 0;
-                c |= *(src++) << 8;
-                c |= *(src++) << 16;
-                surface->drawPixel(x, y, c);
+                //uint8_t* dst = surface->m_drawingBuffer + surface->getOffset(0, y);
+                //memcpy(dst, src, surface->getStride());
+                c |= (0 - *(src++)) << 24;
+            }
+            else if (channels == 3)
+            {
+                c |= 255 << 24;
+            }
+            surface->drawPixel(x, y, c);
+#else
+            uint8_t b = *(src++);
+            uint8_t g = *(src++);
+            uint8_t r = *(src++);
+            *(dst++) = r;
+            *(dst++) = g;
+            *(dst++) = b;
+            if (channels == 4)
+            {
+                *(dst++) = *(src++);
             }
         }
     }
