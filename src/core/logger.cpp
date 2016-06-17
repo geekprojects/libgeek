@@ -32,6 +32,17 @@ Logger::Logger(std::string name)
     m_depth = 0;
 }
 
+Logger::Logger(std::wstring name)
+{
+    int i;
+    m_name = "";
+    for (i = 0; i < name.length(); i++)
+    {
+        m_name += (char)name.at(i);
+    }
+    m_depth = 0;
+}
+
 Logger::~Logger()
 {
 }

@@ -41,6 +41,7 @@ class Logger
 
  public:
     Logger(std::string name);
+    Logger(std::wstring name);
     ~Logger();
 
     void log(LoggerLevel_t level, const char* __format, ...);
