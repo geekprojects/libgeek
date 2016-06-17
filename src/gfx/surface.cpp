@@ -358,6 +358,7 @@ Surface* Surface::loadPNG(string path)
             {
                 *(dst++) = *(src++);
             }
+#endif
         }
     }
 
