@@ -110,15 +110,21 @@ bool Drawable::drawPixel3(int32_t x, int32_t y, uint32_t c, uint8_t* dest)
 
 static inline void draw32a(uint8_t* src, uint8_t* dest, float alpha)
 {
-    dest[0] += (uint8_t)(((src[0] - dest[0]) * alpha));
-    dest[1] += (uint8_t)(((src[1] - dest[1]) * alpha));
-    dest[2] += (uint8_t)(((src[2] - dest[2]) * alpha));
+/*
+    printf("draw32a: 0: %d + (%d - %d) * alpha=%0.2f\n", dest[0], src[0], dest[0], alpha);
+    printf("draw32a: 1: %d + (%d - %d) * alpha=%0.2f\n", dest[1], src[1], dest[1], alpha);
+    printf("draw32a: 2: %d + (%d - %d) * alpha=%0.2f\n", dest[2], src[2], dest[2], alpha);
+    printf("draw32a: 3: %d + (%d - %d) * alpha=%0.2f\n", dest[3], src[3], dest[3], alpha);
+*/
+
+    dest[0] = (uint8_t)((float)dest[0] + (((float)((int)src[0] - (int)dest[0]) * alpha)));
+    dest[1] = (uint8_t)((float)dest[1] + ((((float)((int)src[1] - (int)dest[1])) * alpha)));
+    dest[2] = (uint8_t)((float)dest[2] + ((((float)((int)src[2] - (int)dest[2])) * alpha)));
     dest[3] = 255;
 }
 
 bool Drawable::drawPixel4(int32_t x, int32_t y, uint32_t c, uint8_t* dest)
 {
-
     uint8_t alpha = c >> 24;
 
 #if 1
@@ -139,7 +145,7 @@ bool Drawable::drawPixel4(int32_t x, int32_t y, uint32_t c, uint8_t* dest)
     else
 #endif
     {
-        draw32a((uint8_t*)&c, (uint8_t*)dest, (float)alpha / 255.0f);
+        draw32a((uint8_t*)&c, (uint8_t*)p, (float)alpha / 255.0f);
     }
 
     return true;
@@ -151,7 +157,7 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
     uint32_t dx = abs(x1 - x2);
     uint32_t dy = abs(y1 - y2);
 
-    c |= 0xff000000;
+    //c |= 0xff000000;
 
     if (dx !=0 && dy != 0)
     {
@@ -302,10 +308,10 @@ bool Drawable::drawGrad(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c
     uint8_t* c2bytes = (uint8_t*)&c2;
 
     float d[4];
-    d[2] = 0;
-    d[2] = ((float)c2bytes[2] - (float)c1bytes[2]) / h;
-    d[1] = ((float)c2bytes[1] - (float)c1bytes[1]) / h;
-    d[0] = ((float)c2bytes[0] - (float)c1bytes[0]) / h;
+    d[2] = 0.0;
+    d[2] = ((float)c2bytes[2] - (float)c1bytes[2]) / (float)h;
+    d[1] = ((float)c2bytes[1] - (float)c1bytes[1]) / (float)h;
+    d[0] = ((float)c2bytes[0] - (float)c1bytes[0]) / (float)h;
 
     float v[4];
     v[3] = 255.0;
@@ -322,10 +328,11 @@ bool Drawable::drawGrad(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c
         outbytes[2] = (int)v[2];
         outbytes[1] = (int)v[1];
         outbytes[0] = (int)v[0];
-        v[3] += d[3];
+        //v[3] += d[3];
         v[2] += d[2];
         v[1] += d[1];
         v[0] += d[0];
+
         Drawable::drawLine(x, y + j, x + (w - 1), y + j, out);
     }
     return true;

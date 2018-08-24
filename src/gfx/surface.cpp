@@ -35,6 +35,7 @@ Surface::Surface() :
     Drawable(0, 0, 0),
     Logger("Surface")
 {
+    m_highDPI = false;
 }
 
 Surface::Surface(uint32_t width, uint32_t height, uint8_t bpp) :
@@ -228,16 +229,16 @@ Surface* Surface::loadJPEGInternal(struct jpeg_decompress_struct* cinfo)
     Surface* surface = NULL;
     struct jpeg_error_mgr jerr;
     cinfo->err = jpeg_std_error(&jerr);
-    jpeg_read_header(cinfo, 1);
+    jpeg_read_header(cinfo, (boolean)1);
 
     jpeg_start_decompress(cinfo);
 
-#if 0
+#if 1
     printf(
         "Surface::loadJPEG: size=%d, %d, components=%d\n",
-        cinfo.output_width,
-        cinfo.output_height,
-        cinfo.output_components);
+        cinfo->output_width,
+        cinfo->output_height,
+        cinfo->output_components);
 #endif
 
     int row_stride = cinfo->output_width * cinfo->output_components;
@@ -260,9 +261,21 @@ Surface* Surface::loadJPEGInternal(struct jpeg_decompress_struct* cinfo)
         uint32_t x;
         for (x = 0; x < cinfo->output_width; x++)
         {
-            uint8_t r = *ptr++;
-            uint8_t g = *ptr++;
-            uint8_t b = *ptr++;
+            uint8_t r;
+            uint8_t g;
+            uint8_t b;
+if (cinfo->output_components == 1)
+{
+r = *ptr++;
+g = r;
+b = r;
+}
+else
+{
+            r = *ptr++;
+            g = *ptr++;
+            b = *ptr++;
+}
             *(data++) = 0xff000000 | r << 0 | g << 8 | b << 16;
         }
     }
@@ -358,6 +371,10 @@ Surface* Surface::loadPNG(string path)
             {
                 *(dst++) = *(src++);
             }
+else
+{
+dst++;
+}
 #endif
         }
     }

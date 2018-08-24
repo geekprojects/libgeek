@@ -38,6 +38,7 @@ class Surface : public Drawable, public Geek::Logger
     static Surface* loadJPEGInternal(struct jpeg_decompress_struct* cinfo);
 
  protected:
+    bool m_highDPI;
 
  public:
     Surface();
@@ -53,6 +54,10 @@ class Surface : public Drawable, public Geek::Logger
     virtual bool resize(uint32_t width, uint32_t height);
 
     virtual inline ::Geek::Rect absolute() { return ::Geek::Rect(0, 0, m_width, m_height); }
+    virtual Surface* getRoot()
+    {
+        return this;
+    }
 
     Geek::Gfx::Surface* scaleToFit(int width, int height, bool fp = false);
     Geek::Gfx::Surface* scale(float factor, bool fp = false);
@@ -68,6 +73,29 @@ class Surface : public Drawable, public Geek::Logger
     static Surface* loadPNG(std::string path);
     static Surface* loadTGA(std::string path);
 
+    virtual bool isHighDPI() { return m_highDPI; }
+};
+
+class HighDPISurface : public Surface
+{
+ private:
+
+ public:
+    HighDPISurface(uint32_t width, uint32_t height, uint8_t bpp);
+    virtual ~HighDPISurface();
+
+    virtual bool drawSubPixel(int32_t x, int32_t y, uint32_t c);
+
+    virtual bool drawPixel(int32_t x, int32_t y, uint32_t c);
+    virtual bool drawPixel(int32_t x, int32_t y, uint32_t c, uint8_t* dest);
+    virtual bool drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t c);
+    virtual bool drawRectFilled(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c);
+    virtual bool drawRect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c);
+    virtual bool drawGrad(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c1, uint32_t c2);
+
+    virtual bool blit(int32_t x, int32_t y, uint8_t* data, uint32_t w, uint32_t h, uint32_t bbp, bool alpha = false);
+    virtual bool blit(int32_t x, int32_t y, Surface* surface, bool forceAlpha = false);
+    virtual bool blit(int32_t destX, int32_t destY, Surface* surface, int viewX, int viewY, int viewW, int viewH, bool forceAlpha = false);
 };
 
 class SurfaceViewPort : public Surface
@@ -102,6 +130,7 @@ class SurfaceViewPort : public Surface
 
     virtual inline uint32_t getOffsetX() const { return m_offsetX; }
     virtual inline uint32_t getOffsetY() const { return m_offsetY; }
+
     virtual inline ::Geek::Rect absolute()
     {
         ::Geek::Rect r = m_parentSurface->absolute();
@@ -110,6 +139,11 @@ class SurfaceViewPort : public Surface
         r.w = m_width;
         r.h = m_height;
         return r;
+    }
+
+    virtual Surface* getRoot()
+    {
+        return m_parentSurface->getRoot();
     }
 
     virtual bool resize(uint32_t width, uint32_t height);
@@ -230,6 +264,7 @@ class SurfaceViewPort : public Surface
         return m_parentSurface->getPixel(m_offsetX + x, m_offsetY + y);
     }
 
+    virtual bool isHighDPI() { return m_parentSurface->isHighDPI(); }
 };
 
 }; // Geek::Gfx
