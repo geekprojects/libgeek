@@ -43,18 +43,23 @@ HighDPISurface::~HighDPISurface()
 
 bool HighDPISurface::drawSubPixel(int32_t x, int32_t y, uint32_t c)
 {
-//printf("HighDPISurface::drawSubPixel: x=%d, y=%d, x=0x%x\n", x, y, c);
     return Geek::Gfx::Surface::drawPixel(x, y, c, getDrawingBuffer());
 }
 
 bool HighDPISurface::drawPixel(int32_t x, int32_t y, uint32_t c)
 {
-    return Surface::drawRect(x * 2, y * 2, 2, 2, c);
+    return HighDPISurface::drawPixel(x, y, c, getDrawingBuffer());
 }
 
 bool HighDPISurface::drawPixel(int32_t x, int32_t y, uint32_t c, uint8_t* dest)
 {
-    return Surface::drawRect(x * 2, y * 2, 2, 2, c);
+    x *= 2;
+    y *= 2;
+    Surface::drawPixel(x, y, c, getDrawingBuffer());
+    Surface::drawPixel(x + 1, y, c, getDrawingBuffer());
+    Surface::drawPixel(x, y + 1, c, getDrawingBuffer());
+    Surface::drawPixel(x + 1, y + 1, c, getDrawingBuffer());
+    return true;
 }
 
 bool HighDPISurface::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t c)
@@ -63,11 +68,25 @@ bool HighDPISurface::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, ui
     y1 *= 2;
     x2 *= 2;
     y2 *= 2;
-    Surface::drawLine(x1, y1, x2, y2, c);
-    Surface::drawLine(x1 + 1, y1, x2 + 1, y2, c);
-    Surface::drawLine(x1, y1 + 1, x2, y2 + 1, c);
-    Surface::drawLine(x1 + 1, y1 + 1, x2 + 1, y2 + 1, c);
-return true;
+
+    if (x1 == x2)
+    {
+        Surface::drawLine(x1, y1, x2, y2 + 1, c);
+        Surface::drawLine(x1 + 1, y1, x2 + 1, y2 + 1, c);
+    }
+    else if (y1 == y2)
+    {
+        Surface::drawLine(x1, y1, x2 + 1, y2, c);
+        Surface::drawLine(x1, y1 + 1, x2 + 1, y2 + 1, c);
+    }
+    else
+    {
+        Surface::drawLine(x1, y1, x2, y2, c);
+        Surface::drawLine(x1 + 1, y1, x2 + 1, y2, c);
+        Surface::drawLine(x1, y1 + 1, x2, y2 + 1, c);
+        Surface::drawLine(x1 + 1, y1 + 1, x2 + 1, y2 + 1, c);
+    }
+    return true;
 }
 
 bool HighDPISurface::drawRectFilled(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c)
