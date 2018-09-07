@@ -11,7 +11,6 @@ addons:
       - libjpeg-turbo8
 
 before_script:
-  - if [ $TRAVIS_OS_NAME == osx ]; then brew install libpng libxml2 jpeg; fi
   - ./autogen.sh --verbose 
   - ./configure
 
