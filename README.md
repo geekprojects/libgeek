@@ -14,7 +14,6 @@ make it easier to just just the bits I'm after:
 
 * core - Useful for all sorts of projects
 * gfx  - Useful for graphics and drawing
-* gtk  - Useful gtkmm widgets etc
 
 Why?
 ----
