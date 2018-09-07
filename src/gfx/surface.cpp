@@ -570,7 +570,7 @@ Surface* Surface::loadTGA(string path)
             uint8_t c = fgetc(fd);
             int length = (c & 0x7f) + 1;
 
-            uint32_t p;
+            uint32_t p = 0;
             if (c & 0x80)
             {
                 // Run Length
