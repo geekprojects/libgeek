@@ -37,7 +37,7 @@ PKG_CHECK_MODULES(libpng, libpng >= 1.2)
 LIBS="$LIBS $libpng_LIBS"
 CPPFLAGS="$CPPFLAGS $libpng_CFLAGS"
 
-CPPFLAGS="$CPPFLAGS -Wall -Werror"
+CPPFLAGS="$CPPFLAGS -Wall -Werror -Werror=sign-compare"
 
 AC_CONFIG_FILES([
     Makefile

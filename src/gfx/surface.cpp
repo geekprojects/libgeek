@@ -152,10 +152,10 @@ void Surface::setAlpha(float alpha)
 {
     uint32_t aint = (int)(255.0 * alpha) << 24;
     uint32_t* data = (uint32_t*)getData();
-    int y;
+    unsigned int y;
     for (y = 0; y < getHeight(); y++)
     {
-        int x;
+        unsigned int x;
         for (x = 0; x < getWidth(); x++)
         {
             uint32_t p = (*data) & 0x00ffffff;
@@ -547,8 +547,8 @@ Surface* Surface::loadTGA(string path)
 
     Surface* surface = new Surface(width, height, 4);
 
-    int x = 0;
-    int y = 0;
+    unsigned int x = 0;
+    unsigned int y = 0;
     if (imageType == 2)
     {
         // Uncompressed. Easy!
