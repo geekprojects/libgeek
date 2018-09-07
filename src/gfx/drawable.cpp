@@ -207,7 +207,7 @@ bool Drawable::drawRectFilled(int32_t x, int32_t y, uint32_t w, uint32_t h, uint
 #endif
         return false;
     }
-    else if ((x + w) > (int32_t)getWidth())
+    else if ((x + w) > getWidth())
     {
 #ifdef DEBUG_DRAWING
         printf(
@@ -232,7 +232,7 @@ bool Drawable::drawRectFilled(int32_t x, int32_t y, uint32_t w, uint32_t h, uint
 #endif
         return false;
     }
-    else if ((y + h) > (int32_t)getHeight())
+    else if ((y + h) > getHeight())
     {
 #ifdef DEBUG_DRAWING
         printf(
@@ -613,7 +613,7 @@ bool Drawable::saveJPEG(struct jpeg_compress_struct* cinfo)
     uint32_t* data = (uint32_t*)getDrawingBuffer();
     while (cinfo->next_scanline < cinfo->image_height)
     {
-        int x;
+        unsigned int x;
         for (x = 0; x < cinfo->image_width; x++)
         {
             uint32_t c;
