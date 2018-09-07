@@ -34,8 +34,9 @@ Logger::Logger(std::string name)
 
 Logger::Logger(std::wstring name)
 {
-    int i;
     m_name = "";
+
+    unsigned int i;
     for (i = 0; i < name.length(); i++)
     {
         m_name += (char)name.at(i);
