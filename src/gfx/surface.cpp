@@ -519,7 +519,7 @@ Surface* Surface::loadTGA(string path)
     fread(&width, 2, 1, fd);
     fread(&height, 2, 1, fd);
     uint8_t bpp = fgetc(fd);
-    uint8_t imageDesc = fgetc(fd);
+    /*uint8_t imageDesc =*/ fgetc(fd);
 
 #if 0
     printf("Surface::loadTGA: width=%d, height=%d, bpp=%d, imageDesc=0x%x\n", width, height, bpp, imageDesc);

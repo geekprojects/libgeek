@@ -69,6 +69,8 @@ bool Random::seed(uint32_t seed)
     m_left = 1;
     m_initf = 1;
     m_initt = 1;
+
+    return true;
 }
 
 bool Random::init(uint32_t init_key[], int key_length)
@@ -113,6 +115,8 @@ bool Random::init(uint32_t init_key[], int key_length)
     m_state[0] = 0x80000000UL; /* MSB is 1; assuring non-zero initial array */
     m_left = 1;
     m_initf = 1;
+
+    return true;
 }
 
 bool Random::init_urandom()

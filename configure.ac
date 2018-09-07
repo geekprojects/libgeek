@@ -37,6 +37,8 @@ PKG_CHECK_MODULES(libpng, libpng >= 1.2)
 LIBS="$LIBS $libpng_LIBS"
 CPPFLAGS="$CPPFLAGS $libpng_CFLAGS"
 
+CPPFLAGS="$CPPFLAGS -Wall -Werror"
+
 AC_CONFIG_FILES([
     Makefile
     src/Makefile

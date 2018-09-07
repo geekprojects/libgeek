@@ -94,7 +94,7 @@ void CentredMatrix::convolve_mat(const CentredMatrix* mata, const CentredMatrix*
             const int ya_high = MIN (mata->m_radius, matb->m_radius - yr);
             const int xa_low = MAX (-mata->m_radius, -matb->m_radius - xr);
             const int xa_high = MIN (mata->m_radius, matb->m_radius - xr);
-            register double val = 0.0;
+            double val = 0.0;
 
             for (ya = ya_low; ya <= ya_high; ya++)
             {
@@ -123,7 +123,7 @@ void CentredMatrix::convolve_star_mat(const CentredMatrix* mata, const CentredMa
             const int ya_high = MIN (mata->m_radius, matb->m_radius - yr);
             const int xa_low = MAX (-mata->m_radius, -matb->m_radius - xr);
             const int xa_high = MIN (mata->m_radius, matb->m_radius - xr);
-            register double val = 0.0;
+            double val = 0.0;
 
             for (ya = ya_low; ya <= ya_high; ya++)
             {
