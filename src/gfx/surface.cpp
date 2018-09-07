@@ -125,10 +125,10 @@ void Surface::rotate(int angle)
 
     // Hardly the fastest rotation ever, but It Works(tm)
     uint32_t* data = (uint32_t*)getData();
-    int y;
+    unsigned int y;
     for (y = 0; y < getHeight(); y++)
     {
-        int x;
+        unsigned int x;
         for (x = 0; x < getWidth(); x++)
         {
             if (angle == 90)
@@ -516,8 +516,20 @@ Surface* Surface::loadTGA(string path)
     // TODO: Little Endian Only!
     uint16_t width;
     uint16_t height;
-    fread(&width, 2, 1, fd);
-    fread(&height, 2, 1, fd);
+    size_t res;
+
+    res = fread(&width, 2, 1, fd);
+    if (res <= 0)
+    {
+        return NULL;
+    }
+
+    res = fread(&height, 2, 1, fd);
+    if (res <= 0)
+    {
+        return NULL;
+    }
+
     uint8_t bpp = fgetc(fd);
     /*uint8_t imageDesc =*/ fgetc(fd);
 
