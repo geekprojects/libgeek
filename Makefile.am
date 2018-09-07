@@ -1,5 +1,5 @@
 
-SUBDIRS=src tools tests include
+SUBDIRS=src tests include
 
 pkgconfigdir=$(libdir)/pkgconfig
 pkgconfig_DATA=libgeek.pc
