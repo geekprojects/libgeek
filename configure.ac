@@ -42,8 +42,6 @@ AC_CONFIG_FILES([
     src/Makefile
     src/core/Makefile
     src/gfx/Makefile
-    tools/Makefile
-    tools/noise/Makefile
     tests/Makefile
     tests/core/Makefile
     tests/gfx/Makefile
