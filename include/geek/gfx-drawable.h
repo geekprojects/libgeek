@@ -97,6 +97,9 @@ class Drawable
     virtual bool blit(int32_t x, int32_t y, Surface* surface, bool forceAlpha = false);
     virtual bool blit(int32_t destX, int32_t destY, Surface* surface, int viewX, int viewY, int viewW, int viewH, bool forceAlpha = false);
 
+    virtual bool drawRectRounded(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t r, uint32_t c);
+    virtual bool drawRectFilledRounded(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t r, uint32_t c);
+
     virtual bool blit(
         uint8_t* destBuffer,
         int32_t x,

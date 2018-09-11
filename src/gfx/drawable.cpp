@@ -524,11 +524,113 @@ bool Drawable::blit(
     return true;
 }
 
+bool Drawable::drawRectRounded(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t r, uint32_t c)
+{
+    int32_t xr1 = x + r;
+    int32_t xr2 = (x + w) - (r + 1);
+    int32_t yr1 = y + r;
+    int32_t yr2 = (y + h) - (r + 1);
+
+    drawLine(xr1, y, xr2, y, c);
+    drawLine(xr1, y + h -1, xr2, y + h - 1, c);
+    drawLine(x, yr1, x, yr2, c);
+    drawLine(x + w - 1, yr1, x + w - 1, yr2, c);
+
+    int cx = r;
+    int cy = 0;
+    int err = 0;
+    while (cx >= cy)
+    {
+        drawPixel(xr1 - cx, yr1 - cy, c, getDrawingBuffer());
+        drawPixel(xr1 - cy, yr1 - cx, c, getDrawingBuffer());
+
+        drawPixel(xr1 - cx, yr2 + cy, c, getDrawingBuffer());
+        drawPixel(xr1 - cy, yr2 + cx, c, getDrawingBuffer());
+
+        drawPixel(xr2 + cx, yr1 - cy, c, getDrawingBuffer());
+        drawPixel(xr2 + cy, yr1 - cx, c, getDrawingBuffer());
+
+        drawPixel(xr2 + cx, yr2 + cy, c, getDrawingBuffer());
+        drawPixel(xr2 + cy, yr2 + cx, c, getDrawingBuffer());
+ 
+        if (err <= 0)
+        {
+            cy += 1;
+            err += 2*cy + 1;
+        }
+ 
+        if (err > 0)
+        {
+            cx -= 1;
+            err -= 2*cx + 1;
+        }
+    }
+
+    return true;
+}
+
+/*
+ *      
+ *   +--+-----+--+
+ *   | /|     |\ |
+ *   |/ |     | \|
+ *   +--+     +--+
+ *   |  |     |  |
+ *   |  |     |  |
+ *   +--+     +--+
+ *   |\ |     | /|
+ *   | \|     |/ |
+ *   +--+-----+--+
+ *
+ */
+bool Drawable::drawRectFilledRounded(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t r, uint32_t c)
+{
+    if (w < (r * 2))
+    {
+        r = (w / 2) - 1;
+    }
+    if (h < (r * 2))
+    {
+        r = (h / 2) - 1;
+    }
+
+    if (r <= 1)
+    {
+        return drawRectFilled(x, y, w, h, c);
+    }
+
+    drawRectFilled(x + r, y, w - (r * 2), h, c);
+    drawRectFilled(x, y + r, r, h - (r * 2), c);
+    drawRectFilled(x + (w - r), y + r, r - 1, h - (r * 2), c);
+
+    uint32_t x2 = x + w - 1;
+    uint32_t y2 = y + h - 1;
+
+    // Corners...
+    uint32_t cy;
+    for (cy = 0; cy < r; cy++)
+    {
+        uint32_t cx;
+        for (cx = 0; cx < r; cx++)
+        {
+            uint32_t c2 = ((r - cx) * (r - cx)) + ((r - cy) * (r - cy));
+            if (c2 < (r * r))
+            {
+                drawPixel(x + cx, y + cy, c);
+                drawPixel(x2 - cx, y + cy, c);
+                drawPixel(x + cx, y2 - cy, c);
+                drawPixel(x2 - cx, y2 - cy, c);
+            }
+        }
+    }
+
+    return true;
+}
+
 uint32_t Drawable::getPixel(int32_t x, int32_t y)
 {
     return (this->*Drawable::m_getPixelFunc)(x, y);
 }
-
 
 uint32_t Drawable::getPixel3(int32_t x, int32_t y)
 {
