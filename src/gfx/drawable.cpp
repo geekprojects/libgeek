@@ -524,8 +524,23 @@ bool Drawable::blit(
     return true;
 }
 
+static inline uint32_t clipRadius(uint32_t w, uint32_t h, uint32_t r)
+{
+    if (w < (r * 2))
+    {
+        r = (w / 2) - 1;
+    }
+    if (h < (r * 2))
+    {
+        r = (h / 2) - 1;
+    }
+    return r;
+}
+
 bool Drawable::drawRectRounded(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t r, uint32_t c)
 {
+    r = clipRadius(w, h, r);
+
     int32_t xr1 = x + r;
     int32_t xr2 = (x + w) - (r + 1);
     int32_t yr1 = y + r;
@@ -568,7 +583,6 @@ bool Drawable::drawRectRounded(int32_t x, int32_t y, uint32_t w, uint32_t h, uin
 
     return true;
 }
-
 /*
  *      
  *   +--+-----+--+
@@ -585,14 +599,7 @@ bool Drawable::drawRectRounded(int32_t x, int32_t y, uint32_t w, uint32_t h, uin
  */
 bool Drawable::drawRectFilledRounded(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t r, uint32_t c)
 {
-    if (w < (r * 2))
-    {
-        r = (w / 2) - 1;
-    }
-    if (h < (r * 2))
-    {
-        r = (h / 2) - 1;
-    }
+    r = clipRadius(w, h, r);
 
     if (r <= 1)
     {
@@ -624,6 +631,76 @@ bool Drawable::drawRectFilledRounded(int32_t x, int32_t y, uint32_t w, uint32_t 
         }
     }
 
+    return true;
+}
+
+bool Drawable::drawGradRounded(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t r, uint32_t c1, uint32_t c2)
+{
+    r = clipRadius(w, h, r);
+
+    if (r <= 1)
+    {
+        return drawGrad(x, y, w, h, c1, c2);
+    }
+
+    uint8_t* c1bytes = (uint8_t*)&c1;
+    uint8_t* c2bytes = (uint8_t*)&c2;
+
+    float d[4];
+    d[2] = 0.0;
+    d[2] = ((float)c2bytes[2] - (float)c1bytes[2]) / (float)h;
+    d[1] = ((float)c2bytes[1] - (float)c1bytes[1]) / (float)h;
+    d[0] = ((float)c2bytes[0] - (float)c1bytes[0]) / (float)h;
+
+    float v[4];
+    v[3] = 255.0;
+    v[2] = (float)(c1bytes[2]);
+    v[1] = (float)(c1bytes[1]);
+    v[0] = (float)(c1bytes[0]);
+
+    uint32_t y1;
+    for (y1 = 0; y1 < h; y1++)
+    {
+        uint32_t out;
+        uint8_t* outbytes = (uint8_t*)&out;
+        outbytes[3] = (int)v[3];
+        outbytes[2] = (int)v[2];
+        outbytes[1] = (int)v[1];
+        outbytes[0] = (int)v[0];
+        //v[3] += d[3];
+        v[2] += d[2];
+        v[1] += d[1];
+        v[0] += d[0];
+
+        int xoff = 0;
+        int wl = w;
+
+        if (y1 <= r | y1 > (h - r) - 1)
+        {
+            int yr = y1;
+            if (y1 > (h - r) - 1)
+            {
+                yr = (h - y1) - 1;
+            }
+
+            uint32_t i;
+            for (i = 0; i <= r + 1; i++)
+            {
+                //printf("Drawable::drawGradRounded: i=%d, y1=%d: %d + %d <= %d\n", i, y1, ((r - i) * (r - i)), ((r - y1) * (r - y1)), (r * r));
+                if ((((r - i) * (r - i)) + ((r - yr) * (r - yr))) <= (r * r))
+                {
+                    xoff = i;
+                    break;
+                }
+            }
+            wl -= (xoff * 2);
+            //printf("Drawable::drawGradRounded: y1=%d, r=%d, xoff=%d, wl=%d\n", y1, r, xoff, wl);
+            //out = 0xffff0000;
+        }
+
+        drawLine(x + xoff, y + y1, x + xoff + (wl - 1), y + y1, out);
+        //Drawable::drawLine(x, y + j, x + (w - 1), y + j, out);
+    }
     return true;
 }
 
