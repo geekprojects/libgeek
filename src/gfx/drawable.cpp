@@ -675,7 +675,7 @@ bool Drawable::drawGradRounded(int32_t x, int32_t y, uint32_t w, uint32_t h, uin
         int xoff = 0;
         int wl = w;
 
-        if (y1 <= r | y1 > (h - r) - 1)
+        if (y1 <= r || y1 > (h - r) - 1)
         {
             int yr = y1;
             if (y1 > (h - r) - 1)
