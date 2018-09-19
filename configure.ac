@@ -3,6 +3,7 @@
 
 AC_PREREQ([2.59])
 AC_INIT([libgeek], [0.0.1], [libgeek@geekprojects.com])
+AC_CONFIG_MACRO_DIR([.])
 AM_INIT_AUTOMAKE([foreign -Wall -Werror])
 AC_CONFIG_SRCDIR([include/geek/core-compiler.h])
 AC_CONFIG_HEADERS([include/config.h])
@@ -13,6 +14,7 @@ AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_LIBTOOL
 AC_PROG_RANLIB
+AX_PTHREAD
 PKG_PROG_PKG_CONFIG
 
 PKG_PROG_PKG_CONFIG(0.16)
@@ -29,6 +31,10 @@ LIBS="$LIBS -L/usr/local/lib -ljpeg"
 AC_CHECK_HEADER_STDBOOL
 
 # Checks for library functions.
+AX_PTHREAD(, [AC_MSG_ERROR([libpthread is required])])
+LIBS="$LIBS $PTHREAD_LIBS"
+CPPFLAGS="$CPPFLAGS $PTHREAD_CFLAGS"
+
 PKG_CHECK_MODULES(libxml2, libxml-2.0 >= 2.8)
 LIBS="$LIBS $libxml2_LIBS"
 CPPFLAGS="$CPPFLAGS $libxml2_CFLAGS"
