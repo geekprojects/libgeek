@@ -1,5 +1,5 @@
 
-bin_PROGRAMS=dynamicarray xmltest mkdirs
+noinst_PROGRAMS=dynamicarray xmltest mkdirs
 
 dynamicarray_SOURCES=dynamicarray.cpp
 dynamicarray_CXXFLAGS=-Wall -Werror -O0
