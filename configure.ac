@@ -32,7 +32,7 @@ AC_CHECK_HEADER_STDBOOL
 
 # Checks for library functions.
 AX_PTHREAD(, [AC_MSG_ERROR([libpthread is required])])
-LIBS="$LIBS $PTHREAD_LIBS"
+LIBS="$LIBS $PTHREAD_LIBS -lpthread"
 CPPFLAGS="$CPPFLAGS $PTHREAD_CFLAGS"
 
 PKG_CHECK_MODULES(libxml2, libxml-2.0 >= 2.8)
