@@ -556,17 +556,17 @@ bool Drawable::drawRectRounded(int32_t x, int32_t y, uint32_t w, uint32_t h, uin
     int err = 0;
     while (cx >= cy)
     {
-        drawPixel(xr1 - cx, yr1 - cy, c, getDrawingBuffer());
-        drawPixel(xr1 - cy, yr1 - cx, c, getDrawingBuffer());
+        drawPixel(xr1 - cx, yr1 - cy, c);
+        drawPixel(xr1 - cy, yr1 - cx, c);
 
-        drawPixel(xr1 - cx, yr2 + cy, c, getDrawingBuffer());
-        drawPixel(xr1 - cy, yr2 + cx, c, getDrawingBuffer());
+        drawPixel(xr1 - cx, yr2 + cy, c);
+        drawPixel(xr1 - cy, yr2 + cx, c);
 
-        drawPixel(xr2 + cx, yr1 - cy, c, getDrawingBuffer());
-        drawPixel(xr2 + cy, yr1 - cx, c, getDrawingBuffer());
+        drawPixel(xr2 + cx, yr1 - cy, c);
+        drawPixel(xr2 + cy, yr1 - cx, c);
 
-        drawPixel(xr2 + cx, yr2 + cy, c, getDrawingBuffer());
-        drawPixel(xr2 + cy, yr2 + cx, c, getDrawingBuffer());
+        drawPixel(xr2 + cx, yr2 + cy, c);
+        drawPixel(xr2 + cy, yr2 + cx, c);
  
         if (err <= 0)
         {
