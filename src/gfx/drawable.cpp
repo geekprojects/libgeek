@@ -215,7 +215,9 @@ bool Drawable::drawRectFilled(int32_t x, int32_t y, uint32_t w, uint32_t h, uint
             x, y, x + w, y + h,
             0, 0, getWidth() - 1, getHeight() - 1);
 #endif
-        return false;
+
+        // Clip it
+        w = (getWidth() - x) - 1;
     }
 
     if (y < 0)
@@ -240,7 +242,9 @@ bool Drawable::drawRectFilled(int32_t x, int32_t y, uint32_t w, uint32_t h, uint
             x, y, x + w, y + h,
             0, 0, getWidth() - 1, getHeight() - 1);
 #endif
-        return false;
+
+        // Clip it
+        h = (getHeight() - y) - 1;
     }
 
     c |= 0xff000000;
