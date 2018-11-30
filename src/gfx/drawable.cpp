@@ -34,8 +34,6 @@
 
 #include "config.h"
 
-#undef HAVE_MEMSET_PATTERN4
-
 using namespace Geek;
 using namespace Geek::Gfx;
 
