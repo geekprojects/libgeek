@@ -33,9 +33,6 @@ namespace Gfx
 class Drawable;
 class Surface;
 
-typedef uint32_t(Drawable::*getPixelFunc_t)(int32_t x, int32_t y);
-typedef bool(Drawable::*drawPixelFunc_t)(int32_t x, int32_t y, uint32_t c, uint8_t* dest);
-
 class Drawable
 {
  private:
@@ -53,18 +50,13 @@ class Drawable
     uint8_t* m_drawingBuffer;
     uint32_t m_drawingBufferLength;
 
-    getPixelFunc_t m_getPixelFunc;
-    drawPixelFunc_t m_drawPixelFunc;
-
     inline uint8_t* getDrawingBuffer() const { return m_drawingBuffer; }
 
     uint32_t getPixel3(int32_t x, int32_t y);
     uint32_t getPixel4(int32_t x, int32_t y);
-    bool drawPixel3(int32_t x, int32_t y, uint32_t c, uint8_t* dest);
-    bool drawPixel4(int32_t x, int32_t y, uint32_t c, uint8_t* dest);
 
  public:
-    Drawable(uint32_t width, uint32_t height, uint8_t bpp);
+    Drawable(uint32_t width, uint32_t height);
     virtual ~Drawable();
 
     inline uint32_t getWidth() const { return m_width; }
@@ -86,7 +78,9 @@ class Drawable
     }
 
     virtual bool drawPixel(int32_t x, int32_t y, uint32_t c);
-    virtual bool drawPixel(int32_t x, int32_t y, uint32_t c, uint8_t* dest);
+
+    bool drawPixel(int32_t x, int32_t y, uint32_t c, uint8_t* dest);
+
     virtual bool drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t c);
     virtual bool drawRectFilled(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c);
     virtual bool drawRect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c);

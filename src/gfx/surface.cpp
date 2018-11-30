@@ -32,25 +32,35 @@ using namespace Geek;
 using namespace Geek::Gfx;
 
 Surface::Surface() :
-    Drawable(0, 0, 0),
+    Drawable(0, 0),
     Logger("Surface")
 {
     m_highDPI = false;
 }
 
 Surface::Surface(uint32_t width, uint32_t height, uint8_t bpp) :
-    Drawable(width, height, bpp),
+    Drawable(width, height),
     Logger("Surface")
 {
+    if (bpp != 4)
+    {
+        throw "Surface only supports 4 bytes per pixel";
+    }
+
     m_drawingBufferLength = m_width * m_height * m_bytesPerPixel;
     m_drawingBuffer = new uint8_t[m_drawingBufferLength];
     m_highDPI = false;
 }
 
 Surface::Surface(uint32_t width, uint32_t height, uint8_t bpp, uint8_t* data) :
-    Drawable(width, height, bpp),
+    Drawable(width, height),
      Logger("Surface")
 {
+    if (bpp != 4)
+    {
+        throw "Surface only supports 4 bytes per pixel";
+    }
+
     m_drawingBufferLength = m_width * m_height * m_bytesPerPixel;
     m_drawingBuffer = new uint8_t[m_drawingBufferLength];
     m_highDPI = false;
@@ -59,7 +69,7 @@ Surface::Surface(uint32_t width, uint32_t height, uint8_t bpp, uint8_t* data) :
 }
 
 Surface::Surface(Surface* src) :
-    Drawable(src->m_width, src->m_height, src->m_bytesPerPixel),
+    Drawable(src->m_width, src->m_height),
     Logger("Surface")
 {
     m_drawingBufferLength = m_width * m_height * m_bytesPerPixel;

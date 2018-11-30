@@ -32,37 +32,23 @@
 #include <geek/gfx-drawable.h>
 #include <geek/gfx-surface.h>
 
+#include "config.h"
+
+#undef HAVE_MEMSET_PATTERN4
+
 using namespace Geek;
 using namespace Geek::Gfx;
 
-Drawable::Drawable(uint32_t width, uint32_t height, uint8_t bpp)
+Drawable::Drawable(uint32_t width, uint32_t height)
 {
     m_width = width;
     m_height = height;
-    m_bytesPerPixel = bpp;
+    m_bytesPerPixel = 4;
     m_dpiX = 96;
     m_dpiY = 96;
 
     m_drawingBuffer = NULL;
     m_drawingBufferLength = 0;
-
-    switch (m_bytesPerPixel)
-    {
-        case 3:
-            m_getPixelFunc = (getPixelFunc_t)&Drawable::getPixel3;
-            m_drawPixelFunc = (drawPixelFunc_t)&Drawable::drawPixel3;
-            break;
-
-        case 4:
-            m_getPixelFunc = (getPixelFunc_t)&Drawable::getPixel4;
-            m_drawPixelFunc = (drawPixelFunc_t)&Drawable::drawPixel4;
-            break;
-
-        default:
-            m_getPixelFunc = NULL;
-            m_drawPixelFunc = NULL;
-            break;
-    }
 }
 
 Drawable::~Drawable()
@@ -70,11 +56,6 @@ Drawable::~Drawable()
 }
 
 bool Drawable::drawPixel(int32_t x, int32_t y, uint32_t c)
-{
-    return drawPixel(x, y, c, getDrawingBuffer());
-}
-
-bool Drawable::drawPixel(int32_t x, int32_t y, uint32_t c, uint8_t* dest)
 {
 #ifdef DRAW_PIXEL_CHECKS
     if (x < 0 || y < 0 || x > (int32_t)getWidth() || y > (int32_t)getHeight())
@@ -88,12 +69,23 @@ bool Drawable::drawPixel(int32_t x, int32_t y, uint32_t c, uint8_t* dest)
         return false;
     }
 #endif
-    return (this->*Drawable::m_drawPixelFunc)(x, y, c, dest);
+
+
+    return drawPixel(x, y, c, getDrawingBuffer());
 }
 
-bool Drawable::drawPixel3(int32_t x, int32_t y, uint32_t c, uint8_t* dest)
+static inline void draw32a(uint8_t* src, uint8_t* dest, uint8_t alpha)
+{
+    dest[0] = dest[0] + (((src[0] - dest[0]) * alpha) >> 8);
+    dest[1] = dest[1] + (((src[1] - dest[1]) * alpha) >> 8);
+    dest[2] = dest[2] + (((src[2] - dest[2]) * alpha) >> 8);
+    dest[3] = dest[3] + (((src[3] - dest[3]) * alpha) >> 8);
+}
+
+bool Drawable::drawPixel(int32_t x, int32_t y, uint32_t c, uint8_t* dest)
 {
     uint8_t alpha = c >> 24;
+
     if (alpha == 0)
     {
         return true;
@@ -101,51 +93,15 @@ bool Drawable::drawPixel3(int32_t x, int32_t y, uint32_t c, uint8_t* dest)
 
     uintptr_t p = (uintptr_t)dest + getOffset(x, y);
 
-    uint32_t* p32 = (uint32_t*)p;
-    *p32 &= 0xff000000;
-    *p32 |= c & 0x00ffffff;
-
-    return true;
-}
-
-static inline void draw32a(uint8_t* src, uint8_t* dest, float alpha)
-{
-/*
-    printf("draw32a: 0: %d + (%d - %d) * alpha=%0.2f\n", dest[0], src[0], dest[0], alpha);
-    printf("draw32a: 1: %d + (%d - %d) * alpha=%0.2f\n", dest[1], src[1], dest[1], alpha);
-    printf("draw32a: 2: %d + (%d - %d) * alpha=%0.2f\n", dest[2], src[2], dest[2], alpha);
-    printf("draw32a: 3: %d + (%d - %d) * alpha=%0.2f\n", dest[3], src[3], dest[3], alpha);
-*/
-
-    dest[0] = (uint8_t)((float)dest[0] + (((float)((int)src[0] - (int)dest[0]) * alpha)));
-    dest[1] = (uint8_t)((float)dest[1] + ((((float)((int)src[1] - (int)dest[1])) * alpha)));
-    dest[2] = (uint8_t)((float)dest[2] + ((((float)((int)src[2] - (int)dest[2])) * alpha)));
-    dest[3] = 255;
-}
-
-bool Drawable::drawPixel4(int32_t x, int32_t y, uint32_t c, uint8_t* dest)
-{
-    uint8_t alpha = c >> 24;
-
-#if 1
-    if (alpha == 0)
-    {
-        return true;
-    }
-#endif
-
-    uintptr_t p = (uintptr_t)dest + getOffset(x, y);
-
-#if 1
     if (alpha == 255)
     {
         uint32_t* dest = (uint32_t*)p;
         *dest = c;
     }
     else
-#endif
     {
-        draw32a((uint8_t*)&c, (uint8_t*)p, (float)alpha / 255.0f);
+        //draw32a((uint8_t*)&c, (uint8_t*)p, (float)alpha / 255.0f);
+        draw32a((uint8_t*)&c, (uint8_t*)p, alpha);
     }
 
     return true;
@@ -154,6 +110,13 @@ bool Drawable::drawPixel4(int32_t x, int32_t y, uint32_t c, uint8_t* dest)
 
 bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t c)
 {
+    uint8_t alpha = c >> 24;
+
+    if (alpha == 0)
+    {
+        return true;
+    }
+
     uint32_t dx = abs(x1 - x2);
     uint32_t dy = abs(y1 - y2);
 
@@ -171,9 +134,24 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
     if (dx > dy)
     {
         uint32_t x = MIN(x1, x2);
-        for (i = 0; i < dx; i++)
+        uint32_t* p = (uint32_t*)(drawingBuffer + getOffset(x, y1));
+        if (alpha == 255)
         {
-            Drawable::drawPixel(x + i, y1, c, drawingBuffer);
+#ifdef HAVE_MEMSET_PATTERN4
+            memset_pattern4(p, &c, dx * 4);
+#else
+            for (i = 0; i < dx; i++, p++)
+            {
+                *p = c;
+            }
+#endif
+        }
+        else
+        {
+            for (i = 0; i < dx; i++, p++)
+            {
+                draw32a((uint8_t*)&c, (uint8_t*)p, alpha);
+            }
         }
     }
     else
@@ -190,7 +168,6 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
 
 bool Drawable::drawRectFilled(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c)
 {
-    uint32_t x1;
     uint32_t y1;
 
     if (x < 0)
@@ -251,41 +228,25 @@ bool Drawable::drawRectFilled(int32_t x, int32_t y, uint32_t w, uint32_t h, uint
 
     uint8_t* drawingBuffer = getDrawingBuffer();
 
-    int bpp = getBytesPerPixel();
-    if (bpp == 4 || bpp == 32)
+    uint8_t* dest = drawingBuffer + getOffset(x, y);
+    uint32_t stride = getStride();
+#ifndef HAVE_MEMSET_PATTERN4
+    stride -= w * 4;
+#endif
+    for (y1 = 0; y1 < h; y1++)
     {
-        uint8_t* dest = drawingBuffer + getOffset(x, y);
-        uint32_t stride = getStride() - (w * bpp);
-        for (y1 = 0; y1 < h; y1++)
+#if HAVE_MEMSET_PATTERN4
+        memset_pattern4(dest, &c, w * 4);
+#else
+        uint32_t x1;
+        for (x1 = 0; x1 < w; x1++)
         {
-            for (x1 = 0; x1 < w; x1++)
-            {
-                if (bpp == 4)
-                {
-                    *((uint32_t*)dest) = c;
-                }
-                else
-                {
-                    *((uint32_t*)dest) &= 0xff000000;
-                    *((uint32_t*)dest) |= c & 0x00ffffff;
-                }
-                dest += bpp;
-            }
-            dest += stride;
+            *((uint32_t*)dest) = c;
+            dest += 4;
         }
+#endif
+        dest += stride;
     }
-    else
-    {
-        for (y1 = 0; y1 < h; y1++)
-        {
-            for (x1 = 0; x1 < w; x1++)
-            {
-                Drawable::drawPixel(x1 + x, y1 + y, c, drawingBuffer);
-            }
-        }
-    }
-
-    //m_dirty.addDirtyRegion(x, y, w, h);
 
     return true;
 }
@@ -483,7 +444,7 @@ bool Drawable::blit(
     printf("Drawable::blit: viewX=%d, viewY=%d, viewWidth=%d, viewHeight=%d\n", viewX, viewY, viewWidth, viewHeight);
 #endif
 
-    if (!forceAlpha && getBytesPerPixel() == bytesPerPixel)
+    if (!forceAlpha)// && getBytesPerPixel() == bytesPerPixel)
     {
         for (y1 = 0; y1 < (int32_t)viewHeight; y1++)
         {
@@ -500,29 +461,12 @@ bool Drawable::blit(
             uint32_t x1;
             for (x1 = 0; x1 < viewWidth; x1++)
             {
-                switch (bytesPerPixel)
-                {
-                    case 3:
-                    {
-                        uint32_t c = *((uint32_t*)src) & 0x00ffffff;
-                        drawPixel(x + x1, y + y1, c, destBuffer);
-                    } break;
-
-                    case 4:
-                    {
-                        uint32_t c = *((uint32_t*)src);
-                        drawPixel(x + x1, y + y1, c, destBuffer);
-                    } break;
-                }
+                uint32_t c = *((uint32_t*)src);
+                drawPixel(x + x1, y + y1, c, destBuffer);
                 src += bytesPerPixel;
             }
             data += dataStride;
         }
-    }
-
-    if (destBuffer == getDrawingBuffer())
-    {
-        //m_dirty.addDirtyRegion(x, y, viewWidth, viewHeight);
     }
 
     return true;
@@ -709,18 +653,6 @@ bool Drawable::drawGradRounded(int32_t x, int32_t y, uint32_t w, uint32_t h, uin
 }
 
 uint32_t Drawable::getPixel(int32_t x, int32_t y)
-{
-    return (this->*Drawable::m_getPixelFunc)(x, y);
-}
-
-uint32_t Drawable::getPixel3(int32_t x, int32_t y)
-{
-    uintptr_t p = (uintptr_t)getDrawingBuffer() + getOffset(x, y);
-    uint32_t* dest = (uint32_t*)p;
-    return (*dest) & 0x00ffffff;
-}
-
-uint32_t Drawable::getPixel4(int32_t x, int32_t y)
 {
     uintptr_t p = (uintptr_t)getDrawingBuffer() + getOffset(x, y);
     uint32_t* dest = (uint32_t*)p;
