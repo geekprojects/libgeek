@@ -44,7 +44,8 @@ Surface::Surface(uint32_t width, uint32_t height, uint8_t bpp) :
 {
     if (bpp != 4)
     {
-        throw "Surface only supports 4 bytes per pixel";
+        static string e = "Surface only supports 4 bytes per pixel";;
+        throw (&e);
     }
 
     m_drawingBufferLength = m_width * m_height * m_bytesPerPixel;
@@ -58,7 +59,8 @@ Surface::Surface(uint32_t width, uint32_t height, uint8_t bpp, uint8_t* data) :
 {
     if (bpp != 4)
     {
-        throw "Surface only supports 4 bytes per pixel";
+        static string e = "Surface only supports 4 bytes per pixel";;
+        throw (&e);
     }
 
     m_drawingBufferLength = m_width * m_height * m_bytesPerPixel;
@@ -515,12 +517,14 @@ Surface* Surface::loadTGA(string path)
     if (colourMapType != 0)
     {
         printf("Surface::loadTGA: ERROR: Unsupported colour map type: %d\n", colourMapType);
+        fclose(fd);
         return NULL;
     }
 
     if (imageType != 2 && imageType != 10)
     {
         printf("Surface::loadTGA: ERROR: Unsupported image type: %d\n", imageType);
+        fclose(fd);
         return NULL;
     }
 
@@ -534,12 +538,14 @@ Surface* Surface::loadTGA(string path)
     res = fread(&width, 2, 1, fd);
     if (res <= 0)
     {
+        fclose(fd);
         return NULL;
     }
 
     res = fread(&height, 2, 1, fd);
     if (res <= 0)
     {
+        fclose(fd);
         return NULL;
     }
 

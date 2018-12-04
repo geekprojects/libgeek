@@ -82,6 +82,11 @@ static inline void draw32a(uint8_t* src, uint8_t* dest, uint8_t alpha)
 
 bool Drawable::drawPixel(int32_t x, int32_t y, uint32_t c, uint8_t* dest)
 {
+    if (dest == NULL)
+    {
+        return false;
+    }
+
     uint8_t alpha = c >> 24;
 
     if (alpha == 0)
@@ -98,7 +103,6 @@ bool Drawable::drawPixel(int32_t x, int32_t y, uint32_t c, uint8_t* dest)
     }
     else
     {
-        //draw32a((uint8_t*)&c, (uint8_t*)p, (float)alpha / 255.0f);
         draw32a((uint8_t*)&c, (uint8_t*)p, alpha);
     }
 

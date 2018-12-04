@@ -133,7 +133,7 @@ bool Random::init_urandom()
 
     while (n < MT_N)
     {
-        uint32_t word;
+        uint32_t word = 0;
         int res;
         res = fread(&word, 4, 1, fd);
         if (res != 1)
