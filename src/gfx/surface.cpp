@@ -44,8 +44,8 @@ Surface::Surface(uint32_t width, uint32_t height, uint8_t bpp) :
 {
     if (bpp != 4)
     {
-        static string e = "Surface only supports 4 bytes per pixel";;
-        throw (&e);
+        fprintf(stderr, "Surface::Surface: Surface only supports 4 bytes per pixel");
+        exit(1);
     }
 
     m_drawingBufferLength = m_width * m_height * m_bytesPerPixel;
@@ -59,8 +59,8 @@ Surface::Surface(uint32_t width, uint32_t height, uint8_t bpp, uint8_t* data) :
 {
     if (bpp != 4)
     {
-        static string e = "Surface only supports 4 bytes per pixel";;
-        throw (&e);
+        fprintf(stderr, "Surface::Surface: Surface only supports 4 bytes per pixel");
+        exit(1);
     }
 
     m_drawingBufferLength = m_width * m_height * m_bytesPerPixel;
@@ -531,8 +531,8 @@ Surface* Surface::loadTGA(string path)
     fseek(fd, 5 + 4, SEEK_CUR);
 
     // TODO: Little Endian Only!
-    uint16_t width;
-    uint16_t height;
+    uint16_t width = 0;
+    uint16_t height = 0;
     size_t res;
 
     res = fread(&width, 2, 1, fd);
@@ -559,6 +559,7 @@ Surface* Surface::loadTGA(string path)
     if (bpp != 24)
     {
         printf("Surface::loadTGA: ERROR: Unsupported BPP: %d\n", bpp);
+        fclose(fd);
         return NULL;
     }
 

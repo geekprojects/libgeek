@@ -1,7 +1,7 @@
 libgeek
 =======
 
-[![Build Status](https://travis-ci.org/geekprojects/libgeek.svg?branch=develop)](https://travis-ci.org/geekprojects/libgeek)
+[![Build Status](https://travis-ci.org/geekprojects/libgeek.svg?branch=develop)](https://travis-ci.org/geekprojects/libgeek) [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=geekprojects_libgeek&metric=alert_status)]
 
 What?
 -----------
