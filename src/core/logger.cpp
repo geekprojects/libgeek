@@ -28,11 +28,28 @@ using namespace Geek;
 
 Logger::Logger(std::string name)
 {
-    m_name = name;
     m_depth = 0;
+
+    setLoggerName(name);
 }
 
 Logger::Logger(std::wstring name)
+{
+    m_depth = 0;
+
+    setLoggerName(name);
+}
+
+Logger::~Logger()
+{
+}
+
+void Logger::setLoggerName(std::string name)
+{
+    m_name = name;
+}
+
+void Logger::setLoggerName(std::wstring name)
 {
     m_name = "";
 
@@ -41,11 +58,6 @@ Logger::Logger(std::wstring name)
     {
         m_name += (char)name.at(i);
     }
-    m_depth = 0;
-}
-
-Logger::~Logger()
-{
 }
 
 void Logger::log(LoggerLevel_t level, const char* msg, ...)
@@ -53,6 +65,33 @@ void Logger::log(LoggerLevel_t level, const char* msg, ...)
     va_list va;
     va_start(va, msg);
 
+    logv(level, msg, va);
+
+    va_end(va);
+}
+
+void Logger::debug(const char* msg, ...)
+{
+    va_list va;
+    va_start(va, msg);
+
+    logv(DEBUG, msg, va);
+
+    va_end(va);
+}
+
+void Logger::error(const char* msg, ...)
+{
+    va_list va;
+    va_start(va, msg);
+
+    logv(ERROR, msg, va);
+
+    va_end(va);
+}
+
+void Logger::logv(LoggerLevel_t level, const char* msg, va_list va)
+{
     char buf[4096];
     vsnprintf(buf, 4096, msg, va);
 
@@ -91,5 +130,5 @@ void Logger::log(LoggerLevel_t level, const char* msg, ...)
     strftime(timeStr, 256, "%Y/%m/%d %H:%M:%S", tm);
 
     printf("%s: %s: %s: %s%s\n", timeStr, levelStr.c_str(), m_name.c_str(), spaces.c_str(), buf);
-
 }
+

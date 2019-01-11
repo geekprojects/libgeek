@@ -44,7 +44,13 @@ class Logger
     Logger(std::wstring name);
     ~Logger();
 
+    void setLoggerName(std::string name);
+    void setLoggerName(std::wstring name);
+
     void log(LoggerLevel_t level, const char* __format, ...);
+    void logv(LoggerLevel_t level, const char* __format, va_list ap);
+    void debug(const char* __format, ...);
+    void error(const char* __format, ...);
 
     // Not thread safe!
     void pushDepth() { m_depth++; }
