@@ -490,7 +490,7 @@ Surface* Surface::scale(float factor, bool fp)
 #endif
             }
 
-            *(data++) = 0xff000000 | (avg[0] << 16) | (avg[1] << 8) | (avg[2] << 0);
+            *(data++) = (avg[3] << 24 | avg[2] << 16) | (avg[1] << 8) | (avg[0] << 0);
         }
     }
 
