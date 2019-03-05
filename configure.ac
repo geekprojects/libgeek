@@ -30,6 +30,8 @@ LIBS="$LIBS -L/usr/local/lib -ljpeg"
 # Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_HEADER_STDBOOL
 
+AC_CHECK_LIB([sqlite3], [sqlite3_initialize])
+
 # Checks for library functions.
 AX_PTHREAD(, [AC_MSG_ERROR([libpthread is required])])
 LIBS="$LIBS $PTHREAD_LIBS -lpthread"
