@@ -15,6 +15,7 @@ AC_PROG_CC
 AC_PROG_LIBTOOL
 AC_PROG_RANLIB
 AX_PTHREAD
+AX_LIB_SQLITE3([3.0.0])
 PKG_PROG_PKG_CONFIG(0.16)
 
 AC_CHECK_FUNCS([memset_pattern4])
@@ -22,15 +23,13 @@ AC_CHECK_FUNCS([memset_pattern4])
 CPPFLAGS="$CPPFLAGS -std=c++0x"
 
 # Checks for libraries.
-CPPFLAGS="$CPPFLAGS -I/usr/local/include"
-LIBS="$LIBS -L/usr/local/lib -ljpeg"
+CPPFLAGS="$CPPFLAGS -I/usr/local/include $SQLITE3_CFLAGS"
+LIBS="$LIBS -L/usr/local/lib -ljpeg $SQLITE3_LDFLAGS"
 
 # Checks for header files.
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_HEADER_STDBOOL
-
-AC_CHECK_LIB([sqlite3], [sqlite3_initialize])
 
 # Checks for library functions.
 AX_PTHREAD(, [AC_MSG_ERROR([libpthread is required])])
