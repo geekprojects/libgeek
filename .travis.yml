@@ -9,6 +9,8 @@ addons:
       - libpng12-dev
       - libjpeg-dev
       - libjpeg-turbo8
+      - libsqlite3
+      - libsqlite3-dev
 
 before_script:
   - ./autogen.sh --verbose 
