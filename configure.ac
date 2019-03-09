@@ -50,6 +50,7 @@ AC_CONFIG_FILES([
     Makefile
     src/Makefile
     src/core/Makefile
+    src/core/sha/Makefile
     src/gfx/Makefile
     tests/Makefile
     tests/core/Makefile

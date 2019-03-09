@@ -29,13 +29,13 @@ But I hope they will also be of use to someone else!
 Where?
 ------
 
-I've been developing this library on both Mac OS X (10.11) and Linux.
+I've been developing this library on both Mac OS X (10.14) and Linux.
 
 
 Who?
 ----
 
-Ian Parker <ian@geekprojects.com?
+Ian Parker <ian@geekprojects.com>
 
 
 Installation
@@ -64,5 +64,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU Lesser General Public License for more details.
 
+The SHA code under src/core/sha is licensed under the Simplified BSD License.
+See core/core/sha/sha.h and RFC 6234 for more details.
 
 
