@@ -20,22 +20,25 @@ struct Column
     std::string name;
     std::string type;
     bool isPrimary;
+    bool isAutoIncrement;
 
     Column() {}
 
-    Column(std::string _name, std::string _type, bool _isPrimary)
+    Column(std::string _name, std::string _type, bool _isPrimary, bool _isAutoIncrement = false)
     {
         name = _name;
         type = _type;
         isPrimary = _isPrimary;
+        isAutoIncrement = _isAutoIncrement;
     }
 
 
-    Column(std::string _name, bool _isPrimary)
+    Column(std::string _name, bool _isPrimary, bool _isAutoIncrement = false)
     {
         name = _name;
         type = "";
         isPrimary = _isPrimary;
+        isAutoIncrement = _isAutoIncrement;
     }
 
     Column(std::string _name)

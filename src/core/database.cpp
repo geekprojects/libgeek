@@ -138,6 +138,7 @@ bool Database::checkSchema(vector<Table> schema)
 string primaryKeys = "";
 
             bool comma = false;
+            bool hasAutoIncrementKey = false;
             set<Column>::iterator columnIt;
             for (
                 columnIt = tableIt->columns.begin();
@@ -150,12 +151,19 @@ string primaryKeys = "";
                 }
                 comma = true;
                 createSql += columnIt->name;
-                if (columnIt->type.length() > 0)
+                if (columnIt->type.length() > 0 && columnIt->isAutoIncrement == false)
                 {
                     createSql += " " + columnIt->type;
                 }
+
                 if (columnIt->isPrimary)
                 {
+                    if (columnIt->isAutoIncrement)
+                    {
+                        createSql += " INTEGER PRIMARY KEY AUTOINCREMENT";
+                        hasAutoIncrementKey = true;
+                    }
+
                     if (primaryKeys.length() > 0)
                     {
                         primaryKeys += ", ";
@@ -164,7 +172,7 @@ string primaryKeys = "";
                 }
             }
 
-            if (primaryKeys.length() > 0)
+            if (!hasAutoIncrementKey && primaryKeys.length() > 0)
             {
                 createSql += ", PRIMARY KEY (" + primaryKeys + ")";
             }
