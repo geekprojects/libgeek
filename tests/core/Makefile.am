@@ -1,5 +1,5 @@
 
-noinst_PROGRAMS=dynamicarray xmltest mkdirs sha tasks
+noinst_PROGRAMS=dynamicarray xmltest mkdirs sha tasks timers
 
 dynamicarray_SOURCES=dynamicarray.cpp
 dynamicarray_LDADD=../../src/core/libgeek-core.la
@@ -15,4 +15,7 @@ sha_LDADD=../../src/core/libgeek-core.la
 
 tasks_SOURCES=tasks.cpp
 tasks_LDADD=../../src/core/libgeek-core.la
+
+timers_SOURCES=timers.cpp
+timers_LDADD=../../src/core/libgeek-core.la
 
