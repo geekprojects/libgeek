@@ -19,6 +19,11 @@ CondVar::~CondVar()
 
 bool CondVar::wait()
 {
+    return wait(0);
+}
+
+bool CondVar::wait(uint64_t timeoutms)
+{
     return false;
 }
 

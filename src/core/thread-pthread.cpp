@@ -1,5 +1,7 @@
 #include "thread-pthread.h"
 
+#include <sys/time.h>
+
 using namespace std;
 using namespace Geek;
 
@@ -34,9 +36,30 @@ PThreadCondVar::~PThreadCondVar()
 {
 }
 
-bool PThreadCondVar::wait()
+bool PThreadCondVar::wait(uint64_t timeoutms)
 {
-    pthread_cond_wait(&m_cond, &m_condMutex);
+    if (timeoutms == 0)
+    {
+        pthread_cond_wait(&m_cond, &m_condMutex);
+    }
+    else
+    {
+        struct timeval tv;
+        struct timespec ts;
+        gettimeofday(&tv, NULL);
+
+        ts.tv_sec = tv.tv_sec;
+        ts.tv_nsec = tv.tv_usec * 1000l;
+
+        // Add the timeout
+        ts.tv_nsec += timeoutms * 1000000L; 
+
+        // Handle overflow
+        ts.tv_sec += ts.tv_nsec / 1000000000L;  
+        ts.tv_nsec = ts.tv_nsec % 1000000000L;  
+
+        pthread_cond_timedwait(&m_cond, &m_condMutex, &ts);
+    }
 
     return true;
 }

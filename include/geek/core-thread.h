@@ -32,6 +32,7 @@ class CondVar
     virtual ~CondVar();
 
     virtual bool wait();
+    virtual bool wait(uint64_t timeoutms);
     virtual bool signal();
 };
 

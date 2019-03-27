@@ -30,7 +30,7 @@ class PThreadCondVar : public Geek::CondVar
     PThreadCondVar();
     virtual ~PThreadCondVar();
 
-    virtual bool wait();
+    virtual bool wait(uint64_t timeoutms);
     virtual bool signal();
 };
 
