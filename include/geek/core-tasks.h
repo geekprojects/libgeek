@@ -6,6 +6,8 @@
 
 #include <geek/core-thread.h>
 
+#include <sigc++/sigc++.h>
+
 namespace Geek
 {
 namespace Core
@@ -35,6 +37,9 @@ class Task
     std::wstring m_title;
     TaskState m_state;
 
+    sigc::signal<void, Task*> m_startedSignal;
+    sigc::signal<void, Task*> m_completeSignal;
+
     void setTitle(std::wstring title) { m_title = title; }
 
  public:
@@ -57,6 +62,9 @@ class Task
     std::wstring getTitle() { return m_title; }
     TaskState getState() { return m_state; }
     void setState(TaskState state) { m_state = state; }
+
+    sigc::signal<void, Task*> startedSignal() { return m_startedSignal; }
+    sigc::signal<void, Task*> completeSignal() { return m_completeSignal; }
 };
 
 class TaskWorker : public Thread

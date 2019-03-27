@@ -105,15 +105,15 @@ void TaskExecutor::taskComplete(TaskWorker* worker)
     printf("TaskExecutor::taskComplete: Clearing worker...\n");
 
     m_tasksMutex->lock();
-vector<Task*>::iterator taskIt;
-for (taskIt = m_tasks.begin(); taskIt != m_tasks.end(); taskIt++)
-{
-if (*taskIt == worker->getTask())
-{
-m_tasks.erase(taskIt);
-break;
-}
-}
+    vector<Task*>::iterator taskIt;
+    for (taskIt = m_tasks.begin(); taskIt != m_tasks.end(); taskIt++)
+    {
+        if (*taskIt == worker->getTask())
+        {
+            m_tasks.erase(taskIt);
+            break;
+        }
+    }
     m_tasksMutex->unlock();
 
     // Remove the completed worker from our list
@@ -206,7 +206,11 @@ bool TaskWorker::main()
 {
     printf("TaskWorker::main: Running task...\n");
     m_task->setState(TASK_RUNNING);
+    m_task->startedSignal().emit(m_task);
+
     m_task->run();
+
+    m_task->completeSignal().emit(m_task);
 
     delete m_task;
 
