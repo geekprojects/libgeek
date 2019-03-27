@@ -16,28 +16,34 @@ enum TimerType
     TIMER_PERIODIC,
 };
 
-struct Timer
+class Timer
 {
-    TimerType type;
-    uint64_t period;
-    sigc::signal<void, Timer*> signal;
-    void* data;
+ private:
+    TimerType m_type;
+    uint64_t m_period;
+    sigc::signal<void, Timer*> m_signal;
+    void* m_data;
 
-    uint64_t next;
+    uint64_t m_nextRun;
 
-    Timer()
+ public:
+
+    Timer(TimerType type, uint64_t period)
     {
-        type = TIMER_PERIODIC;
-        period = 0;
-        data = NULL;
+        m_type = type;
+        m_period = period;
+        m_data = NULL;
     }
 
-    Timer(TimerType _type, uint64_t _period)
-    {
-        type = _type;
-        period = _period;
-        data = NULL;
-    }
+    TimerType getType() { return m_type; }
+    uint64_t getPeriod() { return m_period; }
+    sigc::signal<void, Timer*> signal() { return m_signal; }
+
+    void setData(void* data) { m_data = data; }
+    void* getData() { return m_data; }
+
+    void setNextRun(uint64_t next) { m_nextRun = next; } 
+    uint64_t getNextRun() { return m_nextRun; }
 };
 
 class TimerManager : public Geek::Thread
@@ -51,8 +57,13 @@ class TimerManager : public Geek::Thread
     TimerManager();
     virtual ~TimerManager();
 
+    /**
+     * Add a timer to be scheduled.
+     */
     void addTimer(Timer* timer);
+    void resetTimer(Timer* timer);
     void cancelTimer(Timer* timer);
+    bool isScheduled(Timer* timer);
 
     virtual bool main();
 };

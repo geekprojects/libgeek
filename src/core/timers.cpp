@@ -32,7 +32,7 @@ TimerManager::~TimerManager()
 void TimerManager::addTimer(Timer* timer)
 {
     uint64_t now = getTimestamp();
-    timer->next = now + timer->period;
+    timer->setNextRun(now + timer->getPeriod());
 
     m_timersMutex->lock();
     m_timers.push_back(timer);
@@ -40,6 +40,17 @@ void TimerManager::addTimer(Timer* timer)
 
     m_condVar->signal();
 }
+
+void TimerManager::resetTimer(Timer* timer)
+{
+    m_timersMutex->lock();
+    uint64_t now = getTimestamp();
+    timer->setNextRun(now + timer->getPeriod());
+    m_timersMutex->unlock();
+
+    m_condVar->signal();
+}
+
 
 void TimerManager::cancelTimer(Timer* timer)
 {
@@ -54,8 +65,6 @@ void TimerManager::cancelTimer(Timer* timer)
         }
     }
     m_timersMutex->unlock();
-
-    delete timer;
 }
 
 bool TimerManager::main()
@@ -71,13 +80,13 @@ bool TimerManager::main()
         {
             Timer* timer = *it;
             uint64_t now = getTimestamp();
-            if (timer->next <= now)
+            if (timer->getNextRun() <= now)
             {
                 // Fire!
-                timer->signal.emit(timer);
-                if (timer->type == TIMER_PERIODIC)
+                timer->signal().emit(timer);
+                if (timer->getType() == TIMER_PERIODIC)
                 {
-                    timer->next = now + timer->period;
+                    timer->setNextRun(now + timer->getPeriod());
                 }
                 else
                 {
@@ -87,16 +96,15 @@ bool TimerManager::main()
             }
 
             // Next run is imminent?
-            if (timer->next < next)
+            if (timer->getNextRun() < next)
             {
-                next = timer->next;
+                next = timer->getNextRun();
             }
         }
 
         // Clean up finished ONE SHOT timers
         for (vector<Timer*>::iterator removeIt : removeIts)
         {
-            delete *removeIt;
             m_timers.erase(removeIt);
         }
         m_timersMutex->unlock();

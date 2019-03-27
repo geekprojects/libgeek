@@ -38,15 +38,15 @@ int main(int argc, char** argv)
     TimerManager* timerManager = new TimerManager();
 
     Timer* timer1 = new Timer(TIMER_PERIODIC, 1000);
-    timer1->signal.connect(sigc::ptr_fun(&timer1Func));
+    timer1->signal().connect(sigc::ptr_fun(&timer1Func));
     timerManager->addTimer(timer1);
 
     Timer* timer2 = new Timer(TIMER_PERIODIC, 500);
-    timer2->signal.connect(sigc::ptr_fun(&timer2Func));
+    timer2->signal().connect(sigc::ptr_fun(&timer2Func));
     timerManager->addTimer(timer2);
 
     Timer* timer3 = new Timer(TIMER_ONE_SHOT, 5000);
-    timer3->signal.connect(sigc::ptr_fun(&timer3Func));
+    timer3->signal().connect(sigc::ptr_fun(&timer3Func));
     timerManager->addTimer(timer3);
 
     timerManager->start();
