@@ -11,6 +11,11 @@ addons:
       - libjpeg-turbo8
       - sqlite3
       - libsqlite-dev
+      - libsigc++-2.0-dev
+  homebrew:
+    packages:
+      - libsigc++
+      - libtool
 
 before_script:
   - ./autogen.sh --verbose 
