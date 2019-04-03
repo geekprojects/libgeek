@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <sys/time.h>
 
+#include <cinttypes>
+
 #include <geek/core-timers.h>
 
 using namespace Geek::Core;
@@ -20,17 +22,17 @@ static uint64_t getTimestamp()
 
 void timer1Func(Timer* timer)
 {
-    printf("timer1Func: now=%llu\n", getTimestamp());
+    printf("timer1Func: now=%" PRId64 "\n", getTimestamp());
 }
 
 void timer2Func(Timer* timer)
 {
-    printf("timer2Func: now=%llu\n", getTimestamp());
+    printf("timer2Func: now=%" PRId64 "\n", getTimestamp());
 }
 
 void timer3Func(Timer* timer)
 {
-    printf("timer3Func: now=%llu\n", getTimestamp());
+    printf("timer3Func: now=%" PRId64 "\n", getTimestamp());
 }
 
 int main(int argc, char** argv)
