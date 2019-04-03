@@ -103,6 +103,10 @@ class TaskExecutor
 
     unsigned int m_maxWorkers;
 
+    sigc::signal<void, Task*> m_queuedSignal;
+    sigc::signal<void, Task*> m_startedSignal;
+    sigc::signal<void, Task*> m_completeSignal;
+
     void init(int maxWorkers);
     void startTask(Task* task);
 
@@ -119,6 +123,10 @@ class TaskExecutor
 
     unsigned int getTaskCount();
     std::vector<TaskInfo> getTaskInfo();
+
+    sigc::signal<void, Task*> queuedSignal() { return m_queuedSignal; }
+    sigc::signal<void, Task*> startedSignal() { return m_startedSignal; }
+    sigc::signal<void, Task*> completeSignal() { return m_completeSignal; }
 };
 
 };

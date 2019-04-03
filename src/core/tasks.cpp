@@ -58,6 +58,8 @@ bool TaskExecutor::addTask(Task* task)
     }
     else
     {
+        m_queuedSignal.emit(task);
+
         m_queueMutex->lock();
         task->setState(TASK_QUEUED);
         m_queue.push_back(task);
@@ -96,6 +98,7 @@ void TaskExecutor::startTask(Task* task)
     m_workers.push_back(taskWorker);
     m_workersMutex->unlock();
 
+    m_startedSignal.emit(task);
     taskWorker->start();
 }
 
@@ -211,6 +214,7 @@ bool TaskWorker::main()
     m_task->run();
 
     m_task->completeSignal().emit(m_task);
+    m_executor->completeSignal().emit(m_task);
 
     delete m_task;
 

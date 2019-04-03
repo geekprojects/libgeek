@@ -33,6 +33,7 @@ void TimerManager::addTimer(Timer* timer)
 {
     uint64_t now = getTimestamp();
     timer->setNextRun(now + timer->getPeriod());
+    timer->setActive(true);
 
     m_timersMutex->lock();
     m_timers.push_back(timer);
@@ -54,6 +55,8 @@ void TimerManager::resetTimer(Timer* timer)
 
 void TimerManager::cancelTimer(Timer* timer)
 {
+    timer->setActive(false);
+
     m_timersMutex->lock();
     vector<Timer*>::iterator it;
     for (it = m_timers.begin(); it != m_timers.end(); it++)
@@ -90,6 +93,7 @@ bool TimerManager::main()
                 }
                 else
                 {
+                    timer->setActive(false);
                     removeIts.push_back(it);
                     continue; // Don't process next run time
                 }
