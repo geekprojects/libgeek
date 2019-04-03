@@ -2,6 +2,7 @@
 #define __LIBGEEK_THREAD_H_
 
 #include <vector>
+#include <stdint.h>
 
 namespace Geek {
 
