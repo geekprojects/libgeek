@@ -48,6 +48,10 @@ PKG_CHECK_MODULES(libpng, libpng >= 1.2)
 LIBS="$LIBS $libpng_LIBS"
 CPPFLAGS="$CPPFLAGS $libpng_CFLAGS"
 
+PKG_CHECK_MODULES(Freetype, freetype2 >= 17)
+CPPFLAGS="$CPPFLAGS $Freetype_CFLAGS"
+LIBS="$LIBS $Freetype_LIBS"
+
 CPPFLAGS="$CPPFLAGS -Wall -Werror -Werror=sign-compare"
 
 AC_CONFIG_FILES([
@@ -56,6 +60,7 @@ AC_CONFIG_FILES([
     src/core/Makefile
     src/core/sha/Makefile
     src/gfx/Makefile
+    src/fonts/Makefile
     tests/Makefile
     tests/core/Makefile
     tests/gfx/Makefile

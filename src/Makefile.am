@@ -1,3 +1,3 @@
 
-SUBDIRS=core gfx
+SUBDIRS=core gfx fonts
 
