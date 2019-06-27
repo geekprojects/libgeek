@@ -12,10 +12,12 @@ addons:
       - sqlite3
       - libsqlite-dev
       - libsigc++-2.0-dev
+      - libfreetype6-dev
   homebrew:
     packages:
       - libsigc++
       - libtool
+      - freetype
     update: true
 
 before_script:
