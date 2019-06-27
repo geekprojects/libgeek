@@ -16,6 +16,7 @@ addons:
     packages:
       - libsigc++
       - libtool
+    update: true
 
 before_script:
   - ./autogen.sh --verbose 
