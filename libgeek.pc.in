@@ -11,5 +11,5 @@ Description: GeekProjects.com's utility library
 Version: 1.0.0
 Requires:
 Conflicts:
-Libs: -lgeek-core -lgeek-gfx @LIBS@
+Libs: -lgeek-core -lgeek-gfx -lgeek-fonts @LIBS@
 Cflags: -I@includedir@ @CPPFLAGS@
