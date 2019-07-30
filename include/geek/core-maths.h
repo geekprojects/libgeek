@@ -106,7 +106,7 @@ struct Rect
         h = 0;
     }
 
-    Rect(uint32_t _x, uint32_t _y, uint32_t _w, uint32_t _h)
+    Rect(int32_t _x, int32_t _y, int32_t _w, int32_t _h)
     {
         x = _x;
         y = _y;
@@ -114,8 +114,8 @@ struct Rect
         h = _h;
     }
 
-    uint32_t getX2() { return x + w; }
-    uint32_t getY2() { return y + h; }
+    int32_t getX2() { return (x + w) - 1; }
+    int32_t getY2() { return (y + h) - 1; }
 
     std::string toString()
     {
@@ -149,13 +149,44 @@ struct Rect
         return res;
     }
 
-    Rect clip(Rect r2)
+    bool clip(Rect r2)
     { 
-        x = MAX(x, r2.x);
-        y = MAX(y, r2.y);
+        if (x < r2.x)
+        {
+            int d = r2.x - x;
+            x = r2.x;
+            w -= d;
+        }
+        else if (x > r2.getX2())
+        {
+            return false;
+        }
+
+        if (getX2() < r2.x)
+        {
+            return false;
+        }
+
+        if (y < r2.y)
+        {
+            int d = r2.y - y;
+            y = r2.y;
+            h -= d;
+        }
+        else if (y > r2.getY2())
+        {
+            return false;
+        }
+
+        if (getY2() < r2.y)
+        {
+            return false;
+        }
+
         w = MIN(x + w, r2.x + r2.w) - x;
         h = MIN(y + h, r2.y + r2.h) - y;
-        return *this;
+
+        return true;
     }
 };
 
