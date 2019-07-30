@@ -25,6 +25,8 @@
 
 #include <string>
 
+#include <geek/core-maths.h>
+
 namespace Geek
 {
 namespace Gfx
@@ -64,6 +66,7 @@ class Drawable
     inline uint32_t getBytesPerPixel() const { return m_bytesPerPixel; }
     inline uint32_t getDpiX() const { return m_dpiX; }
     inline uint32_t getDpiY() const { return m_dpiY; }
+    Geek::Rect getRect() { return Rect(0, 0, m_width, m_height); }
 
     //DirtyManager* getDirtyManager() { return &m_dirty; }
 
@@ -77,15 +80,15 @@ class Drawable
         return getWidth() * getBytesPerPixel();
     }
 
-    virtual bool drawPixel(int32_t x, int32_t y, uint32_t c);
+    virtual bool clear(uint32_t c);
 
+    virtual bool drawPixel(int32_t x, int32_t y, uint32_t c);
     bool drawPixel(int32_t x, int32_t y, uint32_t c, uint8_t* dest);
 
     virtual bool drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t c);
     virtual bool drawRectFilled(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c);
     virtual bool drawRect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c);
     virtual bool drawGrad(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c1, uint32_t c2);
-    virtual bool clear(uint32_t c);
     virtual bool blit(uint8_t* destBuffer, int32_t x, int32_t y, uint8_t* data, uint32_t w, uint32_t h, uint32_t bbp, bool alpha = false);
     virtual bool blit(int32_t x, int32_t y, uint8_t* data, uint32_t w, uint32_t h, uint32_t bbp, bool alpha = false);
     virtual bool blit(int32_t x, int32_t y, Surface* surface, bool forceAlpha = false);

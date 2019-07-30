@@ -55,25 +55,12 @@ Drawable::~Drawable()
 
 bool Drawable::drawPixel(int32_t x, int32_t y, uint32_t c)
 {
-#ifdef DRAW_PIXEL_CHECKS
-    if (x < 0 || y < 0 || x > (int32_t)getWidth() || y > (int32_t)getHeight())
-    {
-        return false;
-    }
-
-    if (dest == NULL)
-    {
-        printf("Drawable::drawPixel: dest is NULL!?\n");
-        return false;
-    }
-#endif
-
-
     return drawPixel(x, y, c, getDrawingBuffer());
 }
 
 static inline void draw32a(uint8_t* src, uint8_t* dest, uint8_t alpha)
 {
+    
     dest[0] = dest[0] + (((src[0] - dest[0]) * alpha) >> 8);
     dest[1] = dest[1] + (((src[1] - dest[1]) * alpha) >> 8);
     dest[2] = dest[2] + (((src[2] - dest[2]) * alpha) >> 8);
@@ -119,49 +106,193 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
         return true;
     }
 
-    uint32_t dx = abs(x1 - x2);
-    uint32_t dy = abs(y1 - y2);
-
-    //c |= 0xff000000;
-
-    if (dx !=0 && dy != 0)
-    {
-        printf(
-            "Drawable::drawLine: We only draw straight lines for now!\n");
-    }
-
     uint8_t* drawingBuffer = getDrawingBuffer();
 
-    uint32_t i;
-    if (dx > dy)
+    if (x1 == x2 && y1 == y2)
     {
-        uint32_t x = MIN(x1, x2);
-        uint32_t* p = (uint32_t*)(drawingBuffer + getOffset(x, y1));
-        if (alpha == 255)
+        Drawable::drawPixel(x1, y1, c, drawingBuffer);
+    }
+
+    if (x1 == x2 || y1 == y2)
+    {
+        int i;
+
+        if (y1 == y2)
         {
-#ifdef HAVE_MEMSET_PATTERN4
-            memset_pattern4(p, &c, dx * 4);
-#else
-            for (i = 0; i < dx; i++, p++)
+            if (y1 < 0 || y1 >= (int)getHeight())
             {
-                *p = c;
+                return true;
             }
+
+            if (x1 > x2)
+            {
+                int  t = x1;
+                x1 = x2;
+                x2 = t;
+            }
+
+            if (x1 < 0)
+            {
+                x1 = 0;
+            }
+            if (x2 >= (int)getWidth())
+            {
+                x2 = getWidth() - 1;
+            }
+
+            uint32_t* p = (uint32_t*)(drawingBuffer + getOffset(x1, y1));
+            int dx = x2 - x1;
+
+            if (alpha == 255)
+            {
+#ifdef HAVE_MEMSET_PATTERN4
+                memset_pattern4(p, &c, dx * 4);
+#else
+                for (i = 0; i < dx; i++, p++)
+                {
+                    *p = c;
+                }
 #endif
+            }
+            else
+            {
+                for (i = 0; i < dx; i++, p++)
+                {
+                    draw32a((uint8_t*)&c, (uint8_t*)p, alpha);
+                }
+            }
         }
         else
         {
-            for (i = 0; i < dx; i++, p++)
+            if (x1 < 0 || x1 >= (int)getWidth())
             {
-                draw32a((uint8_t*)&c, (uint8_t*)p, alpha);
+                return true;
+            }
+
+            if (y1 > y2)
+            {
+                int t = y1;
+                y1 = y2;
+                y2 = t;
+            }
+
+            if (y1 < 0)
+            {
+                y1 = 0;
+            }
+            if (y2 >= (int)getHeight())
+            {
+                y2 = getHeight() - 1;
+            }
+
+            uint32_t* p = (uint32_t*)(drawingBuffer + getOffset(x1, y1));
+            int dy = y2 - y1;
+
+            if (alpha == 255)
+            {
+                for (i = 0; i < dy; i++, p += getWidth())
+                {
+                    *p = c;
+                }
+            }
+            else
+            {
+                for (i = 0; i < dy; i++, p++)
+                {
+                    draw32a((uint8_t*)&c, (uint8_t*)p, alpha);
+                }
             }
         }
     }
     else
     {
-        uint32_t y = MIN(y1, y2);
-        for (i = 0; i < dy; i++)
+        int x;
+        int y;
+        int i;
+
+        int dx = x1 - x2;
+        int dy = y1 - y2;
+        int dx1 = abs(dx);
+        int dy1 = abs(dy);
+
+        int px = 2 * dy1 - dx1;
+        int py = 2 * dx1 - dy1;
+        if (dy <= dx)
         {
-            Drawable::drawPixel(x1, y + i, c, drawingBuffer);
+            int xe;
+
+            if (dx >= 0)
+            {
+                x = x1;
+                y = y1;
+                xe = x2;
+            }
+            else
+            {
+                x = x2;
+                y = y2;
+                xe = x1;
+            }
+            Drawable::drawPixel(x, y, c, drawingBuffer);
+            for (i = 0; x < xe; i++)
+            {
+                x++;
+                if (px < 0)
+                {
+                    px = px + 2 * dy1;
+                }
+                else
+                {
+                    if((dx<0 && dy<0) || (dx>0 && dy>0))
+                    {
+                        y++;
+                    }
+                    else
+                    {
+                        y--;
+                    }
+                    px = px + 2 * (dy1 - dx1);
+                }
+                Drawable::drawPixel(x, y, c, drawingBuffer);
+            }
+        }
+        else
+        {
+            int ye;
+            if (dy >= 0)
+            {
+                x=x1;
+                y=y1;
+                ye=y2;
+            }
+            else
+            {
+                x=x2;
+                y=y2;
+                ye=y1;
+            }
+            Drawable::drawPixel(x, y, c, drawingBuffer);
+            for (i = 0; y < ye; i++)
+            {
+                y = y + 1;
+                if (py <= 0)
+                {
+                    py = py + 2 * dx1;
+                }
+                else
+                {
+                    if((dx<0 && dy<0) || (dx>0 && dy>0))
+                    {
+                        x++;
+                    }
+                    else
+                    {
+                        x--;
+                    }
+                    py = py + 2 * (dx1 - dy1);
+                }
+                Drawable::drawPixel(x, y, c, drawingBuffer);
+            }
         }
     }
     return true;
@@ -170,78 +301,33 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
 
 bool Drawable::drawRectFilled(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c)
 {
-    uint32_t y1;
+    bool res;
 
-    if (x < 0)
+    Rect rect(x, y, w, h);
+    res = rect.clip(getRect());
+    if (!res)
     {
-        x = 0;
-    }
-    else if (x > (int32_t)getWidth())
-    {
-#ifdef DEBUG_DRAWING
-        printf(
-            "Drawable::drawRectFilled: %d,%d - %d,%d overlaps %d,%d - %d,%d\n",
-            x, y, x + w, y + h,
-            0, 0, getWidth() - 1, getHeight() - 1);
-#endif
         return false;
-    }
-    else if ((x + w) > getWidth())
-    {
-#ifdef DEBUG_DRAWING
-        printf(
-            "Drawable::drawRectFilled: %d,%d - %d,%d overlaps %d,%d - %d,%d\n",
-            x, y, x + w, y + h,
-            0, 0, getWidth() - 1, getHeight() - 1);
-#endif
-
-        // Clip it
-        w = (getWidth() - x) - 1;
-    }
-
-    if (y < 0)
-    {
-        y = 0;
-    }
-    else if (y > (int32_t)getHeight())
-    {
-#ifdef DEBUG_DRAWING
-        printf(
-            "Drawable::drawRectFilled: %d,%d - %d,%d overlaps %d,%d - %d,%d\n",
-            x, y, x + w, y + h,
-            0, 0, getWidth() -1, getHeight() - 1);
-#endif
-        return false;
-    }
-    else if ((y + h) > getHeight())
-    {
-#ifdef DEBUG_DRAWING
-        printf(
-            "Drawable::drawRectFilled: %d,%d - %d,%d overlaps %d,%d - %d,%d\n",
-            x, y, x + w, y + h,
-            0, 0, getWidth() - 1, getHeight() - 1);
-#endif
-
-        // Clip it
-        h = (getHeight() - y) - 1;
     }
 
     c |= 0xff000000;
 
     uint8_t* drawingBuffer = getDrawingBuffer();
 
-    uint8_t* dest = drawingBuffer + getOffset(x, y);
+    uint8_t* dest = drawingBuffer + getOffset(rect.x, rect.y);
     uint32_t stride = getStride();
 #ifndef HAVE_MEMSET_PATTERN4
-    stride -= w * 4;
+    stride -= rect.w * 4;
 #endif
-    for (y1 = 0; y1 < h; y1++)
+
+    int y1;
+    for (y1 = 0; y1 < rect.h; y1++)
     {
 #if HAVE_MEMSET_PATTERN4
-        memset_pattern4(dest, &c, w * 4);
+        memset_pattern4(dest, &c, rect.w * 4);
 #else
-        uint32_t x1;
-        for (x1 = 0; x1 < w; x1++)
+        int x1;
+        for (x1 = 0; x1 < rect.w; x1++)
         {
             *((uint32_t*)dest) = c;
             dest += 4;
@@ -259,7 +345,7 @@ bool Drawable::drawRect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c
     printf("Drawable::drawRect: x=%d, y=%d, w=%d, h=%d, width=%d, height=%d\n", x, y, w, h, getWidth(), getHeight());
 #endif
     c |= 0xff000000;
-    //m_dirty.addDirtyRegion(x, y, w, h);
+
     w--;
     h--;
     Drawable::drawLine(x, y, x + w, y, c);
@@ -372,6 +458,21 @@ bool Drawable::blit(int32_t destX, int32_t destY, Surface* surface, int viewX, i
         forceAlpha);
 }
 
+
+/*
+ * +----------------+
+ * |                |
+ * |  +.....+       |
+ * |  . +-+ .       |
+ * |  . | | |       |
+ * |  . +-+ |       |
+ * |  +.... +       |
+ * |                |
+ * |                |
+ * +----------------+
+ *
+ */
+
 bool Drawable::blit(
     uint8_t* destBuffer,
     int32_t x,
@@ -391,54 +492,33 @@ bool Drawable::blit(
         return false;
     }
 
-    if (x < 0)
+    Rect destRect(0, 0, getWidth(), getHeight()); // The destination surface
+    Rect drawRect(x, y, viewWidth, viewHeight); // The rectangle we're drawing in to
+    Rect viewRect(viewX, viewY, viewWidth, viewHeight); // The area of the source we're copying from
+
+    drawRect.clip(destRect);
+
+    if (drawRect.x > x)
     {
-        viewX -= x;
-        viewWidth += x; // This will subtract the overhang from the view width!
-        x = 0;
+        int d = drawRect.x - x;
+        viewRect.x += d;
     }
 
-    if (x + viewWidth >= getWidth())
+    if (drawRect.y > y)
     {
-        viewWidth = getWidth() - x;
+        int d = drawRect.y - y;
+        viewRect.y += d;
     }
-
-    // Nothing to draw, or overflow
-    if (viewWidth == 0 || viewWidth > getWidth())
-    {
-        return true;
-    }
-
-    if (y < 0)
-    {
-        viewY -= y;
-        viewHeight += y; // This will subtract the overhang from the view height!
-        y = 0;
-    }
-
-    if (y + viewHeight >= getHeight())
-    {
-        viewHeight = getHeight() - y;
-    }
-
-    // Nothinb to draw or overflow
-    if (viewHeight == 0 || viewHeight > getHeight())
-    {
-        return true;
-    }
-
-    if (destBuffer == NULL)
-    {
-        destBuffer = getDrawingBuffer();
-    }
+    viewRect.w = drawRect.w;
+    viewRect.h = drawRect.h;
 
     int32_t y1;
-    uint32_t viewStride = viewWidth * bytesPerPixel;
+    uint32_t viewStride = viewRect.w * bytesPerPixel;
     uint32_t dataStride = w * bytesPerPixel;
 
     uint8_t* dest = destBuffer + getOffset(x, y);
 
-    data += (viewX + (viewY * w)) * bytesPerPixel;
+    data += (viewRect.x + (viewRect.y * w)) * bytesPerPixel;
 
 #if 0
     printf("Drawable::blit: src: %p: w=%d, h=%d\n", data, w, h);
@@ -448,7 +528,7 @@ bool Drawable::blit(
 
     if (!forceAlpha)// && getBytesPerPixel() == bytesPerPixel)
     {
-        for (y1 = 0; y1 < (int32_t)viewHeight; y1++)
+        for (y1 = 0; y1 < (int32_t)viewRect.h; y1++)
         {
             memcpy(dest, data, viewStride);
             dest += getStride();
@@ -457,14 +537,14 @@ bool Drawable::blit(
     }
     else
     {
-        for (y1 = 0; y1 < (int32_t)viewHeight; y1++)
+        for (y1 = 0; y1 < (int32_t)viewRect.h; y1++)
         {
             uint8_t* src = data;
-            uint32_t x1;
-            for (x1 = 0; x1 < viewWidth; x1++)
+            int32_t x1;
+            for (x1 = 0; x1 < viewRect.w; x1++)
             {
                 uint32_t c = *((uint32_t*)src);
-                drawPixel(x + x1, y + y1, c, destBuffer);
+                drawPixel(drawRect.x + x1, drawRect.y + y1, c, destBuffer);
                 src += bytesPerPixel;
             }
             data += dataStride;

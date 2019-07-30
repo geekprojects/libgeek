@@ -96,6 +96,20 @@ class HighDPISurface : public Surface
     virtual bool blit(int32_t x, int32_t y, uint8_t* data, uint32_t w, uint32_t h, uint32_t bbp, bool alpha = false);
     virtual bool blit(int32_t x, int32_t y, Surface* surface, bool forceAlpha = false);
     virtual bool blit(int32_t destX, int32_t destY, Surface* surface, int viewX, int viewY, int viewW, int viewH, bool forceAlpha = false);
+    virtual bool blit(
+        uint8_t* destBuffer,
+        int32_t x,
+        int32_t y,
+        uint8_t* data,
+        uint32_t w,
+        uint32_t h,
+        uint32_t bytesPerPixel,
+        int32_t viewX,
+        int32_t viewY,
+        uint32_t viewWidth,
+        uint32_t viewHeight,
+        bool forceAlpha = false);
+
 };
 
 class SurfaceViewPort : public Surface
@@ -140,6 +154,8 @@ class SurfaceViewPort : public Surface
         r.h = m_height;
         return r;
     }
+
+    virtual inline uint8_t* getDrawingBuffer() const { return m_parentSurface->getDrawingBuffer(); }
 
     virtual Surface* getRoot()
     {
@@ -203,30 +219,17 @@ class SurfaceViewPort : public Surface
 
     virtual bool blit(int32_t x, int32_t y, uint8_t* data, uint32_t w, uint32_t h, uint32_t bbp, bool alpha = false)
     {
-        return m_parentSurface->blit(
-            m_offsetX + x, m_offsetY + y,
-            data,
-            w, h,
-            bbp,
-            alpha);
+        return blitVP(getDrawingBuffer(), x, y, data, w, h, bbp, 0, 0, w, h, alpha);
     }
 
     virtual bool blit(int32_t x, int32_t y, Surface* surface, bool alpha)
     {
-        return m_parentSurface->blit(
-            m_offsetX + x, m_offsetY + y,
-            surface,
-            alpha);
+        return blitVP(getDrawingBuffer(), x, y, surface->getData(), surface->getWidth(), surface->getHeight(), surface->getBytesPerPixel(), 0, 0, surface->getWidth(), surface->getHeight(), alpha);
     }
 
     virtual bool blit(int32_t destX, int32_t destY, Surface* surface, int viewX, int viewY, int viewW, int viewH, bool forceAlpha = false)
     {
-        return m_parentSurface->blit(
-            m_offsetX + destX, m_offsetY + destY,
-            surface,
-            viewX, viewY,
-            viewW, viewH,
-            forceAlpha);
+        return blitVP(getDrawingBuffer(), destX, destY, surface->getData(), surface->getWidth(), surface->getHeight(), surface->getBytesPerPixel(), viewX, viewY, viewW, viewH, forceAlpha);
     }
 
 
@@ -244,20 +247,69 @@ class SurfaceViewPort : public Surface
         uint32_t viewHeight,
         bool forceAlpha = false)
     {
+        return blitVP(destBuffer, x, y, data, w, h, bytesPerPixel, viewX, viewY, viewWidth, viewHeight, forceAlpha);
+    }
+
+    bool blitVP(
+        uint8_t* destBuffer,
+        int32_t x,
+        int32_t y,
+        uint8_t* data,
+        uint32_t w,
+        uint32_t h,
+        uint32_t bytesPerPixel,
+        int32_t viewX,
+        int32_t viewY,
+        uint32_t viewWidth,
+        uint32_t viewHeight,
+        bool forceAlpha)
+    {
+        Rect destRect(0, 0, getWidth(), getHeight()); // The destination surface
+        Rect drawRect(x, y, viewWidth, viewHeight); // The rectangle we're drawing in to
+        Rect viewRect(viewX, viewY, viewWidth, viewHeight); // The area of the source we're copying from
+
+        if (isHighDPI())
+        {
+            destRect.w *= 2;
+            destRect.h *= 2;
+        }
+
+        bool res;
+        res = drawRect.clip(destRect);
+        if (!res)
+        {
+            return false;
+        }
+
+        if (drawRect.x > x)
+        {
+            int d = drawRect.x - x;
+            viewRect.x += d;
+        }
+
+        if (drawRect.y > y)
+        {
+            int d = drawRect.y - y;
+            viewRect.y += d;
+        }
+        viewRect.w = drawRect.w;
+        viewRect.h = drawRect.h;
+
         return m_parentSurface->blit(
             destBuffer,
-            m_offsetX + x,
-            m_offsetY + y,
+            m_offsetX + drawRect.x,
+            m_offsetY + drawRect.y,
             data,
             w,
             h,
             bytesPerPixel,
-            viewX,
-            viewY,
-            viewWidth,
-            viewHeight,
+            viewRect.x,
+            viewRect.y,
+            viewRect.w,
+            viewRect.h,
             forceAlpha);
     }
+
 
     uint32_t getPixel(int32_t x, int32_t y)
     {

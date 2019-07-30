@@ -131,5 +131,32 @@ bool HighDPISurface::blit(int32_t destX, int32_t destY, Surface* surface, int vi
     return Surface::blit(destX * 2, destY * 2, surface, viewX, viewY, viewW, viewH, forceAlpha);
 }
 
-
+bool HighDPISurface::blit(
+        uint8_t* destBuffer,
+        int32_t x,
+        int32_t y,
+        uint8_t* data,
+        uint32_t w,
+        uint32_t h,
+        uint32_t bytesPerPixel,
+        int32_t viewX,
+        int32_t viewY,
+        uint32_t viewWidth,
+        uint32_t viewHeight,
+        bool forceAlpha)
+{
+    return Surface::blit(
+        destBuffer,
+        x * 2,
+        y * 2,
+        data,
+        w,
+        h,
+        bytesPerPixel,
+        viewX,
+        viewY,
+        viewWidth,
+        viewHeight,
+        forceAlpha);
+}
 
