@@ -465,6 +465,8 @@ bool FontManager::write(
                 bitmap = bitmapGlyph->bitmap;
                 left = bitmapGlyph->left;
                 top = bitmapGlyph->top;
+                xAdvance = glyph->advance.x >> 16;
+                yAdvance = glyph->advance.y >> 16;
             }
         }
 
