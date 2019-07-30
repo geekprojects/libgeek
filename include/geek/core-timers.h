@@ -1,6 +1,8 @@
 #ifndef __LIBGEEK_CORE_TIMERS_H_
 #define __LIBGEEK_CORE_TIMERS_H_
 
+#include <string>
+
 #include <geek/core-thread.h>
 
 #include <sigc++/sigc++.h>
@@ -19,6 +21,7 @@ enum TimerType
 class Timer
 {
  private:
+    std::string m_id;
     TimerType m_type;
     uint64_t m_period;
     sigc::signal<void, Timer*> m_signal;
@@ -29,14 +32,25 @@ class Timer
 
  public:
 
-    Timer(TimerType type, uint64_t period)
+    Timer(std::string id, TimerType type, uint64_t period)
     {
+        m_id = id;
         m_type = type;
         m_period = period;
         m_data = NULL;
         m_active = false;
     }
 
+    Timer(TimerType type, uint64_t period)
+    {
+        m_id = "";
+        m_type = type;
+        m_period = period;
+        m_data = NULL;
+        m_active = false;
+    }
+
+    std::string getId() { return m_id; }
     TimerType getType() { return m_type; }
     uint64_t getPeriod() { return m_period; }
     void setPeriod(uint64_t period) { m_period = period; }
@@ -70,6 +84,7 @@ class TimerManager : public Geek::Thread
     void resetTimer(Timer* timer);
     void cancelTimer(Timer* timer);
     bool isScheduled(Timer* timer);
+    Timer* findTimer(std::string id);
 
     virtual bool main();
 };
