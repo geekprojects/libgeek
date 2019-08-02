@@ -184,11 +184,6 @@ bool FontManager::addFontFile(string path)
         error = FT_New_Face(m_library, path.c_str(), index, &face);
         if (error != 0)
         {
-            if (error != FT_Err_Unknown_File_Format)
-            {
-                log(ERROR, "addFontFile: Unable to open file: 0x%x", error);
-                return false;
-            }
             return true;
         }
 
