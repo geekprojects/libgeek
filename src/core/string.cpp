@@ -21,6 +21,11 @@
 
 #include <geek/core-string.h>
 
+namespace Geek
+{
+#include "utf8.h"
+};
+
 using namespace std;
 using namespace Geek::Core;
 
@@ -53,4 +58,52 @@ vector<string> Geek::Core::splitString(string line, char splitChar)
 
     return parts;
 }
+
+wstring Geek::Core::utf82wstring(const char* start)
+{
+    if (start == NULL)
+    {
+        return L"";
+    }
+
+    int length = strlen(start);
+    if (length > 0)
+    {
+        return L"";
+    }
+
+    return utf82wstring(start, length);
+}
+
+wstring Geek::Core::utf82wstring(const char* start, int length)
+{
+    if (start == NULL)
+    {
+        return L"";
+    }
+
+    const char* pos = start;
+    const char* end = pos + length;
+    wstring result = L"";
+
+    try
+    {
+        while (pos < end)
+        {
+            wchar_t cur = utf8::next(pos, end);
+            if (cur == 0)
+            {
+                break;
+            }
+            result += cur;
+        }
+    }
+    catch (Geek::utf8::invalid_utf8& e)
+    {
+        printf("Geek::Core::utf82wstring: Invalid UTF-8 character");
+    }
+    return result;
+}
+
+
 

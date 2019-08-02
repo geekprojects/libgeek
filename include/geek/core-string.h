@@ -28,6 +28,8 @@ namespace Geek {
 namespace Core {
 
 std::vector<std::string> splitString(std::string line, char splitChar);
+std::wstring utf82wstring(const char* str);
+std::wstring utf82wstring(const char* str, int length);
 
 }
 }
