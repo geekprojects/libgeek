@@ -496,7 +496,12 @@ bool Drawable::blit(
     Rect drawRect(x, y, viewWidth, viewHeight); // The rectangle we're drawing in to
     Rect viewRect(viewX, viewY, viewWidth, viewHeight); // The area of the source we're copying from
 
-    drawRect.clip(destRect);
+    bool res;
+    res = drawRect.clip(destRect);
+    if (!res)
+    {
+        return false;
+    }
 
     if (drawRect.x > x)
     {
