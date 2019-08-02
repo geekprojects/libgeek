@@ -18,6 +18,7 @@
  *  along with libgeek.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <string.h>
 
 #include <geek/core-string.h>
 
