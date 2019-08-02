@@ -27,18 +27,22 @@ using namespace Geek;
 FontFace::FontFace(
     FontManager* manager,
     string path,
+    int index,
     string style,
     int height,
     int unitsPerEM)
 {
     m_manager = manager;
     m_path = path;
+    m_index = index;
     m_style = style;
     m_height = height;
     m_unitsPerEM = unitsPerEM;
 
     m_references = 0;
     m_face = NULL;
+
+    m_mutex = Thread::createMutex();
 }
 
 FontFace::~FontFace()
@@ -54,7 +58,7 @@ FontHandle* FontFace::open(int pointSize)
         error = FT_New_Face(
             m_manager->getFTLibrary(),
             m_path.c_str(),
-            0,
+            m_index,
             &m_face);
         if (error != 0)
         {

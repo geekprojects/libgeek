@@ -31,6 +31,7 @@
 #include <map>
 
 #include <geek/core-logger.h>
+#include <geek/core-thread.h>
 #include <geek/gfx-surface.h>
 
 namespace Geek {
@@ -102,6 +103,7 @@ class FontFace
  private:
     FontManager* m_manager;
 
+    int m_index;
     std::string m_path;
     std::string m_style;
 
@@ -111,12 +113,14 @@ class FontFace
 
     int m_references;
     FT_Face m_face;
+    Geek::Mutex* m_mutex;
 
  public:
 
-    FontFace(FontManager* manager, std::string path, std::string style, int height, int unitsPerEM);
+    FontFace(FontManager* manager, std::string path, int index, std::string style, int height, int unitsPerEM);
     ~FontFace();
 
+    int getIndex() { return m_index; }
     std::string getPath() { return m_path; }
     std::string getStyle() { return m_style; }
     int getPixelHeight(int dpi, int points);
@@ -124,6 +128,16 @@ class FontFace
     FontHandle* open(int pointSize);
     void close(FontHandle* handle);
     FT_Face getFTFace();
+
+    void lock()
+    {
+        m_mutex->lock();
+    }
+
+    void unlock()
+    {
+        m_mutex->unlock();
+    }
 };
 
 class FontHandle

@@ -104,6 +104,8 @@ bool FontManager::init()
         return false;
     }
 
+    
+
     return true;
 }
 
@@ -147,11 +149,13 @@ bool FontManager::scan(string dir)
 
 FontHandle* FontManager::openFont(string familyName, string style, int size)
 {
+#if 0
     log(DEBUG,
         "openFont: Family: %s, style=%s, size=%d",
         familyName.c_str(),
         style.c_str(),
         size);
+#endif
     FontFamily* family = getFontFamily(familyName);
     if (family == NULL)
     {
@@ -171,52 +175,58 @@ FontHandle* FontManager::openFont(string familyName, string style, int size)
 
 bool FontManager::addFontFile(string path)
 {
-    FT_Error error;
-    FT_Face face;
-
-    error = FT_New_Face(m_library, path.c_str(), 0, &face);
-    if (error != 0)
+    int index;
+    for (index = 0; index < 16; index++)
     {
-        if (error != FT_Err_Unknown_File_Format)
+        FT_Error error;
+        FT_Face face;
+
+        error = FT_New_Face(m_library, path.c_str(), index, &face);
+        if (error != 0)
         {
-            log(ERROR, "addFontFile: Unable to open file: 0x%x", error);
+            if (error != FT_Err_Unknown_File_Format)
+            {
+                log(ERROR, "addFontFile: Unable to open file: 0x%x", error);
+                return false;
+            }
+            return true;
         }
-        return false;
-    }
 
-    if (face->family_name == NULL)
-    {
-        return false;
-    }
+        if (face->family_name == NULL)
+        {
+            return false;
+        }
 
 #if 0
-    log(
-        DEBUG,
-        "addFontFile: %s: Family: %s, style: 0x%x (%s)",
-        path.c_str(),
-        face->family_name,
-        (int)face->style_flags,
-        face->style_name);
+        log(
+            DEBUG,
+            "addFontFile: %s: Family: %s, style: 0x%x (%s)",
+            path.c_str(),
+            face->family_name,
+            (int)face->style_flags,
+            face->style_name);
 #endif
 
-    string familyName(face->family_name);
-    FontFamily* family = getFontFamily(familyName);
+        string familyName(face->family_name);
+        FontFamily* family = getFontFamily(familyName);
 
-    if (family == NULL)
-    {
-        family = new FontFamily();
-        m_fontFamilies.insert(make_pair(familyName, family));
+        if (family == NULL)
+        {
+            family = new FontFamily();
+            m_fontFamilies.insert(make_pair(familyName, family));
+        }
+
+        FontFace* fontFace = new FontFace(
+            this,
+            path,
+            index,
+            face->style_name,
+            face->height,
+            face->units_per_EM);
+
+        family->addFace(fontFace);
+        FT_Done_Face(face);
     }
-
-    FontFace* fontFace = new FontFace(
-        this,
-        path,
-        face->style_name,
-        face->height,
-        face->units_per_EM);
-
-    family->addFace(fontFace);
-    FT_Done_Face(face);
 
     return true;
 }
@@ -246,7 +256,6 @@ bool FontManager::write(
     int rotate)
 {
     FT_Error error;
-    FT_Face face;
 
     if (widthReturn != NULL)
     {
@@ -305,7 +314,7 @@ bool FontManager::write(
         log(ERROR, "write: Unable to look up font/size!");
         return false;
     }
-    face = size->face;
+    FT_Face face = size->face;
     if (face == NULL)
     {
         log(DEBUG,
@@ -317,6 +326,8 @@ bool FontManager::write(
 
     bool useKerning = FT_HAS_KERNING(face);
 
+    int origX2 = 0;
+    int origY2 = 0;
     if (surface != NULL)
     {
         Surface* rootSurface = surface->getRoot();
@@ -329,6 +340,20 @@ bool FontManager::write(
         {
             x *= 2;
             y *= 2;
+            int sw = surface->getWidth();
+            int sh = surface->getWidth();
+            if (rootSurface != surface)
+            {
+                sw *= 2;
+                sh *= 2;
+            }
+            origX2 = (surfaceRect.x * 2) + sw;
+            origY2 = (surfaceRect.y * 2) + sh;
+        }
+        else
+        {
+            origX2 = surfaceRect.x + surface->getWidth();
+            origY2 = surfaceRect.y + surface->getHeight();
         }
 
         surface = rootSurface;
@@ -352,6 +377,9 @@ bool FontManager::write(
     unsigned int pos;
     unsigned int width = 0;
     uint32_t prevGlyph = 0;
+
+    font->getFontFace()->lock();
+
     for (pos = 0; pos < text.length(); pos++)
     {
         uint32_t glyphIndex;
@@ -359,10 +387,10 @@ bool FontManager::write(
 
         currentChar = text[pos];
 
-        glyphIndex = FTC_CMapCache_Lookup(m_cmapCache, font->getFTFace(), -1, currentChar);
+        glyphIndex = FTC_CMapCache_Lookup(m_cmapCache, face, -1, currentChar);
         if (glyphIndex == 0)
         {
-            glyphIndex = FTC_CMapCache_Lookup(m_cmapCache, font->getFTFace(), -1, 0xFFFD);
+            glyphIndex = FTC_CMapCache_Lookup(m_cmapCache, face, -1, 0xFFFD);
             if (glyphIndex == 0)
             {
                 continue;
@@ -498,9 +526,6 @@ bool FontManager::write(
             int yoff = ph - top;
             yoff -= ph / 4;
 
-            int sh = surface->getHeight();
-            int sw = surface->getWidth();
-
             /*
              *   0:
              *   o**
@@ -538,6 +563,10 @@ bool FontManager::write(
                 {
                     x1 = (bitmap.rows - yp) + x;// - yoff;
                 }
+                if (y1 >= (int)origY2 || x1 >= (int)origX2)
+                {
+                    break;
+                }
 
                 unsigned int xp;
                 for (xp = 0; xp < bitmap.width; xp++)
@@ -555,11 +584,11 @@ bool FontManager::write(
                         y1 = y + xp + yoff;
                     }
 
-                    if (x1 < 0 || x1 >= sw)
+                    if (x1 < 0 || x1 >= origX2)
                     {
                         continue;
                     }
-                    if (y1 < 0 || y1 >= sh)
+                    if (y1 < 0 || y1 >= origY2)
                     {
                         continue;
                     }
@@ -611,11 +640,21 @@ bool FontManager::write(
 
         FTC_Node_Unref(glyphNode, m_cacheManager);
 
+        if (draw)
+        {
+            if ((int)x >= origX2 || (int)y >= origY2)
+            {
+                break;
+            }
+        }
+
         if (maxWidth > 0 && width >= (unsigned int)maxWidth)
         {
             break;
         }
     }
+
+    font->getFontFace()->unlock();
 
     if (widthReturn != NULL)
     {
