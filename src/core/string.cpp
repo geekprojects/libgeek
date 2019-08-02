@@ -21,10 +21,7 @@
 
 #include <geek/core-string.h>
 
-namespace Geek
-{
 #include "utf8.h"
-};
 
 using namespace std;
 using namespace Geek::Core;

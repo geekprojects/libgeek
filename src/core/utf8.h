@@ -30,6 +30,8 @@ DEALINGS IN THE SOFTWARE.
 
 #include <iterator>
 
+namespace Geek
+{
 namespace utf8
 {
     // The typedefs for 8-bit, 16-bit and 32-bit unsigned integers
@@ -323,6 +325,7 @@ namespace internal
            );
     }
 } // namespace utf8
+} // namespace Geek
 
 #endif // header guard
 
@@ -359,6 +362,8 @@ DEALINGS IN THE SOFTWARE.
 
 #include <stdexcept>
 
+namespace Geek
+{
 namespace utf8
 {
     // Base for the exceptions that may be thrown from the library
@@ -649,6 +654,7 @@ namespace utf8
     }; // class iterator
 
 } // namespace utf8
+} // namespace Geek
 
 #endif //header guard
 
