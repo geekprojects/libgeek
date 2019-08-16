@@ -30,6 +30,7 @@ namespace Core {
 std::vector<std::string> splitString(std::string line, char splitChar);
 std::wstring utf82wstring(const char* str);
 std::wstring utf82wstring(const char* str, int length);
+std::string wstring2utf8(std::wstring string);
 
 }
 }

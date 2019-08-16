@@ -65,7 +65,7 @@ wstring Geek::Core::utf82wstring(const char* start)
     }
 
     int length = strlen(start);
-    if (length > 0)
+    if (length <= 0)
     {
         return L"";
     }
@@ -99,6 +99,25 @@ wstring Geek::Core::utf82wstring(const char* start, int length)
     catch (Geek::utf8::invalid_utf8& e)
     {
         printf("Geek::Core::utf82wstring: Invalid UTF-8 character");
+    }
+    return result;
+}
+
+string Geek::Core::wstring2utf8(wstring str)
+{
+    string result = "";
+
+    unsigned int pos;
+    for (pos = 0; pos < str.length(); pos++)
+    {
+        wchar_t c = str.at(pos);
+        char buffer[6] = {0, 0, 0, 0, 0, 0};
+        char* end = utf8::append(c, buffer);
+        char* p;
+        for (p = buffer; p < end; p++)
+        {
+            result += *p;
+        }
     }
     return result;
 }
