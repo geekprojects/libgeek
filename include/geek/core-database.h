@@ -97,6 +97,7 @@ class PreparedStatement
 
     bool bindString(int i, const char* str, int length);
     bool bindString(int i, std::string str);
+    bool bindString(int i, std::wstring str);
     bool bindInt64(int i, int64_t v);
     bool bindDouble(int i, double v);
     bool bindBlob(int i, void* data, int length);
@@ -109,6 +110,7 @@ class PreparedStatement
     int64_t getInt64(int i);
     double getDouble(int i);
     std::string getString(int i);
+    std::wstring getWString(int i);
     bool getBlob(int i, const void** data, uint32_t* length);
 
     bool execute();

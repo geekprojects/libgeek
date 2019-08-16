@@ -8,6 +8,7 @@
 #include <string>
 
 #include <geek/core-database.h>
+#include <geek/core-string.h>
 
 using namespace std;
 using namespace Geek::Core;
@@ -450,6 +451,13 @@ bool PreparedStatement::bindString(int i, string str)
     return true;
 }
 
+bool PreparedStatement::bindString(int i, wstring wstr)
+{
+    string str = Geek::Core::wstring2utf8(wstr);
+    sqlite3_bind_text(m_stmt, i, str.c_str(), str.length(), SQLITE_TRANSIENT);
+    return true;
+}
+
 bool PreparedStatement::bindInt64(int i, int64_t value)
 {
     sqlite3_bind_int64(m_stmt, i, value);
@@ -509,6 +517,19 @@ string PreparedStatement::getString(int i)
     }
     return string((char*)str);
 }
+
+wstring PreparedStatement::getWString(int i)
+{
+    const char* str;
+    str = (char*)sqlite3_column_text(m_stmt, i);
+    if (str == NULL)
+    {
+        str = "";
+    }
+    wstring w = utf82wstring(str);
+    return w;
+}
+
 
 bool PreparedStatement::getBlob(int i, const void** data, uint32_t* length)
 {
