@@ -67,6 +67,7 @@ class Drawable
     inline uint32_t getDpiX() const { return m_dpiX; }
     inline uint32_t getDpiY() const { return m_dpiY; }
     Geek::Rect getRect() { return Rect(0, 0, m_width, m_height); }
+    bool intersects(int x, int y) { return (x >=0 && x < (int)m_width && y >= 0 && y < (int)m_height); }
 
     //DirtyManager* getDirtyManager() { return &m_dirty; }
 
@@ -102,9 +103,9 @@ class Drawable
         uint8_t* destBuffer,
         int32_t x,
         int32_t y,
-        uint8_t* data,
-        uint32_t w,
-        uint32_t h,
+        uint8_t* srcData,
+        uint32_t srcWidth,
+        uint32_t srcHeight,
         uint32_t bytesPerPixel,
         int32_t viewX,
         int32_t viewY,

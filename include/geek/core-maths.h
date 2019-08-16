@@ -162,11 +162,6 @@ struct Rect
             return false;
         }
 
-        if (getX2() < r2.x)
-        {
-            return false;
-        }
-
         if (y < r2.y)
         {
             int d = r2.y - y;
@@ -174,11 +169,6 @@ struct Rect
             h -= d;
         }
         else if (y > r2.getY2())
-        {
-            return false;
-        }
-
-        if (getY2() < r2.y)
         {
             return false;
         }

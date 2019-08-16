@@ -96,13 +96,14 @@ class HighDPISurface : public Surface
     virtual bool blit(int32_t x, int32_t y, uint8_t* data, uint32_t w, uint32_t h, uint32_t bbp, bool alpha = false);
     virtual bool blit(int32_t x, int32_t y, Surface* surface, bool forceAlpha = false);
     virtual bool blit(int32_t destX, int32_t destY, Surface* surface, int viewX, int viewY, int viewW, int viewH, bool forceAlpha = false);
+
     virtual bool blit(
         uint8_t* destBuffer,
         int32_t x,
         int32_t y,
-        uint8_t* data,
-        uint32_t w,
-        uint32_t h,
+        uint8_t* srcData,
+        uint32_t srcWidth,
+        uint32_t srcHeight,
         uint32_t bytesPerPixel,
         int32_t viewX,
         int32_t viewY,
@@ -268,11 +269,11 @@ class SurfaceViewPort : public Surface
         Rect drawRect(x, y, viewWidth, viewHeight); // The rectangle we're drawing in to
         Rect viewRect(viewX, viewY, viewWidth, viewHeight); // The area of the source we're copying from
 
-        if (isHighDPI())
-        {
-            destRect.w *= 2;
-            destRect.h *= 2;
-        }
+#if 0
+        printf("blitVP: BEFORE destRect=%s\n", destRect.toString().c_str());
+        printf("blitVP: BEFORE drawRect=%s\n", drawRect.toString().c_str());
+        printf("blitVP: BEFORE viewRect=%s\n", viewRect.toString().c_str());
+#endif
 
         bool res;
         res = drawRect.clip(destRect);
@@ -295,6 +296,12 @@ class SurfaceViewPort : public Surface
         viewRect.w = drawRect.w;
         viewRect.h = drawRect.h;
 
+#if 0
+        printf("blitVP: AFTER destRect=%s\n", destRect.toString().c_str());
+        printf("blitVP: AFTER drawRect=%s\n", drawRect.toString().c_str());
+        printf("blitVP: AFTER viewRect=%s\n", viewRect.toString().c_str());
+#endif
+
         return m_parentSurface->blit(
             destBuffer,
             m_offsetX + drawRect.x,
@@ -309,7 +316,6 @@ class SurfaceViewPort : public Surface
             viewRect.h,
             forceAlpha);
     }
-
 
     uint32_t getPixel(int32_t x, int32_t y)
     {

@@ -110,7 +110,11 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
 
     if (x1 == x2 && y1 == y2)
     {
-        Drawable::drawPixel(x1, y1, c, drawingBuffer);
+        if (intersects(x1, y1))
+        {
+            Drawable::drawPixel(x1, y1, c, drawingBuffer);
+        }
+        return true;
     }
 
     if (x1 == x2 || y1 == y2)
@@ -138,6 +142,11 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
             if (x2 >= (int)getWidth())
             {
                 x2 = getWidth() - 1;
+            }
+
+            if (x1 > (int)getWidth() || x2 < 0)
+            {
+                return true;
             }
 
             uint32_t* p = (uint32_t*)(drawingBuffer + getOffset(x1, y1));
@@ -185,6 +194,11 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
                 y2 = getHeight() - 1;
             }
 
+            if (y1 > (int)getWidth() || y2 < 0)
+            {
+                return true;
+            }
+
             uint32_t* p = (uint32_t*)(drawingBuffer + getOffset(x1, y1));
             int dy = y2 - y1;
 
@@ -210,8 +224,8 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
         int y;
         int i;
 
-        int dx = x1 - x2;
-        int dy = y1 - y2;
+        int dx = x2 - x1;
+        int dy = y2 - y1;
         int dx1 = abs(dx);
         int dy1 = abs(dy);
 
@@ -233,10 +247,15 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
                 y = y2;
                 xe = x1;
             }
-            Drawable::drawPixel(x, y, c, drawingBuffer);
-            for (i = 0; x < xe; i++)
+            if (intersects(x, y))
+            {
+                Drawable::drawPixel(x, y, c, drawingBuffer);
+            }
+
+            for (i = 0; x < xe && x < (int)m_width; i++)
             {
                 x++;
+
                 if (px < 0)
                 {
                     px = px + 2 * dy1;
@@ -253,7 +272,11 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
                     }
                     px = px + 2 * (dy1 - dx1);
                 }
-                Drawable::drawPixel(x, y, c, drawingBuffer);
+
+                if (intersects(x, y))
+                {
+                    Drawable::drawPixel(x, y, c, drawingBuffer);
+                }
             }
         }
         else
@@ -269,19 +292,24 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
             {
                 x=x2;
                 y=y2;
-                ye=y1;
+                ye =y1;
             }
-            Drawable::drawPixel(x, y, c, drawingBuffer);
-            for (i = 0; y < ye; i++)
+
+            if (intersects(x, y))
             {
-                y = y + 1;
+                Drawable::drawPixel(x, y, c, drawingBuffer);
+            }
+
+            for (i = 0; y < ye && y < (int)m_width; i++)
+            {
+                y++;
                 if (py <= 0)
                 {
                     py = py + 2 * dx1;
                 }
                 else
                 {
-                    if((dx<0 && dy<0) || (dx>0 && dy>0))
+                    if ((dx<0 && dy<0) || (dx>0 && dy>0))
                     {
                         x++;
                     }
@@ -291,7 +319,11 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
                     }
                     py = py + 2 * (dx1 - dy1);
                 }
-                Drawable::drawPixel(x, y, c, drawingBuffer);
+
+                if (intersects(x, y))
+                {
+                    Drawable::drawPixel(x, y, c, drawingBuffer);
+                }
             }
         }
     }
@@ -477,9 +509,9 @@ bool Drawable::blit(
     uint8_t* destBuffer,
     int32_t x,
     int32_t y,
-    uint8_t* data,
-    uint32_t w,
-    uint32_t h,
+    uint8_t* srcData,
+    uint32_t srcWidth,
+    uint32_t srcHeight,
     uint32_t bytesPerPixel,
     int32_t viewX,
     int32_t viewY,
@@ -487,14 +519,22 @@ bool Drawable::blit(
     uint32_t viewHeight,
     bool forceAlpha)
 {
-    if (data == NULL)
+    if (srcData == NULL)
     {
         return false;
     }
 
     Rect destRect(0, 0, getWidth(), getHeight()); // The destination surface
     Rect drawRect(x, y, viewWidth, viewHeight); // The rectangle we're drawing in to
+    Rect srcRect(0, 0, srcWidth, srcHeight);
     Rect viewRect(viewX, viewY, viewWidth, viewHeight); // The area of the source we're copying from
+
+#ifdef DEBUG_DRAWBLE_BLIT
+    printf("blit: BEFORE destRect=%s\n", destRect.toString().c_str());
+    printf("blit: BEFORE drawRect=%s\n", drawRect.toString().c_str());
+    printf("blit: BEFORE  srcRect=%s\n",  srcRect.toString().c_str());
+    printf("blit: BEFORE viewRect=%s\n", viewRect.toString().c_str());
+#endif
 
     bool res;
     res = drawRect.clip(destRect);
@@ -517,16 +557,31 @@ bool Drawable::blit(
     viewRect.w = drawRect.w;
     viewRect.h = drawRect.h;
 
+    res = viewRect.clip(srcRect);
+    if (!res)
+    {
+        return false;
+    }
+
+    drawRect.w = viewRect.w;
+    drawRect.h = viewRect.h;
+
+#ifdef DEBUG_DRAWBLE_BLIT
+    printf("blit: AFTER destRect=%s\n", destRect.toString().c_str());
+    printf("blit: AFTER drawRect=%s\n", drawRect.toString().c_str());
+    printf("blit: AFTER viewRect=%s\n", viewRect.toString().c_str());
+#endif
+
     int32_t y1;
     uint32_t viewStride = viewRect.w * bytesPerPixel;
-    uint32_t dataStride = w * bytesPerPixel;
+    uint32_t dataStride = srcWidth * bytesPerPixel;
 
-    uint8_t* dest = destBuffer + getOffset(x, y);
+    uint8_t* dest = destBuffer + getOffset(drawRect.x, drawRect.y);
 
-    data += (viewRect.x + (viewRect.y * w)) * bytesPerPixel;
+    srcData += (viewRect.x + (viewRect.y * srcWidth)) * bytesPerPixel;
 
-#if 0
-    printf("Drawable::blit: src: %p: w=%d, h=%d\n", data, w, h);
+#ifdef DEBUG_DRAWBLE_BLIT
+    printf("Drawable::blit: src: %p: w=%d, h=%d\n", srcData, srcWidth, srcHeight);
     printf("Drawable::blit: dest: %p: x=%d, y=%d. dest w=%d, h=%d\n", dest, x, y, getWidth(), getHeight());
     printf("Drawable::blit: viewX=%d, viewY=%d, viewWidth=%d, viewHeight=%d\n", viewX, viewY, viewWidth, viewHeight);
 #endif
@@ -535,16 +590,16 @@ bool Drawable::blit(
     {
         for (y1 = 0; y1 < (int32_t)viewRect.h; y1++)
         {
-            memcpy(dest, data, viewStride);
+            memcpy(dest, srcData, viewStride);
             dest += getStride();
-            data += dataStride;
+            srcData += dataStride;
         }
     }
     else
     {
         for (y1 = 0; y1 < (int32_t)viewRect.h; y1++)
         {
-            uint8_t* src = data;
+            uint8_t* src = srcData;
             int32_t x1;
             for (x1 = 0; x1 < viewRect.w; x1++)
             {
@@ -552,7 +607,7 @@ bool Drawable::blit(
                 drawPixel(drawRect.x + x1, drawRect.y + y1, c, destBuffer);
                 src += bytesPerPixel;
             }
-            data += dataStride;
+            srcData += dataStride;
         }
     }
 
