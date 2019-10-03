@@ -70,17 +70,24 @@ bool Data::load(string filename)
     clear();
     log(DEBUG, "Data::load: Loading: %s", filename.c_str());
     FILE* file = fopen(filename.c_str(), "r");
+    if (file == NULL)
+    {
+        log(ERROR, "Data::load: Failed to load: %s", filename.c_str());
+        return false;
+    }
+
     fseek(file, 0, SEEK_END);
     m_length = ftell(file);
     m_bufferSize = m_length;
     fseek(file, 0, SEEK_SET);
 
     m_data = (char*)malloc(m_length);
-    fread(m_data, m_length, 1, file);
+    int res;
+    res = fread(m_data, m_length, 1, file);
     fclose(file);
 
     reset();
-    return true;
+    return (res == 1);
 }
 
 bool Data::loadCompressed(string filename, DataCompression dataCompression)
@@ -88,6 +95,11 @@ bool Data::loadCompressed(string filename, DataCompression dataCompression)
     clear();
     log(DEBUG, "Data::loadCompressed: Loading: %s", filename.c_str());
     FILE* file = fopen(filename.c_str(), "r");
+    if (file == NULL)
+    {
+        log(ERROR, "Data::loadCompressed: Failed to load: %s", filename.c_str());
+        return false;
+    }
 
     z_stream strm;
     strm.zalloc = Z_NULL;
@@ -487,13 +499,13 @@ bool Data::write(FILE* fp, uint32_t pos, uint32_t length)
 bool Data::writeCompressed(string file, DataCompression dataCompression)
 {
     FILE* fd = fopen(file.c_str(), "w");
-    z_stream stream = {
-        .zalloc   = Z_NULL,
-        .zfree    = Z_NULL,
-        .opaque   = Z_NULL,
-        .next_in  = (uint8_t*)m_data,
-        .avail_in = m_length
-    };
+
+    z_stream stream;
+    stream.zalloc   = Z_NULL;
+    stream.zfree    = Z_NULL;
+    stream.opaque   = Z_NULL;
+    stream.next_in  = (uint8_t*)m_data;
+    stream.avail_in = m_length;
 
     // Default bits
     int windowbits = 15;
