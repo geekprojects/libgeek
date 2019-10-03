@@ -22,6 +22,8 @@ AC_CHECK_FUNCS([memset_pattern4])
 
 CPPFLAGS="$CPPFLAGS -std=c++0x"
 
+AC_CHECK_LIB([z], deflateInit2)
+
 # Checks for libraries.
 CPPFLAGS="$CPPFLAGS -I/usr/local/include $SQLITE3_CFLAGS"
 LIBS="$LIBS -L/usr/local/lib -ljpeg $SQLITE3_LDFLAGS"
