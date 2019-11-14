@@ -23,7 +23,7 @@ addons:
   apt:
     packages:
       - libxml2-dev
-      - libpng12-dev
+      - libpng-dev
       - libjpeg-dev
       - libjpeg-turbo8
       - sqlite3
