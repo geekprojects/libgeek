@@ -2,6 +2,23 @@
 language: cpp
 dist: trusty
 
+compiler:
+  - clang
+  - gcc
+
+os:
+  - linux
+  - osx
+
+arch:
+  - amd64
+  - arm64
+
+matrix:
+  exclude:
+    - os: osx
+      arch: arm64
+
 addons:
   apt:
     packages:
@@ -26,11 +43,4 @@ before_script:
 
 script: make && make test
 
-compiler:
-  - clang
-  - gcc
-
-os:
-  - linux
-  - osx
 
