@@ -26,6 +26,7 @@ using namespace Geek;
 
 FontFace::FontFace(
     FontManager* manager,
+    FontFamily* family,
     string path,
     int index,
     string style,
@@ -33,6 +34,7 @@ FontFace::FontFace(
     int unitsPerEM)
 {
     m_manager = manager;
+    m_family = family;
     m_path = path;
     m_index = index;
     m_style = style;

@@ -87,14 +87,16 @@ class FontManager : public Geek::Logger
 class FontFamily
 {
  private:
+    std::string m_name;
     std::vector<FontFace*> m_faces;
 
  public:
-    FontFamily();
+    FontFamily(std::string name);
     ~FontFamily();
 
     void addFace(FontFace* face);
 
+    std::string getName() { return m_name; }
     FontFace* getFace(std::string style);
 };
 
@@ -103,6 +105,7 @@ class FontFace
  private:
     FontManager* m_manager;
 
+    FontFamily* m_family;
     int m_index;
     std::string m_path;
     std::string m_style;
@@ -117,9 +120,10 @@ class FontFace
 
  public:
 
-    FontFace(FontManager* manager, std::string path, int index, std::string style, int height, int unitsPerEM);
+    FontFace(FontManager* manager, FontFamily* family, std::string path, int index, std::string style, int height, int unitsPerEM);
     ~FontFace();
 
+    FontFamily* getFamily() { return m_family; }
     int getIndex() { return m_index; }
     std::string getPath() { return m_path; }
     std::string getStyle() { return m_style; }
@@ -157,7 +161,29 @@ class FontHandle
     FontFace* getFontFace() { return m_face; }
     int getPointSize() { return m_pointSize; }
 
+    int getPixelWidth(std::wstring str) { return m_fontManager->width(this, str); }
     int getPixelHeight(int dpi);
+    int getPixelHeight() { return getPixelHeight(72); }
+
+    bool write(
+        Geek::Gfx::Surface* s,
+        uint32_t x, uint32_t y,
+        std::wstring text,
+        uint32_t c,
+        bool draw = true,
+        int* width = NULL,
+        int maxWidth = -1,
+        int rotate = 0)
+    {
+        return m_fontManager->write(this, s, x, y, text, c, draw, width, maxWidth, rotate);
+    }
+
+    int width(
+        std::wstring chr,
+        int maxWidth = -1)
+    {
+        return m_fontManager->width(this, chr, maxWidth);
+    }
 
     FontManager* getFontManager() { return m_fontManager; }
 };

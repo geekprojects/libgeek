@@ -24,8 +24,9 @@
 using namespace std;
 using namespace Geek;
 
-FontFamily::FontFamily()
+FontFamily::FontFamily(string name)
 {
+    m_name = name;
 }
 
 FontFamily::~FontFamily()

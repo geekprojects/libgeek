@@ -207,12 +207,13 @@ bool FontManager::addFontFile(string path)
 
         if (family == NULL)
         {
-            family = new FontFamily();
+            family = new FontFamily(familyName);
             m_fontFamilies.insert(make_pair(familyName, family));
         }
 
         FontFace* fontFace = new FontFace(
             this,
+            family,
             path,
             index,
             face->style_name,
