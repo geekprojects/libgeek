@@ -627,6 +627,63 @@ static inline uint32_t clipRadius(uint32_t w, uint32_t h, uint32_t r)
     return r;
 }
 
+/*
+ *    r
+ * +----+
+ * |   /
+ * |  -
+ * | /
+ * |/
+ * +
+ *
+ */
+
+bool Drawable::drawCorner(int32_t x, int32_t y, Corner corner, uint32_t r, uint32_t c)
+{
+    int cx = r;
+    int cy = 0;
+    int err = 0;
+    while (cx >= cy)
+    {
+        switch (corner)
+        {
+            case TOP_LEFT:
+                drawPixel(x + cx, y + cy, c);
+                drawPixel(x + cy, y + cx, c);
+                break;
+
+            case TOP_RIGHT:
+                drawPixel(x - cx, y + cy, c);
+                drawPixel(x - cy, y + cx, c);
+                break;
+
+            case BOTTOM_RIGHT:
+                drawPixel(x - cx, y - cy, c);
+                drawPixel(x - cy, y - cx, c);
+                break;
+
+            case BOTTOM_LEFT:
+                drawPixel(x + cx, y - cy, c);
+                drawPixel(x + cy, y - cx, c);
+                break;
+        }
+ 
+        if (err <= 0)
+        {
+            cy += 1;
+            err += 2*cy + 1;
+        }
+ 
+        if (err > 0)
+        {
+            cx -= 1;
+            err -= 2*cx + 1;
+        }
+    }
+
+    return true;
+}
+
 bool Drawable::drawRectRounded(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t r, uint32_t c)
 {
     r = clipRadius(w, h, r);

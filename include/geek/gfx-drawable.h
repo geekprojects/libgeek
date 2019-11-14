@@ -35,6 +35,14 @@ namespace Gfx
 class Drawable;
 class Surface;
 
+enum Corner
+{
+    TOP_LEFT,
+    TOP_RIGHT,
+    BOTTOM_RIGHT,
+    BOTTOM_LEFT
+};
+
 class Drawable
 {
  private:
@@ -95,6 +103,7 @@ class Drawable
     virtual bool blit(int32_t x, int32_t y, Surface* surface, bool forceAlpha = false);
     virtual bool blit(int32_t destX, int32_t destY, Surface* surface, int viewX, int viewY, int viewW, int viewH, bool forceAlpha = false);
 
+    virtual bool drawCorner(int32_t x, int32_t y, Corner corner, uint32_t r, uint32_t c);
     virtual bool drawRectRounded(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t r, uint32_t c);
     virtual bool drawRectFilledRounded(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t r, uint32_t c);
     virtual bool drawGradRounded(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t r, uint32_t c1, uint32_t c2);
