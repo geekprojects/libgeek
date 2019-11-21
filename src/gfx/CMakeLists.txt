@@ -5,7 +5,9 @@ ADD_LIBRARY(geek-gfx SHARED
     surface.cpp
 )
 
-target_compile_definitions(geek-gfx PRIVATE "HAVE_MEMSET_PATTERN4")
+if (HAVE_MEMSET_PATTERN4)
+    target_compile_definitions(geek-gfx PRIVATE "HAVE_MEMSET_PATTERN4")
+endif()
 
 add_definitions(${libpng_CFLAGS})
 
