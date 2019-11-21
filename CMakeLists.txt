@@ -1,6 +1,8 @@
 
 cmake_minimum_required(VERSION 3.10)
 
+include(CheckSymbolExists)
+
 # set the project name
 project(libgeek VERSION 1.0)
 
@@ -8,6 +10,8 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 find_package(PkgConfig REQUIRED)
+
+check_symbol_exists(memset_pattern4 "string.h" HAVE_MEMSET_PATTERN4)
 
 pkg_check_modules(sigcpp REQUIRED sigc++-2.0)
 pkg_check_modules(libxml2 REQUIRED libxml-2.0)
