@@ -32,8 +32,6 @@
 #include <geek/gfx-drawable.h>
 #include <geek/gfx-surface.h>
 
-#include "config.h"
-
 using namespace Geek;
 using namespace Geek::Gfx;
 
