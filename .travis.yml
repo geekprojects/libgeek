@@ -38,9 +38,8 @@ addons:
     update: true
 
 before_script:
-  - ./autogen.sh --verbose 
-  - ./configure
+  - mkdir build; cd build; cmake ..
 
-script: make && make test
+script: cd build && make
 
 
