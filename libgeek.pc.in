@@ -11,6 +11,6 @@ Description: GeekProjects.com's utility library
 Version: 1.0.0
 Requires:
 Conflicts:
-Libs: -L${libdir} -lgeek-core -lgeek-gfx -lgeek-fonts
-Cflags: -I${includedir}
+Libs: @PKGCONFIG_LDFLAGS@
+Cflags: @PKGCONFIG_CFLAGS@
 
