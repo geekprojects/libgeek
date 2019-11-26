@@ -34,5 +34,5 @@ add_subdirectory(src/gfx)
 add_subdirectory(include/geek)
 
 configure_file(libgeek.pc.in libgeek.pc @ONLY)
-install(FILES libgeek.pc DESTINATION "lib${LIB_SUFFIX}/pkgconfig")
+install(FILES ${CMAKE_BINARY_DIR}/libgeek.pc DESTINATION "lib${LIB_SUFFIX}/pkgconfig")
 
