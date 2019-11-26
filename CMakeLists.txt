@@ -35,7 +35,8 @@ add_subdirectory(include/geek)
 
 set(PKGCONFIG_CFLAGS_LIST -I${CMAKE_INSTALL_PREFIX}/include ${sigcpp_CFLAGS} ${libxml2_CFLAGS} ${freetype2_CFLAGS})
 string(REPLACE ";" " " PKGCONFIG_CFLAGS "${PKGCONFIG_CFLAGS_LIST}")
-set(PKGCONFIG_LDFLAGS "-L${CMAKE_INSTALL_PREFIX}/lib -lgeek-core -lgeek-gfx -lgeek-fonts")
+set(PKGCONFIG_LDFLAGS_LIST -L${CMAKE_INSTALL_PREFIX}/lib -lgeek-core -lgeek-gfx -lgeek-fonts ${sigcpp_LDFLAGS} ${libxml2_LDFLAGS} ${freetype2_LDFLAGS})
+string(REPLACE ";" " " PKGCONFIG_LDFLAGS "${PKGCONFIG_LDFLAGS_LIST}")
 
 configure_file(libgeek.pc.in libgeek.pc @ONLY)
 install(FILES ${CMAKE_BINARY_DIR}/libgeek.pc DESTINATION "lib${LIB_SUFFIX}/pkgconfig")
