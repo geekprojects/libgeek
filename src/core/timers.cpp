@@ -171,7 +171,7 @@ bool TimerManager::main()
             timer->signal().emit(timer);
             if (timer->getType() == TIMER_ONE_SHOT)
             {
-                delete timer;
+                //delete timer;
             }
 #endif
         }
