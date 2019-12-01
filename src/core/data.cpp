@@ -137,6 +137,7 @@ bool Data::loadCompressed(string filename, DataCompression dataCompression)
             (void)inflateEnd(&strm);
             fclose(file);
             delete[] in;
+            delete[] out;
             return false;
         }
         flush = feof(file) ? Z_FINISH : Z_NO_FLUSH;
