@@ -227,21 +227,35 @@ int hmacResult(HMACContext *context, uint8_t *digest)
 
   /* finish up 1st pass */
   /* (Use digest here as a temporary buffer.) */
-  ret =
-    USHAResult(&context->shaContext, digest) ||
-         /* perform outer SHA */
-         /* init context for 2nd pass */
-         USHAReset(&context->shaContext, context->whichSha) ||
+  ret = USHAResult(&context->shaContext, digest);
 
-         /* start with outer pad */
-         USHAInput(&context->shaContext, context->k_opad,
-                   context->blockSize) ||
+  if (!ret)
+  {
+    /* perform outer SHA */
+    /* init context for 2nd pass */
+    ret = USHAReset(&context->shaContext, context->whichSha);
+  }
 
-         /* then results of 1st hash */
-         USHAInput(&context->shaContext, digest, context->hashSize) ||
-         /* finish up 2nd pass */
-         USHAResult(&context->shaContext, digest);
+  if (!ret)
+  {
+    /* start with outer pad */
+    ret = USHAInput(&context->shaContext, context->k_opad, context->blockSize);
+  }
+
+  if (!ret)
+  {
+    /* then results of 1st hash */
+    ret = USHAInput(&context->shaContext, digest, context->hashSize);
+  }
+
+  if (!ret)
+  {
+    /* finish up 2nd pass */
+    USHAResult(&context->shaContext, digest);
+  }
 
   context->Computed = 1;
-  return context->Corrupted = ret;
+
+  context->Corrupted = ret;
+  return ret;
 }
