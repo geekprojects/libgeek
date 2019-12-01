@@ -135,6 +135,7 @@ bool Data::loadCompressed(string filename, DataCompression dataCompression)
         if (ferror(file))
         {
             (void)inflateEnd(&strm);
+            fclose(file);
             delete[] in;
             return false;
         }
