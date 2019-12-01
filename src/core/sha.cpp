@@ -13,7 +13,7 @@ static string hex(uint8_t* bytes, int length)
     for (i = 0; i < length; i++)
     {
         char bytestr[5];
-        sprintf(bytestr, "%02x", bytes[i]);
+        snprintf(bytestr, 5, "%02x", bytes[i]);
         str += bytestr;
     }
     return str;
