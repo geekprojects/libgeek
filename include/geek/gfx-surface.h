@@ -92,6 +92,8 @@ class HighDPISurface : public Surface
     virtual bool drawRectFilled(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c);
     virtual bool drawRect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c);
     virtual bool drawGrad(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c1, uint32_t c2);
+    virtual bool drawCircle(int32_t x, int32_t y, uint32_t r, uint32_t c);
+    virtual bool drawCircleFilled(int32_t x, int32_t y, uint32_t r, uint32_t c);
 
     virtual bool blit(int32_t x, int32_t y, uint8_t* data, uint32_t w, uint32_t h, uint32_t bbp, bool alpha = false);
     virtual bool blit(int32_t x, int32_t y, Surface* surface, bool forceAlpha = false);
@@ -207,6 +209,16 @@ class SurfaceViewPort : public Surface
             c1, c2);
     }
 
+    virtual bool drawCircle(int32_t x, int32_t y, uint32_t r, uint32_t c)
+    {
+        return m_parentSurface->drawCircle(m_offsetX + x, m_offsetY + y, r, c);
+    }
+
+    virtual bool drawCircleFilled(int32_t x, int32_t y, uint32_t r, uint32_t c)
+    {
+        return m_parentSurface->drawCircleFilled(m_offsetX + x, m_offsetY + y, r, c);
+    }
+
     virtual bool clear(uint32_t c)
     {
         return drawRectFilled(0, 0, m_width, m_height, c);
@@ -285,12 +297,20 @@ class SurfaceViewPort : public Surface
         if (drawRect.x > x)
         {
             int d = drawRect.x - x;
+            if (isHighDPI())
+            {
+                d *= 2;
+            }
             viewRect.x += d;
         }
 
         if (drawRect.y > y)
         {
             int d = drawRect.y - y;
+            if (isHighDPI())
+            {
+                d *= 2;
+            }
             viewRect.y += d;
         }
         viewRect.w = drawRect.w;
