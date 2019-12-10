@@ -322,36 +322,32 @@ bool FontManager::write(
 
     bool useKerning = FT_HAS_KERNING(face);
 
-    int origX2 = 0;
-    int origY2 = 0;
+    Rect drawRect;
     if (surface != NULL)
     {
         Surface* rootSurface = surface->getRoot();
-        Rect surfaceRect = surface->absolute();
+        drawRect = surface->absolute();
+#if 0
+        log(DEBUG, "draw: root size: %d, %d", rootSurface->getWidth(), rootSurface->getHeight());
+        log(DEBUG, "draw: drawRect: %s", drawRect.toString().c_str());
+#endif
 
-        x += surfaceRect.x;
-        y += surfaceRect.y;
+        x += drawRect.x;
+        y += drawRect.y;
 
         if (highDPI)
         {
             x *= 2;
             y *= 2;
-            int sw = surface->getWidth();
-            int sh = surface->getWidth();
-            if (rootSurface != surface)
-            {
-                sw *= 2;
-                sh *= 2;
-            }
-            origX2 = (surfaceRect.x * 2) + sw;
-            origY2 = (surfaceRect.y * 2) + sh;
-        }
-        else
-        {
-            origX2 = surfaceRect.x + surface->getWidth();
-            origY2 = surfaceRect.y + surface->getHeight();
+            drawRect.x *= 2;
+            drawRect.y *= 2;
+            drawRect.w *= 2;
+            drawRect.h *= 2;
         }
 
+#if 0
+        log(DEBUG, "draw: drawRect: %s (Scaled)", drawRect.toString().c_str());
+#endif
         surface = rootSurface;
     }
 
@@ -550,16 +546,28 @@ bool FontManager::write(
                 if (rotate == 0)
                 {
                     y1 = y + yp + yoff;
+                    if (y1 < drawRect.y)
+                    {
+                        continue;
+                    }
                 }
                 else if (rotate == 90)
                 {
                     x1 = x + yp + yoff;
+                    if (x1 < drawRect.x)
+                    {
+                        continue;
+                    }
                 }
                 else if (rotate == 270)
                 {
-                    x1 = (bitmap.rows - yp) + x;// - yoff;
+                    x1 = (bitmap.rows - yp) + x;
+                    if (x1 < drawRect.x)
+                    {
+                        continue;
+                    }
                 }
-                if (y1 >= (int)origY2 || x1 >= (int)origX2)
+                if (y1 >= (int)drawRect.getY2() || x1 >= (int)drawRect.getX2())
                 {
                     break;
                 }
@@ -580,11 +588,7 @@ bool FontManager::write(
                         y1 = y + xp + yoff;
                     }
 
-                    if (x1 < 0 || x1 >= origX2)
-                    {
-                        continue;
-                    }
-                    if (y1 < 0 || y1 >= origY2)
+                    if (x1 < drawRect.x || x1 > drawRect.getX2() || y1 < drawRect.y || y1 > drawRect.getY2())
                     {
                         continue;
                     }
@@ -638,7 +642,7 @@ bool FontManager::write(
 
         if (draw)
         {
-            if ((int)x >= origX2 || (int)y >= origY2)
+            if ((int)x >= drawRect.getX2() || (int)y >= drawRect.getY2())
             {
                 break;
             }
