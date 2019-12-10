@@ -107,6 +107,8 @@ class Drawable
     virtual bool drawRectRounded(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t r, uint32_t c);
     virtual bool drawRectFilledRounded(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t r, uint32_t c);
     virtual bool drawGradRounded(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t r, uint32_t c1, uint32_t c2);
+    virtual bool drawCircle(int32_t x, int32_t y, uint32_t r, uint32_t c);
+    virtual bool drawCircleFilled(int32_t x, int32_t y, uint32_t r, uint32_t c);
 
     virtual bool blit(
         uint8_t* destBuffer,

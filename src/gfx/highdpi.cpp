@@ -116,6 +116,16 @@ bool HighDPISurface::drawGrad(int32_t x, int32_t y, uint32_t w, uint32_t h, uint
     return Surface::drawGrad(x, y, w, h, c1, c2);
 }
 
+bool HighDPISurface::drawCircle(int32_t x, int32_t y, uint32_t r, uint32_t c)
+{
+    return Surface::drawCircle(x * 2, y * 2, r * 2, c);
+}
+
+bool HighDPISurface::drawCircleFilled(int32_t x, int32_t y, uint32_t r, uint32_t c)
+{
+    return Surface::drawCircleFilled(x * 2, y * 2, r * 2, c);
+}
+
 bool HighDPISurface::blit(int32_t x, int32_t y, uint8_t* data, uint32_t w, uint32_t h, uint32_t bbp, bool alpha)
 {
     return Surface::blit(x * 2, y * 2, data, w, h, bbp, alpha);

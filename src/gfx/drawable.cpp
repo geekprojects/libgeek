@@ -849,13 +849,62 @@ bool Drawable::drawGradRounded(int32_t x, int32_t y, uint32_t w, uint32_t h, uin
     return true;
 }
 
+bool Drawable::drawCircle(int32_t x, int32_t y, uint32_t r, uint32_t c)
+{
+    int cx = r;
+    int cy = 0;
+    int err = 0;
+    while (cx >= cy)
+    {
+        Drawable::drawPixel(x - cx, y - cy, c);
+        Drawable::drawPixel(x - cx, y + cy, c);
+        Drawable::drawPixel(x + cx, y - cy, c);
+        Drawable::drawPixel(x + cx, y + cy, c);
+
+        if (err <= 0)
+        {
+            cy += 1;
+            err += 2*cy + 1;
+        }
+
+        if (err > 0)
+        {
+            cx -= 1;
+            err -= 2*cx + 1;
+        }
+    }
+
+    return true;
+}
+
+bool Drawable::drawCircleFilled(int32_t x, int32_t y, uint32_t r, uint32_t c)
+{
+    int y0;
+    for (y0 = 0; y0 < r; y0++)
+    {
+        int x0;
+        for (x0 = 0; x0 < r; x0++)
+        {
+            float d = sqrt((double)((x0 * x0) + (y0 * y0)));
+            if (d <= (double)r)
+            {
+                Drawable::drawPixel(x - x0, y - y0, c);
+                Drawable::drawPixel(x - x0, y + y0, c);
+                Drawable::drawPixel(x + x0, y - y0, c);
+                Drawable::drawPixel(x + x0, y + y0, c);
+            }
+        }
+    }
+
+    return true;
+}
+
 uint32_t Drawable::getPixel(int32_t x, int32_t y)
 {
     uintptr_t p = (uintptr_t)getDrawingBuffer() + getOffset(x, y);
     uint32_t* dest = (uint32_t*)p;
     return *dest;
 }
-
 
 bool Drawable::saveJPEG(std::string path)
 {
