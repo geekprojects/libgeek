@@ -1,6 +1,6 @@
 /*
  *  libgeek - The GeekProjects utility suite
- *  Copyright (C) 2014, 2015, 2016 GeekProjects.com
+ *  Copyright (C) 2014, 2015, 2016, 2019 GeekProjects.com
  *
  *  This file is part of libgeek.
  *
@@ -279,18 +279,18 @@ Surface* Surface::loadJPEGInternal(struct jpeg_decompress_struct* cinfo)
             uint8_t r;
             uint8_t g;
             uint8_t b;
-if (cinfo->output_components == 1)
-{
-r = *ptr++;
-g = r;
-b = r;
-}
-else
-{
-            r = *ptr++;
-            g = *ptr++;
-            b = *ptr++;
-}
+            if (cinfo->output_components == 1)
+            {
+                r = *ptr++;
+                g = r;
+                b = r;
+            }
+            else
+            {
+                r = *ptr++;
+                g = *ptr++;
+                b = *ptr++;
+            }
             *(data++) = 0xff000000 | r << 0 | g << 8 | b << 16;
         }
     }
@@ -386,10 +386,10 @@ Surface* Surface::loadPNG(string path)
             {
                 *(dst++) = *(src++);
             }
-else
-{
-dst++;
-}
+            else
+            {
+                *(dst++) = 0xff;
+            }
 #endif
         }
     }
@@ -506,9 +506,19 @@ Surface* Surface::loadTGA(string path)
         return NULL;
     }
 
-    uint8_t idLen = fgetc(fd);
-    uint8_t colourMapType = fgetc(fd);
-    uint8_t imageType = fgetc(fd);
+    char buf[3];
+    size_t res;
+    res = fread(buf, 3, 1, fd);
+    if (res < 1)
+    {
+        printf("Surface::loadTGA: ERROR: Unable to open file header: %s\n", path.c_str());
+        fclose(fd);
+        return NULL;
+    }
+
+    uint8_t idLen = buf[0];
+    uint8_t colourMapType = buf[1];
+    uint8_t imageType = buf[2];
 
 #if 0
     printf("Surface::loadTGA: ldLen=%d, colourMapType=%d, imageType=%d\n", idLen, colourMapType, imageType);
@@ -533,24 +543,29 @@ Surface* Surface::loadTGA(string path)
     // TODO: Little Endian Only!
     uint16_t width = 0;
     uint16_t height = 0;
-    size_t res;
 
     res = fread(&width, 2, 1, fd);
-    if (res <= 0)
+    if (res < 1)
     {
         fclose(fd);
         return NULL;
     }
 
     res = fread(&height, 2, 1, fd);
-    if (res <= 0)
+    if (res < 1)
     {
         fclose(fd);
         return NULL;
     }
 
-    uint8_t bpp = fgetc(fd);
-    /*uint8_t imageDesc =*/ fgetc(fd);
+    res = fread(buf, 2, 1, fd);
+    if (res < 1)
+    {
+        printf("Surface::loadTGA: ERROR: Error reading from file\n");
+        fclose(fd);
+        return NULL;
+    }
+    uint8_t bpp = buf[0];
 
 #if 0
     printf("Surface::loadTGA: width=%d, height=%d, bpp=%d, imageDesc=0x%x\n", width, height, bpp, imageDesc);
@@ -563,7 +578,13 @@ Surface* Surface::loadTGA(string path)
         return NULL;
     }
 
-    fseek(fd, idLen, SEEK_CUR);
+    res = fseek(fd, idLen, SEEK_CUR);
+    if (res != 0)
+    {
+        printf("Surface::loadTGA: ERROR: Failed to seek to data\n");
+        fclose(fd);
+        return NULL;
+    }
 
     Surface* surface = new Surface(width, height, 4);
 
@@ -576,9 +597,18 @@ Surface* Surface::loadTGA(string path)
         {
             for (x = 0; x < width; x++)
             {
-                uint8_t b = fgetc(fd);
-                uint8_t g = fgetc(fd);
-                uint8_t r = fgetc(fd);
+                res = fread(buf, 3, 1, fd);
+                if (res < 1)
+                {
+                    printf("Surface::loadTGA: ERROR: Failed to read data\n");
+                    delete surface;
+                    fclose(fd);
+                    return NULL;
+                }
+
+                uint8_t b = buf[0];
+                uint8_t g = buf[1];
+                uint8_t r = buf[2];
                 surface->drawPixel(x, height - (y + 1), 0xff000000 | (b << 16) | (g << 8) | r);
             }
         }
@@ -589,14 +619,30 @@ Surface* Surface::loadTGA(string path)
         {
             uint8_t c = fgetc(fd);
             int length = (c & 0x7f) + 1;
+            if (feof(fd))
+            {
+                printf("Surface::loadTGA: ERROR: File truncated?\n");
+                delete surface;
+                fclose(fd);
+                return NULL;
+            }
 
             uint32_t p = 0;
             if (c & 0x80)
             {
-                // Run Length
-                uint8_t b = fgetc(fd);
-                uint8_t g = fgetc(fd);
-                uint8_t r = fgetc(fd);
+                res = fread(buf, 3, 1, fd);
+                if (res < 1)
+                {
+                    printf("Surface::loadTGA: ERROR: Failed to read data\n");
+                    delete surface;
+                    fclose(fd);
+                    return NULL;
+                }
+
+                uint8_t b = buf[0];
+                uint8_t g = buf[1];
+                uint8_t r = buf[2];
+ 
                 p = 0xff000000 | (b << 16) | (g << 8) | r;
             }
 
@@ -605,10 +651,19 @@ Surface* Surface::loadTGA(string path)
             {
                 if (!(c & 0x80))
                 {
-                    // Raw pixel
-                    uint8_t b = fgetc(fd);
-                    uint8_t g = fgetc(fd);
-                    uint8_t r = fgetc(fd);
+                    res = fread(buf, 3, 1, fd);
+                    if (res < 1)
+                    {
+                        printf("Surface::loadTGA: ERROR: Failed to read data\n");
+                        delete surface;
+                        fclose(fd);
+                        return NULL;
+                    }
+
+                    uint8_t b = buf[0];
+                    uint8_t g = buf[1];
+                    uint8_t r = buf[2];
+ 
                     p = 0xff000000 | (b << 16) | (g << 8) | r;
                 }
                 surface->drawPixel(x, height - (y + 1), p);
