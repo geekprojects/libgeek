@@ -48,7 +48,7 @@ FontManager::FontManager()
 FontManager::~FontManager()
 {
     map<string, FontFamily*>::iterator it;
-    for (it = m_fontFamilies.begin(); it != m_fontFamilies.end(); it++)
+    for (it = m_fontFamilies.begin(); it != m_fontFamilies.end(); ++it)
     {
         delete it->second;
     }
@@ -372,6 +372,12 @@ bool FontManager::write(
 
     font->getFontFace()->lock();
 
+    int pixelHeight = font->getPixelHeight(72);
+    if (highDPI)
+    {
+        pixelHeight *= 2;
+    }
+
     for (pos = 0; pos < text.length(); pos++)
     {
         uint32_t glyphIndex;
@@ -509,14 +515,8 @@ bool FontManager::write(
 
         if (draw && bitmapValid)
         {
-            int ph = font->getPixelHeight(72);
-            if (highDPI)
-            {
-                ph *= 2;
-            }
-
-            int yoff = ph - top;
-            yoff -= ph / 4;
+            int yoff = pixelHeight - top;
+            yoff -= pixelHeight / 4;
 
             /*
              *   0:
