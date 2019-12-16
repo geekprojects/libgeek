@@ -14,6 +14,23 @@ class PThreadMutex : public Geek::Mutex
 
  public:
     PThreadMutex();
+    PThreadMutex(PThreadMutex& other)
+    {
+        m_mutex = other.m_mutex;
+    }
+
+    PThreadMutex(PThreadMutex &&fp) noexcept
+    {
+        m_mutex = fp.m_mutex;
+    }
+
+    PThreadMutex const & operator=(PThreadMutex &&fp)
+    {
+        PThreadMutex temp(std::move(fp));
+        std::swap(temp.m_mutex, m_mutex);
+        return *this;
+    }
+
     virtual ~PThreadMutex();
 
     bool lock();

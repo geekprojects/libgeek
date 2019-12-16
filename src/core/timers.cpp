@@ -58,7 +58,7 @@ void TimerManager::cancelTimer(Timer* timer)
 
     m_timersMutex->lock();
     vector<Timer*>::iterator it;
-    for (it = m_timers.begin(); it != m_timers.end(); it++)
+    for (it = m_timers.begin(); it != m_timers.end(); ++it)
     {
         if (timer == *it)
         {
@@ -117,7 +117,7 @@ bool TimerManager::main()
         vector<Timer*> emitSignals;
 
         uint64_t next = getTimestamp() + (60 * 1000);
-        for (it = m_timers.begin(); it != m_timers.end(); it++)
+        for (it = m_timers.begin(); it != m_timers.end(); ++it)
         {
             Timer* timer = *it;
             uint64_t now = getTimestamp();
@@ -151,7 +151,7 @@ bool TimerManager::main()
         for (Timer* timer : removeTimers)
         {
             vector<Timer*>::iterator removeIt;
-            for (removeIt = m_timers.begin(); removeIt != m_timers.end(); removeIt++)
+            for (removeIt = m_timers.begin(); removeIt != m_timers.end(); ++removeIt)
             {
                 if (*removeIt == timer)
                 {
@@ -187,7 +187,5 @@ bool TimerManager::main()
             m_condVar->wait(wait);
         }
     }
-
-    return false;
 }
 

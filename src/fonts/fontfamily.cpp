@@ -32,7 +32,7 @@ FontFamily::FontFamily(string name)
 FontFamily::~FontFamily()
 {
     vector<FontFace*>::iterator it;
-    for (it = m_faces.begin(); it != m_faces.end(); it++)
+    for (it = m_faces.begin(); it != m_faces.end(); ++it)
     {
         FontFace* face = *it;
         delete face;
@@ -47,7 +47,7 @@ void FontFamily::addFace(FontFace* face)
 FontFace* FontFamily::getFace(string style)
 {
     vector<FontFace*>::iterator it;
-    for (it = m_faces.begin(); it != m_faces.end(); it++)
+    for (it = m_faces.begin(); it != m_faces.end(); ++it)
     {
         FontFace* face = *it;
         if (face->getStyle() == style)

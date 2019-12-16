@@ -109,7 +109,7 @@ void TaskExecutor::taskComplete(TaskWorker* worker)
 
     m_tasksMutex->lock();
     vector<Task*>::iterator taskIt;
-    for (taskIt = m_tasks.begin(); taskIt != m_tasks.end(); taskIt++)
+    for (taskIt = m_tasks.begin(); taskIt != m_tasks.end(); ++taskIt)
     {
         if (*taskIt == worker->getTask())
         {
@@ -121,7 +121,7 @@ void TaskExecutor::taskComplete(TaskWorker* worker)
 
     // Remove the completed worker from our list
     vector<TaskWorker*>::iterator it;
-    for (it = m_workers.begin(); it != m_workers.end(); it++)
+    for (it = m_workers.begin(); it != m_workers.end(); ++it)
     {
         if (*it == worker)
         {

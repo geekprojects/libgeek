@@ -129,7 +129,7 @@ bool Database::checkSchema(vector<Table> schema)
 
     vector<Table>::iterator tableIt;
 
-    for (tableIt = schema.begin(); tableIt != schema.end(); tableIt++)
+    for (tableIt = schema.begin(); tableIt != schema.end(); ++tableIt)
     {
         string table = tableIt->name;
         it = tables.find(table);
@@ -195,7 +195,7 @@ string primaryKeys = "";
             for (
                 columnIt = tableIt->columns.begin();
                 columnIt != tableIt->columns.end();
-                columnIt++)
+                ++columnIt)
             {
                 set<string>::iterator it;
                 string column = columnIt->name;
@@ -272,7 +272,7 @@ ResultSet Database::executeQuery(string query, vector<string> args)
 
     vector<string>::iterator argIt;
     int arg = 1;
-    for (argIt = args.begin(); argIt != args.end(); argIt++)
+    for (argIt = args.begin(); argIt != args.end(); ++argIt)
     {
         sqlite3_bind_text(
             stmt,
@@ -394,7 +394,7 @@ set<string> Database::getTables()
 
     results = executeQuery(GET_TABLES_SQL);
     vector<Row>::iterator rowIt;
-    for (rowIt = results.rows.begin(); rowIt != results.rows.end(); rowIt++)
+    for (rowIt = results.rows.begin(); rowIt != results.rows.end(); ++rowIt)
     {
         map<string, string>::iterator it = rowIt->columns.find("name");
         if (it != rowIt->columns.end())

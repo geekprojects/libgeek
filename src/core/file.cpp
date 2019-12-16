@@ -34,7 +34,7 @@ bool File::mkdirs(string path)
     vector<string> parts = splitString(path, '/');
     vector<string>::iterator it;
 
-    for (it = parts.begin(); it != parts.end(); it++)
+    for (it = parts.begin(); it != parts.end(); ++it)
     {
         string part = *it;
         current += "/" + part;
