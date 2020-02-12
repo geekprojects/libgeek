@@ -15,9 +15,10 @@ using namespace Geek::Core;
 
 string GET_TABLES_SQL = "SELECT name FROM sqlite_master WHERE type='table'";
 
-Database::Database(string path)
+Database::Database(string path, bool readOnly)
 {
     m_path = path;
+    m_readOnly = readOnly;
     m_db = NULL;
     m_open = false;
     m_inTransaction = 0;
@@ -66,8 +67,18 @@ bool Database::open()
         }
     }
 
+    int flags;
+    if (m_readOnly)
+    {
+        flags = SQLITE_OPEN_READONLY;
+    }
+    else
+    {
+        flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
+    }
+
     int res;
-    res = sqlite3_open(m_path.c_str(), &m_db);
+    res = sqlite3_open_v2(m_path.c_str(), &m_db, flags, NULL);
     if (res)
     {
         fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(m_db));

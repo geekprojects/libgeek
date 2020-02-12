@@ -126,12 +126,13 @@ class Database
 {
  private:
     std::string m_path;
+    bool m_readOnly;
     sqlite3* m_db;
     bool m_open;
     int m_inTransaction;
 
  public:
-    Database(std::string path);
+    Database(std::string path, bool readOnly = false);
     ~Database();
 
     bool open();
