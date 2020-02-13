@@ -23,6 +23,7 @@ class Data : public Geek::Logger
     char* m_pos;
     unsigned int m_length;
     unsigned int m_bufferSize;
+    bool m_isSub;
 
     bool m_swap;
 
@@ -48,6 +49,7 @@ class Data : public Geek::Logger
     char* posPointer() { return m_pos; }
 
     uint8_t peek8();
+    uint32_t peek32();
 
     uint8_t read8();
     uint16_t read16();
@@ -56,6 +58,9 @@ class Data : public Geek::Logger
     float readFloat();
     double readDouble();
     //Vector readVector();
+    uint64_t readULEB128();
+
+    char* readStruct(size_t len);
 
     std::string cstr();
     std::string readString(int max);

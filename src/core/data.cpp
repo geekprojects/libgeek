@@ -45,6 +45,7 @@ Data::Data()
     m_length = 0;
     m_bufferSize = 0;
     m_swap = false;
+    m_isSub = false;
 
     reset();
 }
@@ -56,6 +57,7 @@ Data::Data(char* data, unsigned int length)
     m_length = length;
     m_bufferSize = length;
     m_swap = false;
+    m_isSub = false;
 
     reset();
 }
@@ -68,11 +70,11 @@ Data::~Data()
 bool Data::load(string filename)
 {
     clear();
-    log(DEBUG, "Data::load: Loading: %s", filename.c_str());
+    log(DEBUG, "load: Loading: %s", filename.c_str());
     FILE* file = fopen(filename.c_str(), "r");
     if (file == NULL)
     {
-        log(ERROR, "Data::load: Failed to load: %s", filename.c_str());
+        log(ERROR, "load: Failed to load: %s", filename.c_str());
         return false;
     }
 
@@ -93,11 +95,11 @@ bool Data::load(string filename)
 bool Data::loadCompressed(string filename, DataCompression dataCompression)
 {
     clear();
-    log(DEBUG, "Data::loadCompressed: Loading: %s", filename.c_str());
+    log(DEBUG, "loadCompressed: Loading: %s", filename.c_str());
     FILE* file = fopen(filename.c_str(), "r");
     if (file == NULL)
     {
-        log(ERROR, "Data::loadCompressed: Failed to load: %s", filename.c_str());
+        log(ERROR, "loadCompressed: Failed to load: %s", filename.c_str());
         return false;
     }
 
@@ -175,7 +177,7 @@ bool Data::loadCompressed(string filename, DataCompression dataCompression)
 
 void Data::clear()
 {
-    if (m_data != NULL)
+    if (m_data != NULL && !m_isSub)
     {
          free(m_data);
          m_data = NULL;
@@ -236,20 +238,20 @@ else
 uint32_t Data::read32()
 {
     uint32_t res;
-if (!m_swap)
-{
-    res = read8();
-    res |= read8() << 8;
-    res |= read8() << 16;
-    res |= read8() << 24;
-}
-else
-{
-    res = read8() << 24;
-    res |= read8() << 16;
-    res |= read8() << 8;
-    res |= read8() << 0;
-}
+    if (!m_swap)
+    {
+        res = read8();
+        res |= read8() << 8;
+        res |= read8() << 16;
+        res |= read8() << 24;
+    }
+    else
+    {
+        res = read8() << 24;
+        res |= read8() << 16;
+        res |= read8() << 8;
+        res |= read8() << 0;
+    }
     return res;
 }
 
@@ -269,10 +271,14 @@ uint64_t Data::read64()
     return res;
 }
 
-
 uint8_t Data::peek8()
 {
     return *(m_pos);
+}
+
+uint32_t Data::peek32()
+{
+    return *((uint32_t*)m_pos);
 }
 
 float Data::readFloat()
@@ -291,6 +297,32 @@ double Data::readDouble()
     return res;
 }
 
+uint64_t Data::readULEB128()
+{
+    uint64_t result = 0;
+    int bit = 0;
+
+    while (!eof())
+    {
+        uint8_t b = read8();
+        result |= (((uint64_t)(b & 0x7f)) << bit);
+        bit += 7;
+
+        if (!(b & 0x80))
+        {
+            break;
+        }
+    }
+
+    return result;
+}
+
+char* Data::readStruct(size_t len)
+{
+    char* pos = m_pos;
+    m_pos += len;
+    return pos;
+}
 
 /*
 Vector Data::readVector()
@@ -565,7 +597,9 @@ bool Data::writeCompressed(string file, DataCompression dataCompression)
 
 Data* Data::getSubData(uint32_t pos, uint32_t length)
 {
-    return new Data(m_data + pos, length);
+    Data* data = new Data(m_data + pos, length);
+    data->m_isSub = true;
+    return data;
 }
 
 
