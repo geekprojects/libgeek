@@ -275,7 +275,7 @@ ResultSet Database::executeQuery(string query, vector<string> args)
     if (res)
     {
         printf(
-            "Database::open: Prepare Error: res=%d, msg=%s\n",
+            "Database::executeQuery: Prepare Error: res=%d, msg=%s\n",
             res,
             sqlite3_errmsg(m_db));
         return resultSet;
@@ -583,23 +583,39 @@ bool PreparedStatement::executeQuery()
 
 bool PreparedStatement::step()
 {
-    int res;
-    res = sqlite3_step(m_stmt);
+    int attempt = 0;
 
-    if (res == SQLITE_ROW)
+    while (true)
     {
-        return true;
-    }
-    else if (res == SQLITE_DONE)
-    {
-        return false;
-    }
-    else
-    {
-        printf(
-            "PreparedStatement::executeQuery: Prepare Error: res=%d, msg=%s\n",
-            res,
-            sqlite3_errmsg(m_db->getDB()));
+        int res;
+        res = sqlite3_step(m_stmt);
+
+        if (res == SQLITE_ROW)
+        {
+            return true;
+        }
+        else if (res == SQLITE_DONE)
+        {
+            return false;
+        }
+        else if (res == SQLITE_BUSY)
+        {
+            if (attempt > 4)
+            {
+                printf("PreparedStatement::step: Database is busy, giving up\n");
+                return false;
+            }
+            usleep(10000);
+        }
+        else
+        {
+            printf(
+                "PreparedStatement::step: Prepare Error: res=%d, msg=%s\n",
+                res,
+                sqlite3_errmsg(m_db->getDB()));
+            return false;
+        }
+        attempt++;
     }
 
     return false;
