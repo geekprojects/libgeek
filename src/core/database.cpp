@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
+#include <time.h>
 #include <sys/stat.h>
 
 #include <string>
@@ -605,7 +606,10 @@ bool PreparedStatement::step()
                 printf("PreparedStatement::step: Database is busy, giving up\n");
                 return false;
             }
-            usleep(10000);
+            struct timespec tv;
+            tv.tv_sec = 0;
+            tv.tv_nsec = 100 * 1000000;
+            nanosleep(&tv, NULL);
         }
         else
         {
