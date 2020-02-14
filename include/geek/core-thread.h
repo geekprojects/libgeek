@@ -46,6 +46,9 @@ class ThreadImpl
     ThreadImpl(Thread* thread) { m_thread = thread; }
 
  public:
+    ThreadImpl() {}
+    virtual ~ThreadImpl() {}
+
     virtual void start() = 0;
     virtual void wait() = 0;
 

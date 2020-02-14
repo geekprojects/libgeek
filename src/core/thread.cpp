@@ -41,6 +41,7 @@ Thread::Thread()
 
 Thread::~Thread()
 {
+    delete m_impl;
 }
 
 #if 0
