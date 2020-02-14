@@ -131,9 +131,13 @@ class Database
     bool m_open;
     int m_inTransaction;
 
+    int m_extraOpenFlags;
+
  public:
     Database(std::string path, bool readOnly = false);
     ~Database();
+
+    void setExtraOpenFlags(int extraFlags) { m_extraOpenFlags = extraFlags; }
 
     bool open();
     bool close();

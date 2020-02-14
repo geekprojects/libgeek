@@ -23,6 +23,7 @@ Database::Database(string path, bool readOnly)
     m_db = NULL;
     m_open = false;
     m_inTransaction = 0;
+    m_extraOpenFlags = 0;
 
     sqlite3_initialize();
 }
@@ -31,7 +32,7 @@ Database::~Database()
 {
     close();
 
-    //sqlite3_shutdown();
+    sqlite3_shutdown();
 }
 
 bool Database::open()
@@ -77,6 +78,8 @@ bool Database::open()
     {
         flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
     }
+
+    flags |= m_extraOpenFlags;
 
     int res;
     res = sqlite3_open_v2(m_path.c_str(), &m_db, flags, NULL);
