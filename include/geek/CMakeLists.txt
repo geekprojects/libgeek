@@ -18,5 +18,6 @@ install(FILES
     core-matrix.h
     core-tasks.h
     fonts.h
+    gfx-colour.h
     DESTINATION include/geek)
 

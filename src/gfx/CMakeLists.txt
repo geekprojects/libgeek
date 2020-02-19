@@ -3,6 +3,7 @@ ADD_LIBRARY(geek-gfx SHARED
     drawable.cpp
     highdpi.cpp
     surface.cpp
+    colour.cpp
 )
 
 if (HAVE_MEMSET_PATTERN4)
