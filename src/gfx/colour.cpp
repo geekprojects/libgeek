@@ -143,13 +143,14 @@ string Colour::toHexString()
 Colour Colour::fromHexString(std::string str)
 {
     int pos = 0;
-    if (str.at(pos) == '#')
+    int len = str.length();
+    if (len > 0 && str.at(pos) == '#')
     {
         pos++;
+        len--;
     }
 
     Colour c(0, 0, 0);
-    int len = str.length() - pos;
     if (len == 6)
     {
         char buf[3];
