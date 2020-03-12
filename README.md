@@ -40,12 +40,15 @@ Ian Parker <ian@geekprojects.com>
 
 Installation
 ------------
+libgeek now uses CMake:
 
-./autogen.sh (If cloned from git)
-./configure
+```
+mkdir build
+cd build
+cmake ..
 make
 sudo make install
-
+```
 
 License
 -------
