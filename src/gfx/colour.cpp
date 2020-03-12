@@ -3,6 +3,7 @@
 
 #include <math.h>
 
+using namespace std;
 using namespace Geek::Gfx;
 
 void Colour::toHSB(double* hsb)
@@ -120,6 +121,68 @@ Colour Colour::fromHSB(double hue, double saturation, double brightness)
             c.g = (int)(p);
             c.b = (int)(q);
             break;
+    }
+
+    return c;
+}
+
+string Colour::toHexString()
+{
+    string hexstr = "#";
+    char buf[10];
+    snprintf(buf, 10, "%02x", r);
+    hexstr += string(buf);
+    snprintf(buf, 10, "%02x", g);
+    hexstr += string(buf);
+    snprintf(buf, 10, "%02x", b);
+    hexstr += string(buf);
+
+    return hexstr;
+}
+
+Colour Colour::fromHexString(std::string str)
+{
+    int pos = 0;
+    if (str.at(pos) == '#')
+    {
+        pos++;
+    }
+
+    Colour c(0, 0, 0);
+    int len = str.length() - pos;
+    if (len == 6)
+    {
+        char buf[3];
+        buf[2] = 0;
+
+        buf[0] = str.at(pos++);
+        buf[1] = str.at(pos++);
+        c.r = strtol(buf, NULL, 16);
+
+        buf[0] = str.at(pos++);
+        buf[1] = str.at(pos++);
+        c.g = strtol(buf, NULL, 16);
+
+        buf[0] = str.at(pos++);
+        buf[1] = str.at(pos++);
+        c.b = strtol(buf, NULL, 16);
+    }
+    else if (len == 3)
+    {
+        char buf[2];
+        buf[1] = 0;
+
+        buf[0] = str.at(pos++);
+        c.r = strtol(buf, NULL, 16);
+        c.r = (c.r << 4) | c.r;
+
+        buf[0] = str.at(pos++);
+        c.g = strtol(buf, NULL, 16);
+        c.g = (c.g << 4) | c.g;
+
+        buf[0] = str.at(pos++);
+        c.b = strtol(buf, NULL, 16);
+        c.b = (c.b << 4) | c.b;
     }
 
     return c;

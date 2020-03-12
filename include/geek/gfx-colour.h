@@ -2,6 +2,7 @@
 #define __GEEK_GFX_COLOUR_H_
 
 #include <stdint.h>
+#include <string>
 
 namespace Geek
 {
@@ -40,8 +41,14 @@ struct Colour
     }
 
     void toHSB(double* hsb);
-    uint32_t getInt32() { return (alpha << 24) | (b << 16) | (g << 8) | (r); }
+    uint32_t getInt32() { return (alpha << 24) | (r << 16) | (g << 8) | (b); }
+    std::string toHexString();
 
+    float redFloat() { return ((float)r / 255.0); }
+    float greenFloat() { return ((float)g / 255.0); }
+    float blueFloat() { return ((float)b / 255.0); }
+
+    static Colour fromHexString(std::string str);
     static Colour fromHSB(double hue, double saturation, double brightness);
 };
 
