@@ -879,10 +879,10 @@ bool Drawable::drawCircle(int32_t x, int32_t y, uint32_t r, uint32_t c)
 
 bool Drawable::drawCircleFilled(int32_t x, int32_t y, uint32_t r, uint32_t c)
 {
-    int y0;
+    unsigned int y0;
     for (y0 = 0; y0 < r; y0++)
     {
-        int x0;
+        unsigned int x0;
         for (x0 = 0; x0 < r; x0++)
         {
             float d = sqrt((double)((x0 * x0) + (y0 * y0)));
@@ -986,9 +986,9 @@ bool Drawable::saveJPEG(struct jpeg_compress_struct* cinfo)
             {
                 c = getPixel(x, cinfo->next_scanline);
             }
-            row_pointer[0][(x * 3) + 2] = c >> 16;
+            row_pointer[0][(x * 3) + 2] = c >> 0;
             row_pointer[0][(x * 3) + 1] = c >> 8;
-            row_pointer[0][(x * 3) + 0] = c >> 0;
+            row_pointer[0][(x * 3) + 0] = c >> 16;
         }
         jpeg_write_scanlines(cinfo, row_pointer, 1);
     }
