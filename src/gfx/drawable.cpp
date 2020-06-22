@@ -426,6 +426,19 @@ bool Drawable::clear(uint32_t c)
     return Drawable::drawRectFilled(0, 0, getWidth(), getHeight(), c);
 }
 
+void Drawable::darken()
+{
+    unsigned int i;
+    uint8_t* p = getDrawingBuffer();
+    for (i = 0; i < m_width * m_height; i++)
+    {
+        *(p++) >>= 1;
+        *(p++) >>= 1;
+        *(p++) >>= 1;
+        p++;
+    }
+}
+
 bool Drawable::blit(
     uint8_t* destBuffer,
     int32_t x,
@@ -471,6 +484,13 @@ bool Drawable::blit(
     {
         return false;
     }
+
+    if (x == 0 && y == 0 && surface->getWidth() == getWidth() && surface->getHeight() == getHeight())
+    {
+        memcpy(getDrawingBuffer(), surface->getDrawingBuffer(), getWidth() * getHeight() * 4);
+        return true;
+    }
+
     return Drawable::blit(x, y, surface->getData(), surface->getWidth(), surface->getHeight(), surface->getBytesPerPixel(), alpha);
 }
 

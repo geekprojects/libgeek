@@ -90,6 +90,7 @@ class Drawable
     }
 
     virtual bool clear(uint32_t c);
+    virtual void darken();
 
     virtual bool drawPixel(int32_t x, int32_t y, uint32_t c);
     bool drawPixel(int32_t x, int32_t y, uint32_t c, uint8_t* dest);
