@@ -73,6 +73,8 @@ class Surface : public Drawable, public Geek::Logger
     static Surface* loadPNG(std::string path);
     static Surface* loadTGA(std::string path);
 
+    static Surface* updateSurface(Surface* surface, int width, int height, double scale);
+
     virtual bool isHighDPI() { return m_highDPI; }
 };
 

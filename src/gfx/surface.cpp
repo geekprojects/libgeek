@@ -702,3 +702,25 @@ Surface* Surface::loadImage(std::string path)
     return NULL;
 }
 
+Surface* Surface::updateSurface(Surface* surface, int width, int height, double scale)
+{
+    if (surface == NULL || surface->getWidth() != width * scale || surface->getHeight() != height * scale)
+    {
+        if (surface != NULL)
+        {
+            delete surface;
+        }
+
+        if (scale > 1)
+        {
+            surface = new HighDPISurface(width, height, 4);
+        }
+        else
+        {
+            surface = new Surface(width, height, 4);
+        }
+        return surface;
+    }
+    return NULL;
+}
+
