@@ -721,6 +721,6 @@ Surface* Surface::updateSurface(Surface* surface, int width, int height, double 
         }
         return surface;
     }
-    return NULL;
+    return surface;
 }
 
