@@ -13,11 +13,16 @@ os:
 arch:
   - amd64
   - arm64
+  - ppc64le
+  - s390x
 
 matrix:
   exclude:
     - os: osx
-      arch: arm64
+      arch:
+       - arm64
+       - ppc64le
+       - s390x
 
 addons:
   apt:
