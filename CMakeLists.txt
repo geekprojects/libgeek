@@ -49,3 +49,16 @@ string(REPLACE ";" " " PKGCONFIG_LDFLAGS "${PKGCONFIG_LDFLAGS_LIST}")
 configure_file(libgeek.pc.in libgeek.pc @ONLY)
 install(FILES ${CMAKE_BINARY_DIR}/libgeek.pc DESTINATION "lib${LIB_SUFFIX}/pkgconfig")
 
+find_package(Doxygen COMPONENTS dot)
+if (DOXYGEN_FOUND)
+    set(DOXYGEN_GENERATE_HTML YES)
+    set(DOXYGEN_GENERATE_MAN NO)
+    set(DOXYGEN_EXTRACT_ALL YES)
+
+    doxygen_add_docs(
+        doxygen
+        ${PROJECT_SOURCE_DIR}/include
+        COMMENT "Generate man pages"
+    )
+endif()
+
