@@ -124,10 +124,12 @@ void Logger::logv(LoggerLevel_t level, const char* msg, va_list va)
 
     char timeStr[256];
     time_t t;
-    struct tm *tm;
     t = time(NULL);
-    tm = localtime(&t);
-    strftime(timeStr, 256, "%Y/%m/%d %H:%M:%S", tm);
+
+    struct tm tm;
+    localtime_r(&t, &tm);
+
+    strftime(timeStr, 256, "%Y/%m/%d %H:%M:%S", &tm);
 
     printf("%s: %s: %s: %s%s\n", timeStr, levelStr.c_str(), m_name.c_str(), spaces.c_str(), buf);
 }
