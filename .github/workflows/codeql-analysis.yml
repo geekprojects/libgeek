@@ -24,6 +24,11 @@ jobs:
         # https://docs.github.com/en/github/finding-security-vulnerabilities-and-errors-in-your-code/configuring-code-scanning#overriding-automatic-language-detection
 
     steps:
+    - name: Install dependencies
+      run: >
+        sudo apt-get update && 
+        sudo apt-get install  libxml2-dev libpng-dev libjpeg-dev libjpeg-turbo8 sqlite3 libsqlite-dev libsigc++-2.0-dev libfreetype6-dev
+
     - name: Checkout repository
       uses: actions/checkout@v2
       with:
