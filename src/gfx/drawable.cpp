@@ -487,7 +487,7 @@ bool Drawable::blit(
 
     if (x == 0 && y == 0 && surface->getWidth() == getWidth() && surface->getHeight() == getHeight())
     {
-        memcpy(getDrawingBuffer(), surface->getDrawingBuffer(), getWidth() * getHeight() * 4);
+        memcpy(getDrawingBuffer(), surface->getDrawingBuffer(), (size_t)getWidth() * (size_t)getHeight() * 4l);
         return true;
     }
 
