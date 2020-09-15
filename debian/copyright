@@ -1,0 +1,12 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: libgeek
+Upstream-Contact: Ian Parker <ian@geekprojects.com>
+Source: https://github.com/geekprojects/libgeek
+
+Files: *
+Copyright: 2014-2020, Ian Parker
+License: LGPL-3+
+
+Files: src/core/sha/*
+Copyright: 2011 IETF Trust and the persons identified as authors of the code.
+License: BSD-3-clause

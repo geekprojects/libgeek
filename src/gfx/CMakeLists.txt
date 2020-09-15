@@ -13,6 +13,7 @@ endif()
 add_definitions(${libpng_CFLAGS})
 
 target_link_libraries(geek-gfx ${libpng_LDFLAGS} ${jpeg_LIBRARY} geek-core)
+set_target_properties(geek-gfx PROPERTIES VERSION ${PROJECT_VERSION})
 
 install(TARGETS geek-gfx DESTINATION lib)
 

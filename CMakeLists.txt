@@ -2,6 +2,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 include(CheckSymbolExists)
+include(GNUInstallDirs)
 
 # set the project name
 project(libgeek VERSION 1.0)
@@ -15,8 +16,8 @@ SET(CMAKE_C_FLAGS "${FLAGS_COMMON}")
 SET(CMAKE_CXX_FLAGS "${FLAGS_COMMON}")
 SET(CMAKE_C_FLAGS_DEBUG "${FLAGS_COMMON} -O0 -g  -fsanitize=address -fsanitize-address-use-after-scope -fno-omit-frame-pointer")
 SET(CMAKE_CXX_FLAGS_DEBUG "${FLAGS_COMMON} -O0 -g -fsanitize=address -fsanitize-address-use-after-scope -fno-omit-frame-pointer")
-SET(CMAKE_C_FLAGS_RELEASE "${FLAGS_COMMON} -O3")
-SET(CMAKE_CXX_FLAGS_RELEASE "${FLAGS_COMMON} -O3")
+SET(CMAKE_C_FLAGS_RELEASE "${FLAGS_COMMON} -O3 -s")
+SET(CMAKE_CXX_FLAGS_RELEASE "${FLAGS_COMMON} -O3 -s")
 
 find_package(PkgConfig REQUIRED)
 
@@ -48,4 +49,28 @@ string(REPLACE ";" " " PKGCONFIG_LDFLAGS "${PKGCONFIG_LDFLAGS_LIST}")
 
 configure_file(libgeek.pc.in libgeek.pc @ONLY)
 install(FILES ${CMAKE_BINARY_DIR}/libgeek.pc DESTINATION "lib${LIB_SUFFIX}/pkgconfig")
+
+include(InstallRequiredSystemLibraries)
+set(CPACK_PACKAGE_CONTACT "Ian Parker <ian@geekprojects.com>")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
+set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Useful code from GeekProjects")
+set(CPACK_PACKAGE_DESCRIPTION "A small library of various useful code.")
+
+set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+set(CPACK_DEBIAN_PACKAGE_VERSION "${PROJECT_VERSION}")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libxml2-dev (>= 2.9), libpng-dev (>= 1.6), libjpeg-dev (>= 8c), sqlite3 (>= 3), libsqlite0-dev (>= 2.8), libsigc++-2.0-dev (>= 2), libfreetype6-dev (>= 2.10)")
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+set(CPACK_DEBIAN_PACKAGE_GENERATE_SHLIBS ON)
+set(CPACK_DEBIAN_PACKAGE_CONTROL_STRICT_PERMISSION YES)
+if (CPACK_GENERATOR MATCHES "DEB")
+  # lintian complains changelog-file-missing-in-native-package, this fixes it,
+  execute_process(COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/debian/changelog ${CMAKE_CURRENT_SOURCE_DIR}/debian/changelog.bak)
+  execute_process(COMMAND gzip -9 -f -n ${CMAKE_CURRENT_SOURCE_DIR}/debian/changelog)
+  execute_process(COMMAND mv ${CMAKE_CURRENT_SOURCE_DIR}/debian/changelog.bak ${CMAKE_CURRENT_SOURCE_DIR}/debian/changelog)
+  install(FILES debian/changelog.gz DESTINATION ${CMAKE_INSTALL_DOCDIR}/libgeek)
+  install(FILES debian/copyright DESTINATION ${CMAKE_INSTALL_DOCDIR}/libgeek)
+endif (CPACK_GENERATOR MATCHES "DEB")
+
+include(CPack)
 

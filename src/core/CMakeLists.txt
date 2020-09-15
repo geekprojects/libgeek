@@ -10,6 +10,7 @@ file.cpp           random.cpp         tasks.cpp          thread.cpp         xml.
 add_definitions(${sigcpp_CFLAGS} ${libxml2_CFLAGS})
 
 target_link_libraries(geek-core ${sigcpp_LDFLAGS} ${libxml2_LIBRARIES} ${SQLITE3_LIBRARY} ${z_LIBRARY} sha)
+set_target_properties(geek-core PROPERTIES VERSION ${PROJECT_VERSION})
 
 install(TARGETS geek-core DESTINATION lib)
 

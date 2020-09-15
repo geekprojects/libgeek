@@ -1,0 +1,14 @@
+Source: libgeek
+Section: libs
+Priority: extra
+Maintainer: Ian Parker <ian@geekprojects.com>
+Build-Depends: libxml2-dev (>= 2.9), libpng-dev (>= 1.6), libjpeg-dev (>= 8c), sqlite3 (>= 3), libsqlite0-dev (>= 2.8), libsigc++-2.0-dev (>= 2), libfreetype6-dev (>= 2.10)
+Standards-Version: 
+Homepage: http://seancode.com/minutor/
+
+Package: minutor
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Minecraft mapping tool
+ Minutor lets you view and inspect your Minecraft worlds.
+ It is designed for Minecraft 1.2 and later.
