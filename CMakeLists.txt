@@ -2,7 +2,6 @@
 cmake_minimum_required(VERSION 3.10)
 
 include(CheckSymbolExists)
-include(GNUInstallDirs)
 
 # set the project name
 project(libgeek VERSION 1.0)
@@ -18,6 +17,8 @@ SET(CMAKE_C_FLAGS_DEBUG "${FLAGS_COMMON} -O0 -g  -fsanitize=address -fsanitize-a
 SET(CMAKE_CXX_FLAGS_DEBUG "${FLAGS_COMMON} -O0 -g -fsanitize=address -fsanitize-address-use-after-scope -fno-omit-frame-pointer")
 SET(CMAKE_C_FLAGS_RELEASE "${FLAGS_COMMON} -O3 -s")
 SET(CMAKE_CXX_FLAGS_RELEASE "${FLAGS_COMMON} -O3 -s")
+
+include(GNUInstallDirs)
 
 find_package(PkgConfig REQUIRED)
 
