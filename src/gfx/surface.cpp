@@ -412,23 +412,23 @@ Surface* Surface::scale(float factor, bool fp)
     float stepY = (float)m_height / (float)height;
     unsigned int stepXi = (int)round(stepX);
     unsigned int stepYi = (int)round(stepY);
-    int blockCount = (stepXi * stepYi);
+    unsigned int blockCount = (stepXi * stepYi);
     unsigned int blockDelta = (m_width - stepXi) * 4;
 
-    uint32_t* data = (uint32_t*)scaled->getData();
-    uint8_t* srcdata = (uint8_t*)getData();
+    auto data = (uint32_t*)scaled->getData();
+    auto srcdata = (uint8_t*)getData();
 
-    int y;
+    unsigned int y;
     for (y = 0; y < height; y++)
     {
         int blockY = floor((float)y * stepY);
-        int x;
+        unsigned int x;
         for (x = 0; x < width; x++)
         {
 
             int blockX = floor((float)x * stepX);
-            int bx;
-            int by;
+            unsigned int bx;
+            unsigned int by;
             Geek::v4si totals = {0, 0, 0, 0};
 
             uint8_t* imgrow = srcdata;
