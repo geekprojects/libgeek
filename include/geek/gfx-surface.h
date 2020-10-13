@@ -44,16 +44,15 @@ class Surface : public Drawable, public Geek::Logger
     Surface();
     Surface(uint32_t width, uint32_t height, uint8_t bpp);
     Surface(uint32_t width, uint32_t height, uint8_t bpp, uint8_t* data);
-    Surface(Surface* src);
-    virtual ~Surface();
+    explicit Surface(Surface* src);
+    ~Surface() override;
 
-    virtual inline uint8_t* getDrawingBuffer() const { return m_drawingBuffer; }
     virtual inline uint8_t* getData() const { return m_drawingBuffer; }
     virtual inline uint32_t getDataLength() const { return m_drawingBufferLength; }
 
     virtual bool resize(uint32_t width, uint32_t height);
 
-    virtual inline ::Geek::Rect absolute() { return ::Geek::Rect(0, 0, m_width, m_height); }
+    virtual ::Geek::Rect absolute() const { return {0, 0, (int32_t)m_width, (int32_t)m_height}; }
     virtual Surface* getRoot()
     {
         return this;
@@ -89,7 +88,6 @@ class HighDPISurface : public Surface
     virtual bool drawSubPixel(int32_t x, int32_t y, uint32_t c);
 
     virtual bool drawPixel(int32_t x, int32_t y, uint32_t c);
-    virtual bool drawPixel(int32_t x, int32_t y, uint32_t c, uint8_t* dest);
     virtual bool drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t c);
     virtual bool drawRectFilled(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c);
     virtual bool drawRect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c);
@@ -150,7 +148,7 @@ class SurfaceViewPort : public Surface
     virtual inline uint32_t getOffsetX() const { return m_offsetX; }
     virtual inline uint32_t getOffsetY() const { return m_offsetY; }
 
-    virtual inline ::Geek::Rect absolute()
+    ::Geek::Rect absolute() const override
     {
         ::Geek::Rect r = m_parentSurface->absolute();
         r.x += m_offsetX;
@@ -160,26 +158,21 @@ class SurfaceViewPort : public Surface
         return r;
     }
 
-    virtual inline uint8_t* getDrawingBuffer() const { return m_parentSurface->getDrawingBuffer(); }
+    inline uint8_t* getDrawingBuffer() const override { return m_parentSurface->getDrawingBuffer(); }
 
-    virtual Surface* getRoot()
+    Surface* getRoot() override
     {
         return m_parentSurface->getRoot();
     }
 
-    virtual bool resize(uint32_t width, uint32_t height);
+    bool resize(uint32_t width, uint32_t height) override;
 
-    virtual inline bool drawPixel(int32_t x, int32_t y, uint32_t c)
+    inline bool drawPixel(int32_t x, int32_t y, uint32_t c) override
     {
         return m_parentSurface->drawPixel(m_offsetX + x, m_offsetY + y, c);
     }
 
-    virtual inline bool drawPixel(int32_t x, int32_t y, uint32_t c, uint8_t* dest)
-    {
-        return m_parentSurface->drawPixel(m_offsetX + x, m_offsetY + y, c, dest);
-    }
-
-    virtual bool drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t c)
+    bool drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t c) override
     {
         return m_parentSurface->drawLine(
             m_offsetX + x1, m_offsetY + y1,
@@ -187,7 +180,7 @@ class SurfaceViewPort : public Surface
             c);
     }
 
-    virtual bool drawRectFilled(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c)
+    bool drawRectFilled(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c) override
     {
         return m_parentSurface->drawRectFilled(
             m_offsetX + x, m_offsetY + y,
@@ -195,7 +188,7 @@ class SurfaceViewPort : public Surface
             c);
     }
 
-    virtual bool drawRect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c)
+    bool drawRect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c) override
     {
         return m_parentSurface->drawRect(
             m_offsetX + x, m_offsetY + y,
@@ -203,7 +196,7 @@ class SurfaceViewPort : public Surface
             c);
     }
 
-    virtual bool drawGrad(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c1, uint32_t c2)
+    bool drawGrad(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c1, uint32_t c2) override
     {
         return m_parentSurface->drawGrad(
             m_offsetX + x, m_offsetY + y,
@@ -211,44 +204,43 @@ class SurfaceViewPort : public Surface
             c1, c2);
     }
 
-    virtual bool drawCircle(int32_t x, int32_t y, uint32_t r, uint32_t c)
+    bool drawCircle(int32_t x, int32_t y, uint32_t r, uint32_t c) override
     {
         return m_parentSurface->drawCircle(m_offsetX + x, m_offsetY + y, r, c);
     }
 
-    virtual bool drawCircleFilled(int32_t x, int32_t y, uint32_t r, uint32_t c)
+    bool drawCircleFilled(int32_t x, int32_t y, uint32_t r, uint32_t c) override
     {
         return m_parentSurface->drawCircleFilled(m_offsetX + x, m_offsetY + y, r, c);
     }
 
-    virtual bool clear(uint32_t c)
+    bool clear(uint32_t c) override
     {
         return drawRectFilled(0, 0, m_width, m_height, c);
     }
 
-    virtual bool blit(uint8_t* destBuffer, int32_t x, int32_t y, uint8_t* data, uint32_t w, uint32_t h, uint32_t bbp, bool alpha = false)
+    bool blit(uint8_t* destBuffer, int32_t x, int32_t y, uint8_t* data, uint32_t w, uint32_t h, uint32_t bbp, bool alpha = false) override
     {
         printf("SurfaceViewPort::blit: This really shouldn't be called!\n");
         return false;
     }
 
-    virtual bool blit(int32_t x, int32_t y, uint8_t* data, uint32_t w, uint32_t h, uint32_t bbp, bool alpha = false)
+    bool blit(int32_t x, int32_t y, uint8_t* data, uint32_t w, uint32_t h, uint32_t bbp, bool alpha = false) override
     {
         return blitVP(getDrawingBuffer(), x, y, data, w, h, bbp, 0, 0, w, h, alpha);
     }
 
-    virtual bool blit(int32_t x, int32_t y, Surface* surface, bool alpha)
+    bool blit(int32_t x, int32_t y, Surface* surface, bool alpha) override
     {
         return blitVP(getDrawingBuffer(), x, y, surface->getData(), surface->getWidth(), surface->getHeight(), surface->getBytesPerPixel(), 0, 0, surface->getWidth(), surface->getHeight(), alpha);
     }
 
-    virtual bool blit(int32_t destX, int32_t destY, Surface* surface, int viewX, int viewY, int viewW, int viewH, bool forceAlpha = false)
+    bool blit(int32_t destX, int32_t destY, Surface* surface, int viewX, int viewY, int viewW, int viewH, bool forceAlpha = false) override
     {
         return blitVP(getDrawingBuffer(), destX, destY, surface->getData(), surface->getWidth(), surface->getHeight(), surface->getBytesPerPixel(), viewX, viewY, viewW, viewH, forceAlpha);
     }
 
-
-    virtual bool blit(
+    bool blit(
         uint8_t* destBuffer,
         int32_t x,
         int32_t y,
@@ -260,7 +252,7 @@ class SurfaceViewPort : public Surface
         int32_t viewY,
         uint32_t viewWidth,
         uint32_t viewHeight,
-        bool forceAlpha = false)
+        bool forceAlpha = false) override
     {
         return blitVP(destBuffer, x, y, data, w, h, bytesPerPixel, viewX, viewY, viewWidth, viewHeight, forceAlpha);
     }
@@ -339,12 +331,12 @@ class SurfaceViewPort : public Surface
             forceAlpha);
     }
 
-    uint32_t getPixel(int32_t x, int32_t y)
+    uint32_t getPixel(int32_t x, int32_t y) override
     {
         return m_parentSurface->getPixel(m_offsetX + x, m_offsetY + y);
     }
 
-    virtual bool isHighDPI() { return m_parentSurface->isHighDPI(); }
+    bool isHighDPI() override { return m_parentSurface->isHighDPI(); }
 };
 
 }; // Geek::Gfx

@@ -103,7 +103,7 @@ bool Surface::resize(uint32_t width, uint32_t height)
     m_width = width;
     m_height = height;
 
-    int len = m_width * m_height * m_bytesPerPixel;
+    unsigned int len = m_width * m_height * m_bytesPerPixel;
     resizedData = new uint8_t[m_width * m_height * m_bytesPerPixel];
     memset(resizedData, 0, len);
 
@@ -165,24 +165,22 @@ void Surface::rotate(int angle)
 
 void Surface::setAlpha(float alpha)
 {
-    uint32_t aint = (int)(255.0 * alpha) << 24;
-    uint32_t* data = (uint32_t*)getData();
+    uint32_t aint = (uint32_t)(255.0 * alpha) << 24u;
+    auto* data = (uint32_t*)getData();
     unsigned int y;
     for (y = 0; y < getHeight(); y++)
     {
         unsigned int x;
         for (x = 0; x < getWidth(); x++)
         {
-            uint32_t p = (*data) & 0x00ffffff;
+            uint32_t p = (*data) & 0x00ffffffu;
             *data = p | aint;
             data++;
         }
     }
 }
 
-SurfaceViewPort::~SurfaceViewPort()
-{
-}
+SurfaceViewPort::~SurfaceViewPort() = default;
 
 bool SurfaceViewPort::resize(uint32_t width, uint32_t height)
 {
@@ -233,10 +231,7 @@ Surface* Surface::loadJPEG(uint8_t* data, uint32_t length)
     jpeg_create_decompress(&cinfo);
     jpeg_mem_src(&cinfo, data, length);
 
-    Surface* surface = NULL;
-    surface = Surface::loadJPEGInternal(&cinfo);
-
-    return surface;
+    return Surface::loadJPEGInternal(&cinfo);
 }
 
 Surface* Surface::loadJPEGInternal(struct jpeg_decompress_struct* cinfo)
@@ -408,17 +403,17 @@ Surface* Surface::scaleToFit(int width, int height, bool fp)
 
 Surface* Surface::scale(float factor, bool fp)
 {
-    int width = m_width * factor;
-    int height = m_height * factor;
+    unsigned int width = m_width * factor;
+    unsigned int height = m_height * factor;
 
     Surface* scaled = new Surface(width, height, 4);
 
     float stepX = (float)m_width / (float)width;
     float stepY = (float)m_height / (float)height;
-    int stepXi = (int)round(stepX);
-    int stepYi = (int)round(stepY);
+    unsigned int stepXi = (int)round(stepX);
+    unsigned int stepYi = (int)round(stepY);
     int blockCount = (stepXi * stepYi);
-    int blockDelta = (m_width - stepXi) * 4;
+    unsigned int blockDelta = (m_width - stepXi) * 4;
 
     uint32_t* data = (uint32_t*)scaled->getData();
     uint8_t* srcdata = (uint8_t*)getData();

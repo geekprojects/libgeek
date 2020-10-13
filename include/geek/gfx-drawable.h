@@ -49,8 +49,6 @@ class Drawable
     bool saveJPEG(struct jpeg_compress_struct* cinfo);
 
  protected:
-    //DirtyManager m_dirty;
-
     uint32_t m_width;
     uint32_t m_height;
     uint32_t m_bytesPerPixel;
@@ -60,24 +58,20 @@ class Drawable
     uint8_t* m_drawingBuffer;
     uint32_t m_drawingBufferLength;
 
-    inline uint8_t* getDrawingBuffer() const { return m_drawingBuffer; }
-
-    uint32_t getPixel3(int32_t x, int32_t y);
-    uint32_t getPixel4(int32_t x, int32_t y);
-
  public:
     Drawable(uint32_t width, uint32_t height);
     virtual ~Drawable();
 
+    static inline uint32_t getBytesPerPixel() { return 4; }
+
     inline uint32_t getWidth() const { return m_width; }
     inline uint32_t getHeight() const { return m_height; }
-    inline uint32_t getBytesPerPixel() const { return m_bytesPerPixel; }
     inline uint32_t getDpiX() const { return m_dpiX; }
     inline uint32_t getDpiY() const { return m_dpiY; }
-    Geek::Rect getRect() { return Rect(0, 0, m_width, m_height); }
-    bool intersects(int x, int y) { return (x >=0 && x < (int)m_width && y >= 0 && y < (int)m_height); }
+    Geek::Rect getRect() const { return {0, 0, (int32_t)m_width, (int32_t)m_height}; }
+    bool intersects(int x, int y) const { return (x >=0 && x < (int)m_width && y >= 0 && y < (int)m_height); }
 
-    //DirtyManager* getDirtyManager() { return &m_dirty; }
+    virtual uint8_t* getDrawingBuffer() const { return m_drawingBuffer; }
 
     inline uint32_t getOffset(int32_t x, int32_t y) const
     {
@@ -93,8 +87,6 @@ class Drawable
     virtual void darken();
 
     virtual bool drawPixel(int32_t x, int32_t y, uint32_t c);
-    bool drawPixel(int32_t x, int32_t y, uint32_t c, uint8_t* dest);
-
     virtual bool drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t c);
     virtual bool drawRectFilled(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c);
     virtual bool drawRect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c);
@@ -136,7 +128,7 @@ class Drawable
 
 };
 
-}; // ::Geek::Gfx
-}; // ::Geek
+} // ::Geek::Gfx
+} // ::Geek
 
 #endif

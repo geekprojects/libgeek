@@ -18,12 +18,9 @@
  *  along with libgeek.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <fcntl.h>
 #include <unistd.h>
 
@@ -47,53 +44,50 @@ Drawable::Drawable(uint32_t width, uint32_t height)
     m_drawingBufferLength = 0;
 }
 
-Drawable::~Drawable()
+Drawable::~Drawable() = default;
+
+static inline void draw32a(const uint32_t* src, uint32_t* dest, uint8_t alpha)
 {
+    uint32_t destRB = *dest & 0xFF00FFu;
+    uint32_t destAG = *dest >> 8u & 0xFF00FFu;
+
+    uint32_t srcRB = *src & 0xFF00FFu;
+    uint32_t srcAG = *src >> 8u & 0xFF00FFu;
+
+    uint32_t diffDB = srcRB - destRB;
+    uint32_t diffAG = srcAG - destAG;
+
+    diffDB *= alpha;
+    diffAG *= alpha;
+    diffDB >>= 8u;
+
+    const uint32_t rb  = (diffDB + destRB) & 0x00FF00FFu;
+    const uint32_t ag  = (diffAG + (destAG << 8u)) & 0xFF00FF00u;
+
+    *dest = rb | ag;
 }
 
 bool Drawable::drawPixel(int32_t x, int32_t y, uint32_t c)
 {
-    return drawPixel(x, y, c, getDrawingBuffer());
-}
-
-static inline void draw32a(uint8_t* src, uint8_t* dest, uint8_t alpha)
-{
-    
-    dest[0] = dest[0] + (((src[0] - dest[0]) * alpha) >> 8);
-    dest[1] = dest[1] + (((src[1] - dest[1]) * alpha) >> 8);
-    dest[2] = dest[2] + (((src[2] - dest[2]) * alpha) >> 8);
-    dest[3] = dest[3] + (((src[3] - dest[3]) * alpha) >> 8);
-}
-
-bool Drawable::drawPixel(int32_t x, int32_t y, uint32_t c, uint8_t* dest)
-{
-    if (dest == NULL)
-    {
-        return false;
-    }
-
-    uint8_t alpha = c >> 24;
+    uint8_t alpha = c >> 24u;
 
     if (alpha == 0)
     {
         return true;
     }
 
-    uintptr_t p = (uintptr_t)dest + getOffset(x, y);
-
+    auto p = (uint32_t*)(getDrawingBuffer() + getOffset(x, y));
     if (alpha == 255)
     {
-        uint32_t* dest = (uint32_t*)p;
-        *dest = c;
+        *p = c;
     }
     else
     {
-        draw32a((uint8_t*)&c, (uint8_t*)p, alpha);
+        draw32a(&c, p, alpha);
     }
 
     return true;
 }
-
 
 bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t c)
 {
@@ -110,7 +104,7 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
     {
         if (intersects(x1, y1))
         {
-            Drawable::drawPixel(x1, y1, c, drawingBuffer);
+            Drawable::drawPixel(x1, y1, c);
         }
         return true;
     }
@@ -147,7 +141,7 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
                 return true;
             }
 
-            uint32_t* p = (uint32_t*)(drawingBuffer + getOffset(x1, y1));
+            auto p = (uint32_t*)(drawingBuffer + getOffset(x1, y1));
             int dx = x2 - x1;
 
             if (alpha == 255)
@@ -163,9 +157,9 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
             }
             else
             {
-                for (i = 0; i < dx; i++, p++)
+                for (i = 0; i < dx; i++, p += 4)
                 {
-                    draw32a((uint8_t*)&c, (uint8_t*)p, alpha);
+                    draw32a(&c, p, alpha);
                 }
             }
         }
@@ -197,9 +191,9 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
                 return true;
             }
 
-            uint32_t* p = (uint32_t*)(drawingBuffer + getOffset(x1, y1));
             int dy = y2 - y1;
 
+            auto p = (uint32_t*)(drawingBuffer + getOffset(x1, y1));
             if (alpha == 255)
             {
                 for (i = 0; i < dy; i++, p += getWidth())
@@ -209,9 +203,9 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
             }
             else
             {
-                for (i = 0; i < dy; i++, p++)
+                for (i = 0; i < dy; i++, p += 4)
                 {
-                    draw32a((uint8_t*)&c, (uint8_t*)p, alpha);
+                    draw32a(&c, p, alpha);
                 }
             }
         }
@@ -247,7 +241,7 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
             }
             if (intersects(x, y))
             {
-                Drawable::drawPixel(x, y, c, drawingBuffer);
+                Drawable::drawPixel(x, y, c);
             }
 
             for (i = 0; x < xe && x < (int)m_width; i++)
@@ -260,7 +254,7 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
                 }
                 else
                 {
-                    if((dx<0 && dy<0) || (dx>0 && dy>0))
+                    if ((dx<0 && dy<0) || (dx>0 && dy>0))
                     {
                         y++;
                     }
@@ -273,7 +267,7 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
 
                 if (intersects(x, y))
                 {
-                    Drawable::drawPixel(x, y, c, drawingBuffer);
+                    Drawable::drawPixel(x, y, c);
                 }
             }
         }
@@ -295,7 +289,7 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
 
             if (intersects(x, y))
             {
-                Drawable::drawPixel(x, y, c, drawingBuffer);
+                Drawable::drawPixel(x, y, c);
             }
 
             for (i = 0; y < ye && y < (int)m_width; i++)
@@ -320,7 +314,7 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
 
                 if (intersects(x, y))
                 {
-                    Drawable::drawPixel(x, y, c, drawingBuffer);
+                    Drawable::drawPixel(x, y, c);
                 }
             }
         }
@@ -430,12 +424,17 @@ void Drawable::darken()
 {
     unsigned int i;
     uint8_t* p = getDrawingBuffer();
-    for (i = 0; i < m_width * m_height; i++)
+    for (i = 0; i < m_width * m_height; i += (32 / 4))
     {
-        *(p++) >>= 1;
-        *(p++) >>= 1;
-        *(p++) >>= 1;
-        p++;
+        __builtin_prefetch(p, 1, 3);
+        int j;
+        for (j = 0; j < 32 ; j += 4)
+        {
+            *(p++) >>= 1;
+            *(p++) >>= 1;
+            *(p++) >>= 1;
+            *(p++) >>= 1;
+        }
     }
 }
 
@@ -449,7 +448,7 @@ bool Drawable::blit(
     uint32_t bytesPerPixel,
     bool alpha)
 {
-    return Drawable::blit(destBuffer, x, y, data, w, h, bytesPerPixel, 0, 0, w, h, alpha);
+    return Drawable::blit(destBuffer, x, y, data, w, h, 4, 0, 0, w, h, alpha);
 }
 
 bool Drawable::blit(
@@ -461,17 +460,12 @@ bool Drawable::blit(
     uint32_t bytesPerPixel,
     bool alpha)
 {
-    bool res;
     if (data == NULL)
     {
         return false;
     }
-    res = Drawable::blit(getDrawingBuffer(), x, y, data, w, h, bytesPerPixel, alpha);
-    if (res)
-    {
-        //m_dirty.addDirtyRegion(x, y, w, h);
-    }
-    return res;
+
+    return Drawable::blit(getDrawingBuffer(), x, y, data, w, h, 4, alpha);
 }
 
 bool Drawable::blit(
@@ -491,7 +485,7 @@ bool Drawable::blit(
         return true;
     }
 
-    return Drawable::blit(x, y, surface->getData(), surface->getWidth(), surface->getHeight(), surface->getBytesPerPixel(), alpha);
+    return Drawable::blit(x, y, surface->getData(), surface->getWidth(), surface->getHeight(), 4, alpha);
 }
 
 bool Drawable::blit(int32_t destX, int32_t destY, Surface* surface, int viewX, int viewY, int viewW, int viewH, bool forceAlpha)
@@ -507,21 +501,6 @@ bool Drawable::blit(int32_t destX, int32_t destY, Surface* surface, int viewX, i
         viewH,
         forceAlpha);
 }
-
-
-/*
- * +----------------+
- * |                |
- * |  +.....+       |
- * |  . +-+ .       |
- * |  . | | |       |
- * |  . +-+ |       |
- * |  +.... +       |
- * |                |
- * |                |
- * +----------------+
- *
- */
 
 bool Drawable::blit(
     uint8_t* destBuffer,
@@ -591,12 +570,12 @@ bool Drawable::blit(
 #endif
 
     int32_t y1;
-    uint32_t viewStride = viewRect.w * bytesPerPixel;
-    uint32_t dataStride = srcWidth * bytesPerPixel;
+    uint32_t viewStride = viewRect.w * 4;
+    uint32_t dataStride = srcWidth * 4;
 
     uint8_t* dest = destBuffer + getOffset(drawRect.x, drawRect.y);
 
-    srcData += (viewRect.x + (viewRect.y * srcWidth)) * bytesPerPixel;
+    srcData += (viewRect.x + (viewRect.y * srcWidth)) * 4;
 
 #ifdef DEBUG_DRAWBLE_BLIT
     printf("Drawable::blit: src: %p: w=%d, h=%d\n", srcData, srcWidth, srcHeight);
@@ -604,28 +583,28 @@ bool Drawable::blit(
     printf("Drawable::blit: viewX=%d, viewY=%d, viewWidth=%d, viewHeight=%d\n", viewX, viewY, viewWidth, viewHeight);
 #endif
 
-    if (!forceAlpha)// && getBytesPerPixel() == bytesPerPixel)
+    int destStride = getStride();
+    if (forceAlpha)
     {
-        for (y1 = 0; y1 < (int32_t)viewRect.h; y1++)
+        for (y1 = 0; y1 < (int32_t)viewRect.h; y1++, srcData += dataStride, dest += destStride)
         {
             memcpy(dest, srcData, viewStride);
-            dest += getStride();
-            srcData += dataStride;
         }
     }
     else
     {
         for (y1 = 0; y1 < (int32_t)viewRect.h; y1++)
         {
-            uint8_t* src = srcData;
+            uint32_t* src = (uint32_t*)srcData;
+            uint32_t* dst = (uint32_t*)dest;
             int32_t x1;
             for (x1 = 0; x1 < viewRect.w; x1++)
             {
-                uint32_t c = *((uint32_t*)src);
-                drawPixel(drawRect.x + x1, drawRect.y + y1, c, destBuffer);
-                src += bytesPerPixel;
+                uint32_t p = *(src);
+                draw32a(src++, dst++, p >> 24);
             }
             srcData += dataStride;
+            dest += destStride;
         }
     }
 
@@ -922,8 +901,7 @@ bool Drawable::drawCircleFilled(int32_t x, int32_t y, uint32_t r, uint32_t c)
 uint32_t Drawable::getPixel(int32_t x, int32_t y)
 {
     uintptr_t p = (uintptr_t)getDrawingBuffer() + getOffset(x, y);
-    uint32_t* dest = (uint32_t*)p;
-    return *dest;
+    return *((uint32_t*)p);
 }
 
 bool Drawable::saveJPEG(std::string path)
@@ -986,7 +964,7 @@ bool Drawable::saveJPEG(struct jpeg_compress_struct* cinfo)
 
     jpeg_start_compress(cinfo, TRUE);
 
-    int stride = getWidth() * 3;
+    unsigned int stride = getWidth() * 3;
     JSAMPROW row_pointer[1];
     row_pointer[0] = (JSAMPROW)malloc(stride);
     memset(row_pointer[0], 0, stride);
@@ -1028,4 +1006,3 @@ bool Drawable::savePNG(int fd)
 {
     return false;
 }
-

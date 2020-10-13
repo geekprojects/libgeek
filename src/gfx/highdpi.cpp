@@ -18,12 +18,10 @@
  *  along with libgeek.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include <stdio.h>
 #include <string.h>
 
 #include <geek/gfx-surface.h>
-#include <geek/core-compiler.h>
 
 using namespace std;
 using namespace Geek;
@@ -37,28 +35,21 @@ HighDPISurface::HighDPISurface(uint32_t width, uint32_t height, uint8_t bpp) :
     m_highDPI = true;
 }
 
-HighDPISurface::~HighDPISurface()
-{
-}
+HighDPISurface::~HighDPISurface() = default;
 
 bool HighDPISurface::drawSubPixel(int32_t x, int32_t y, uint32_t c)
 {
-    return Geek::Gfx::Surface::drawPixel(x, y, c, getDrawingBuffer());
+    return Geek::Gfx::Surface::drawPixel(x, y, c);
 }
 
 bool HighDPISurface::drawPixel(int32_t x, int32_t y, uint32_t c)
 {
-    return HighDPISurface::drawPixel(x, y, c, getDrawingBuffer());
-}
-
-bool HighDPISurface::drawPixel(int32_t x, int32_t y, uint32_t c, uint8_t* dest)
-{
     x *= 2;
     y *= 2;
-    Surface::drawPixel(x, y, c, getDrawingBuffer());
-    Surface::drawPixel(x + 1, y, c, getDrawingBuffer());
-    Surface::drawPixel(x, y + 1, c, getDrawingBuffer());
-    Surface::drawPixel(x + 1, y + 1, c, getDrawingBuffer());
+    Surface::drawPixel(x, y, c);
+    Surface::drawPixel(x + 1, y, c);
+    Surface::drawPixel(x, y + 1, c);
+    Surface::drawPixel(x + 1, y + 1, c);
     return true;
 }
 
