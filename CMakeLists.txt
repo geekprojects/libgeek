@@ -15,8 +15,8 @@ SET(CMAKE_C_FLAGS "${FLAGS_COMMON}")
 SET(CMAKE_CXX_FLAGS "${FLAGS_COMMON}")
 SET(CMAKE_C_FLAGS_DEBUG "${FLAGS_COMMON} -O0 -g  -fsanitize=address -fsanitize-address-use-after-scope -fno-omit-frame-pointer")
 SET(CMAKE_CXX_FLAGS_DEBUG "${FLAGS_COMMON} -O0 -g -fsanitize=address -fsanitize-address-use-after-scope -fno-omit-frame-pointer")
-SET(CMAKE_C_FLAGS_RELEASE "${FLAGS_COMMON} -O3 -s")
-SET(CMAKE_CXX_FLAGS_RELEASE "${FLAGS_COMMON} -O3 -s")
+SET(CMAKE_C_FLAGS_RELEASE "${FLAGS_COMMON} -O3")
+SET(CMAKE_CXX_FLAGS_RELEASE "${FLAGS_COMMON} -O3")
 
 include(GNUInstallDirs)
 
