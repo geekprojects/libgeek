@@ -64,10 +64,9 @@ Surface::Surface(uint32_t width, uint32_t height, uint8_t bpp, uint8_t* data) :
     }
 
     m_drawingBufferLength = m_width * m_height * m_bytesPerPixel;
-    m_drawingBuffer = new uint8_t[m_drawingBufferLength];
+    m_drawingBuffer = data;
     m_highDPI = false;
-
-    memcpy(m_drawingBuffer, data, m_drawingBufferLength);
+    m_copy = true;
 }
 
 Surface::Surface(Surface* src) :
@@ -83,7 +82,7 @@ Surface::Surface(Surface* src) :
 
 Surface::~Surface()
 {
-    if (m_drawingBuffer != NULL)
+    if (!m_copy && m_drawingBuffer != NULL)
     {
         delete[] m_drawingBuffer;
     }

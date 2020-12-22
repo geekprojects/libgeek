@@ -39,6 +39,7 @@ class Surface : public Drawable, public Geek::Logger
 
  protected:
     bool m_highDPI;
+    bool m_copy = false;
 
  public:
     Surface();
