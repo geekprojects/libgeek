@@ -34,6 +34,8 @@ PThreadCondVar::PThreadCondVar()
 
 PThreadCondVar::~PThreadCondVar()
 {
+    pthread_cond_destroy(&m_cond);
+    pthread_mutex_destroy(&m_condMutex);
 }
 
 bool PThreadCondVar::wait(uint64_t timeoutms)
