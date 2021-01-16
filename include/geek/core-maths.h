@@ -21,9 +21,9 @@
 #ifndef __GEEK_CORE_MATHS_H_
 #define __GEEK_CORE_MATHS_H_
 
-#include <stdio.h> // for snprintf
-#include <stdint.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdint>
+#include <cmath>
 
 #include <string>
 
@@ -71,7 +71,7 @@ struct Vector2D
 
     inline Vector2D operator -(const Vector2D& rhs) const
     {
-        return Vector2D(x - rhs.x, y - rhs.y);
+        return {x - rhs.x, y - rhs.y};
     }
 
     inline Vector2D& operator -=(const Vector2D& rhs)
@@ -114,17 +114,17 @@ struct Rect
         h = _h;
     }
 
-    int32_t getX2() { return (x + w) - 1; }
-    int32_t getY2() { return (y + h) - 1; }
+    int32_t getX2() const { return (x + w) - 1; }
+    int32_t getY2() const { return (y + h) - 1; }
 
-    std::string toString()
+    std::string toString() const
     {
         char buf[128];
         snprintf(buf, 128, "[Rect x=%d, y=%d, w=%d, h=%d]", x, y, w, h);
         return std::string(buf);
     }
 
-    bool intersects(Rect r2)
+    bool intersects(Rect r2) const
     {
         int32_t x2 = x + w;
         int32_t y2 = y + h;
@@ -133,13 +133,12 @@ struct Rect
         return (!( r2.x > x2 || r2x2 < x || r2.y > y2 || r2y2 < y));
     }
 
-    bool contains(Vector2D v)
+    bool contains(Vector2D v) const
     {
         return (v.x >= x && v.y >= y && v.x < (x + w) && v.y < (y + h));
     }
 
-
-    Rect clipCopy(Rect r2)
+    Rect clipCopy(Rect r2) const
     { 
         Rect res;
         res.x = MAX(x, r2.x);
@@ -222,27 +221,27 @@ struct Vector
         z = _z;
     }
 
-    inline Vector operator + (Vector& v)
+    inline Vector operator + (Vector& v) const
     {
         return Vector(x + v.x, y + v.y, z + v.z);
     }
 
-    inline Vector operator - (Vector& v)
+    inline Vector operator - (Vector& v) const
     {
         return Vector(x - v.x, y - v.y, z - v.z);
     }
 
-    inline Vector operator * (Vector& v)
+    inline Vector operator * (Vector& v) const
     {
         return Vector(x * v.x, y * v.y, z * v.z);
     }
 
-    inline Vector operator * (double m)
+    inline Vector operator * (double m) const
     {
         return Vector(x * m, y * m, z * m);
     }
 
-    inline Vector operator / (double m)
+    inline Vector operator / (double m) const
     {
         return Vector(x / m, y / m, z / m);
     }
@@ -320,7 +319,7 @@ struct Vector
         return *this /= len;
     }
 
-    inline bool operator != (const Vector& rhs)
+    inline bool operator != (const Vector& rhs) const
     {
         return
             this->x != rhs.x ||
@@ -328,7 +327,7 @@ struct Vector
             this->z != rhs.z;
     }
 
-    inline Vector rotate(double theta)
+    inline Vector rotate(double theta) const
     {
         double cs = cos(theta);
         double sn = sin(theta);
@@ -344,7 +343,7 @@ struct Vector
         return Vector(NAN, NAN, NAN);
     }
 
-    std::string toString()
+    std::string toString() const
     {
         std::string str = "";
         char buf[16];
@@ -365,7 +364,7 @@ struct BoundingBox
     Vector min;
     Vector max;
 
-    double size()
+    double size() const
     {
         double smin = min.length();
         double smax = max.length();
