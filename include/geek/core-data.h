@@ -36,7 +36,7 @@ class Data : public Geek::Logger
     bool loadCompressed(std::string filename, DataCompression compression);
 
     void setSwap(bool swap) { m_swap = swap; }
-    bool getSwap() { return m_swap; }
+    bool getSwap() const { return m_swap; }
 
     void clear();
     void reset();
@@ -45,7 +45,7 @@ class Data : public Geek::Logger
     uint32_t pos();
     void setPos(uint32_t pos);
     void skip(unsigned int amount);
-    uint32_t getLength() { return m_length; }
+    uint32_t getLength() const { return m_length; }
     char* posPointer() { return m_pos; }
 
     uint8_t peek8();
@@ -73,6 +73,8 @@ class Data : public Geek::Logger
     bool appendFloat(float data);
     bool appendDouble(double data);
     bool append(uint8_t* data, int length);
+    bool appendString(std::string str);
+    bool appendString(std::wstring str);
 
     bool write(std::string file);
     bool write(std::string file, uint32_t pos, uint32_t length);

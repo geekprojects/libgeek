@@ -4,8 +4,10 @@
 #include <stdint.h>
 #include <zlib.h>
 #include <assert.h>
+#include "utf8.h"
 
 #include <geek/core-data.h>
+#include <geek/core-string.h>
 
 using namespace std;
 using namespace Geek;
@@ -501,6 +503,17 @@ bool Data::append(uint8_t* data, int length)
 #endif
 
     return true;
+}
+
+bool Data::appendString(string str)
+{
+    return append((uint8_t*) str.c_str(), str.length());
+}
+
+bool Data::appendString(wstring str)
+{
+    string strUtf8 = Geek::Core::wstring2utf8(str);
+    return appendString(strUtf8);
 }
 
 bool Data::write(std::string file)
