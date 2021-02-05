@@ -41,11 +41,13 @@ class Data : public Geek::Logger
     void clear();
     void reset();
 
+    char* getData() { return m_data; }
     bool eof();
     uint32_t pos();
     void setPos(uint32_t pos);
     void skip(unsigned int amount);
     uint32_t getLength() const { return m_length; }
+    uint32_t getRemaining() const { return m_end - m_pos; }
     char* posPointer() { return m_pos; }
 
     uint8_t peek8();
