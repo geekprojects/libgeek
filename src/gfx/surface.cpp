@@ -26,6 +26,7 @@
 
 #include <geek/gfx-surface.h>
 #include <geek/core-compiler.h>
+#include <geek/core-data.h>
 
 using namespace std;
 using namespace Geek;
@@ -295,60 +296,22 @@ Surface* Surface::loadJPEGInternal(struct jpeg_decompress_struct* cinfo)
     return surface;
 }
 
-Surface* Surface::loadPNG(string path)
+static Surface* loadPNGInternal(png_structp png_ptr, png_infop info_ptr)
 {
-    Surface* surface = NULL;
-
-    FILE* fd;
-    fd = fopen(path.c_str(), "r");
-    if (fd == NULL)
-    {
-        return NULL;
-    }
-
-    png_structp png_ptr;
-    png_infop info_ptr;
-
-    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    if (png_ptr == NULL)
-    {
-        fclose(fd);
-        return NULL;
-    }
-
-    info_ptr = png_create_info_struct(png_ptr);
-    if (info_ptr == NULL)
-    {
-        png_destroy_read_struct(&png_ptr, NULL, NULL);
-        fclose(fd);
-        return NULL;
-    }
-
-    if (setjmp(png_jmpbuf(png_ptr)))
-    {
-        /* Free all of the memory associated with the png_ptr and info_ptr */
-        png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
-        fclose(fd);
-        /* If we get here, we had a problem reading the file */
-        return NULL;
-    }
-
-    png_init_io(png_ptr, fd);
-
-    png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_EXPAND, NULL);
+    png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_EXPAND, nullptr);
 
     int width = png_get_image_width(png_ptr, info_ptr);
     int height = png_get_image_height(png_ptr, info_ptr);
     int channels = png_get_channels(png_ptr, info_ptr);
     png_bytep* row_pointers = png_get_rows(png_ptr, info_ptr);
 
-    surface = new Surface(width, height, 4);
+    Surface* surface = new Surface(width, height, 4);
 
     int y;
     for (y = 0; y < height; y++)
     {
         uint8_t* src = (uint8_t*)row_pointers[y];
-        uint8_t* dst = surface->m_drawingBuffer + surface->getOffset(0, y);
+        uint8_t* dst = surface->getDrawingBuffer() + surface->getOffset(0, y);
 
         int x;
         for (x = 0; x < width; x++)
@@ -388,8 +351,112 @@ Surface* Surface::loadPNG(string path)
         }
     }
 
-    png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+    png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
+    return surface;
+}
+
+Surface* Surface::loadPNG(string path)
+{
+    FILE* fd;
+    fd = fopen(path.c_str(), "r");
+    if (fd == nullptr)
+    {
+        return nullptr;
+    }
+
+    png_structp png_ptr;
+    png_infop info_ptr;
+
+    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+    if (png_ptr == nullptr)
+    {
+        fclose(fd);
+        return nullptr;
+    }
+
+    info_ptr = png_create_info_struct(png_ptr);
+    if (info_ptr == nullptr)
+    {
+        png_destroy_read_struct(&png_ptr, nullptr, nullptr);
+        fclose(fd);
+        return nullptr;
+    }
+
+    if (setjmp(png_jmpbuf(png_ptr)))
+    {
+        /* Free all of the memory associated with the png_ptr and info_ptr */
+        png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+        fclose(fd);
+        /* If we get here, we had a problem reading the file */
+        return nullptr;
+    }
+
+    png_init_io(png_ptr, fd);
+
+    Surface* surface = loadPNGInternal(png_ptr, info_ptr);
+
     fclose(fd);
+    return surface;
+}
+
+struct pngbuffer
+{
+    char* ptr;
+    uint32_t remaining;
+};
+
+void readPNGFromMemory(png_structp png_ptr, png_bytep outBytes, png_size_t byteCountToRead)
+{
+    png_voidp io_ptr = png_get_io_ptr(png_ptr);
+    pngbuffer* buffer = (pngbuffer*)io_ptr;
+
+    int copyLen = byteCountToRead;
+    if (buffer->remaining < copyLen)
+    {
+        copyLen = buffer->remaining;
+    }
+
+    memcpy(outBytes, buffer->ptr, copyLen);
+    buffer->ptr += copyLen;
+    buffer->remaining -= copyLen;
+}
+
+Surface* Surface::loadPNG(uint8_t* data, uint32_t length)
+{
+    png_structp png_ptr;
+    png_infop info_ptr;
+
+    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+    if (png_ptr == nullptr)
+    {
+        return nullptr;
+    }
+
+    info_ptr = png_create_info_struct(png_ptr);
+    if (info_ptr == nullptr)
+    {
+        png_destroy_read_struct(&png_ptr, nullptr, nullptr);
+        return nullptr;
+    }
+
+    if (setjmp(png_jmpbuf(png_ptr)))
+    {
+        /* Free all of the memory associated with the png_ptr and info_ptr */
+        png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
+        /* If we get here, we had a problem reading the file */
+        return nullptr;
+    }
+
+    pngbuffer* buffer = new pngbuffer();
+    buffer->ptr = (char*)data;
+    buffer->remaining = length;
+
+    png_set_read_fn(png_ptr, buffer, readPNGFromMemory);
+
+    Surface* surface = loadPNGInternal(png_ptr, info_ptr);
+
+    delete buffer;
+
     return surface;
 }
 
