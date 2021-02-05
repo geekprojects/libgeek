@@ -69,6 +69,16 @@ struct Vector2D
         y = _y;
     }
 
+    inline bool operator ==(const Vector2D& rhs) const
+    {
+        return (x == rhs.x && y == rhs.y);
+    }
+
+    inline bool operator !=(const Vector2D& rhs) const
+    {
+        return (x != rhs.x || y != rhs.y);
+    }
+
     inline Vector2D operator -(const Vector2D& rhs) const
     {
         return {x - rhs.x, y - rhs.y};
