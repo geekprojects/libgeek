@@ -19,8 +19,8 @@
  */
 
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 #include <jpeglib.h>
 #include <png.h>
 
@@ -83,7 +83,7 @@ Surface::Surface(Surface* src) :
 
 Surface::~Surface()
 {
-    if (!m_copy && m_drawingBuffer != NULL)
+    if (!m_copy && m_drawingBuffer != nullptr)
     {
         delete[] m_drawingBuffer;
     }
@@ -95,7 +95,7 @@ bool Surface::resize(uint32_t width, uint32_t height)
     uint32_t origHeight = m_height;
     uint8_t* resizedData;
 
-    if (m_drawingBuffer == NULL)
+    if (m_drawingBuffer == nullptr)
     {
         return false;
     }
@@ -205,17 +205,17 @@ bool Surface::swapData(Surface* other)
 
 Surface* Surface::loadJPEG(string path)
 {
-    Surface* surface = NULL;
+    Surface* surface = nullptr;
     FILE* fd;
 
     fd = fopen(path.c_str(), "r");
-    if (fd == NULL)
+    if (fd == nullptr)
     {
         printf("Surface::loadJPEG: failed to open file: %s\n", path.c_str());
-        return NULL;
+        return nullptr;
     }
 
-    struct jpeg_decompress_struct cinfo;
+    jpeg_decompress_struct cinfo;
     memset(&cinfo, 0, sizeof(cinfo));
     jpeg_create_decompress(&cinfo);
     jpeg_stdio_src(&cinfo, fd);
@@ -226,7 +226,7 @@ Surface* Surface::loadJPEG(string path)
 
 Surface* Surface::loadJPEG(uint8_t* data, uint32_t length)
 {
-    struct jpeg_decompress_struct cinfo;
+    jpeg_decompress_struct cinfo;
     memset(&cinfo, 0, sizeof(cinfo));
     jpeg_create_decompress(&cinfo);
     jpeg_mem_src(&cinfo, data, length);
@@ -236,8 +236,8 @@ Surface* Surface::loadJPEG(uint8_t* data, uint32_t length)
 
 Surface* Surface::loadJPEGInternal(struct jpeg_decompress_struct* cinfo)
 {
-    Surface* surface = NULL;
-    struct jpeg_error_mgr jerr;
+    Surface* surface = nullptr;
+    jpeg_error_mgr jerr;
     cinfo->err = jpeg_std_error(&jerr);
     jpeg_read_header(cinfo, (boolean)1);
 
@@ -316,23 +316,6 @@ static Surface* loadPNGInternal(png_structp png_ptr, png_infop info_ptr)
         int x;
         for (x = 0; x < width; x++)
         {
-#if 0
-            uint32_t c = 0;
-            c |= *(src++) << 0;
-            c |= *(src++) << 8;
-            c |= *(src++) << 16;
-            if (channels == 4)
-            {
-                //uint8_t* dst = surface->m_drawingBuffer + surface->getOffset(0, y);
-                //memcpy(dst, src, surface->getStride());
-                c |= (0 - *(src++)) << 24;
-            }
-            else if (channels == 3)
-            {
-                c |= 255 << 24;
-            }
-            surface->drawPixel(x, y, c);
-#else
             uint8_t b = *(src++);
             uint8_t g = *(src++);
             uint8_t r = *(src++);
@@ -347,7 +330,6 @@ static Surface* loadPNGInternal(png_structp png_ptr, png_infop info_ptr)
             {
                 *(dst++) = 0xff;
             }
-#endif
         }
     }
 
@@ -385,7 +367,7 @@ Surface* Surface::loadPNG(string path)
     if (setjmp(png_jmpbuf(png_ptr)))
     {
         /* Free all of the memory associated with the png_ptr and info_ptr */
-        png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+        png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
         fclose(fd);
         /* If we get here, we had a problem reading the file */
         return nullptr;
@@ -408,9 +390,9 @@ struct pngbuffer
 void readPNGFromMemory(png_structp png_ptr, png_bytep outBytes, png_size_t byteCountToRead)
 {
     png_voidp io_ptr = png_get_io_ptr(png_ptr);
-    pngbuffer* buffer = (pngbuffer*)io_ptr;
+    pngbuffer* buffer = reinterpret_cast<pngbuffer*>(io_ptr);
 
-    int copyLen = byteCountToRead;
+    unsigned int copyLen = byteCountToRead;
     if (buffer->remaining < copyLen)
     {
         copyLen = buffer->remaining;
@@ -469,8 +451,8 @@ Surface* Surface::scaleToFit(int width, int height, bool fp)
 
 Surface* Surface::scale(float factor, bool fp)
 {
-    unsigned int width = m_width * factor;
-    unsigned int height = m_height * factor;
+    unsigned int width = (int)((float)m_width * factor);
+    unsigned int height = (int)((float)m_height * factor);
 
     Surface* scaled = new Surface(width, height, 4);
 
@@ -478,7 +460,7 @@ Surface* Surface::scale(float factor, bool fp)
     float stepY = (float)m_height / (float)height;
     unsigned int stepXi = (int)round(stepX);
     unsigned int stepYi = (int)round(stepY);
-    unsigned int blockCount = (stepXi * stepYi);
+    int blockCount = (int)(stepXi * stepYi);
     unsigned int blockDelta = (m_width - stepXi) * 4;
 
     auto data = (uint32_t*)scaled->getData();
@@ -491,7 +473,6 @@ Surface* Surface::scale(float factor, bool fp)
         unsigned int x;
         for (x = 0; x < width; x++)
         {
-
             int blockX = floor((float)x * stepX);
             unsigned int bx;
             unsigned int by;
@@ -561,10 +542,10 @@ Surface* Surface::scale(float factor, bool fp)
 Surface* Surface::loadTGA(string path)
 {
     FILE* fd = fopen(path.c_str(), "r");
-    if (fd == NULL)
+    if (fd == nullptr)
     {
         printf("Surface::loadTGA: ERROR: Unable to open file: %s\n", path.c_str());
-        return NULL;
+        return nullptr;
     }
 
     char buf[3];
@@ -574,7 +555,7 @@ Surface* Surface::loadTGA(string path)
     {
         printf("Surface::loadTGA: ERROR: Unable to open file header: %s\n", path.c_str());
         fclose(fd);
-        return NULL;
+        return nullptr;
     }
 
     uint8_t idLen = buf[0];
@@ -589,14 +570,14 @@ Surface* Surface::loadTGA(string path)
     {
         printf("Surface::loadTGA: ERROR: Unsupported colour map type: %d\n", colourMapType);
         fclose(fd);
-        return NULL;
+        return nullptr;
     }
 
     if (imageType != 2 && imageType != 10)
     {
         printf("Surface::loadTGA: ERROR: Unsupported image type: %d\n", imageType);
         fclose(fd);
-        return NULL;
+        return nullptr;
     }
 
     fseek(fd, 5 + 4, SEEK_CUR);
@@ -609,14 +590,14 @@ Surface* Surface::loadTGA(string path)
     if (res < 1)
     {
         fclose(fd);
-        return NULL;
+        return nullptr;
     }
 
     res = fread(&height, 2, 1, fd);
     if (res < 1)
     {
         fclose(fd);
-        return NULL;
+        return nullptr;
     }
 
     res = fread(buf, 2, 1, fd);
@@ -624,7 +605,7 @@ Surface* Surface::loadTGA(string path)
     {
         printf("Surface::loadTGA: ERROR: Error reading from file\n");
         fclose(fd);
-        return NULL;
+        return nullptr;
     }
     uint8_t bpp = buf[0];
 
@@ -636,7 +617,7 @@ Surface* Surface::loadTGA(string path)
     {
         printf("Surface::loadTGA: ERROR: Unsupported BPP: %d\n", bpp);
         fclose(fd);
-        return NULL;
+        return nullptr;
     }
 
     res = fseek(fd, idLen, SEEK_CUR);
@@ -644,7 +625,7 @@ Surface* Surface::loadTGA(string path)
     {
         printf("Surface::loadTGA: ERROR: Failed to seek to data\n");
         fclose(fd);
-        return NULL;
+        return nullptr;
     }
 
     Surface* surface = new Surface(width, height, 4);
@@ -664,7 +645,7 @@ Surface* Surface::loadTGA(string path)
                     printf("Surface::loadTGA: ERROR: Failed to read data\n");
                     delete surface;
                     fclose(fd);
-                    return NULL;
+                    return nullptr;
                 }
 
                 uint8_t b = buf[0];
@@ -685,7 +666,7 @@ Surface* Surface::loadTGA(string path)
                 printf("Surface::loadTGA: ERROR: File truncated?\n");
                 delete surface;
                 fclose(fd);
-                return NULL;
+                return nullptr;
             }
 
             uint32_t p = 0;
@@ -697,7 +678,7 @@ Surface* Surface::loadTGA(string path)
                     printf("Surface::loadTGA: ERROR: Failed to read data\n");
                     delete surface;
                     fclose(fd);
-                    return NULL;
+                    return nullptr;
                 }
 
                 uint8_t b = buf[0];
@@ -718,7 +699,7 @@ Surface* Surface::loadTGA(string path)
                         printf("Surface::loadTGA: ERROR: Failed to read data\n");
                         delete surface;
                         fclose(fd);
-                        return NULL;
+                        return nullptr;
                     }
 
                     uint8_t b = buf[0];
@@ -760,17 +741,14 @@ Surface* Surface::loadImage(std::string path)
         return loadTGA(path);
     }
     printf("Surface::loadImage: Unknown image type: %s\n", ext.c_str());
-    return NULL;
+    return nullptr;
 }
 
 Surface* Surface::updateSurface(Surface* surface, int width, int height, double scale)
 {
-    if (surface == NULL || surface->getWidth() != width * scale || surface->getHeight() != height * scale)
+    if (surface == nullptr || surface->getWidth() != width * scale || surface->getHeight() != height * scale)
     {
-        if (surface != NULL)
-        {
-            delete surface;
-        }
+        delete surface;
 
         if (scale > 1)
         {
