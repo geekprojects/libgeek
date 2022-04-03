@@ -28,14 +28,13 @@ pkg_check_modules(sigcpp REQUIRED sigc++-2.0)
 pkg_check_modules(libxml2 REQUIRED libxml-2.0)
 pkg_check_modules(freetype2 REQUIRED freetype2)
 pkg_check_modules(libpng REQUIRED libpng)
+pkg_check_modules(libjpeg REQUIRED libjpeg)
 
 find_library(SQLITE3_LIBRARY NAMES sqlite3 )
 find_library(z_LIBRARY NAMES z )
-find_library(jpeg_LIBRARY NAMES jpeg )
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/include
-    /usr/local/include
 )
 
 add_subdirectory(src/core)
@@ -43,9 +42,9 @@ add_subdirectory(src/fonts)
 add_subdirectory(src/gfx)
 add_subdirectory(include/geek)
 
-set(PKGCONFIG_CFLAGS_LIST -I${CMAKE_INSTALL_PREFIX}/include ${sigcpp_CFLAGS} ${libxml2_CFLAGS} ${freetype2_CFLAGS})
+set(PKGCONFIG_CFLAGS_LIST -I${CMAKE_INSTALL_PREFIX}/include ${sigcpp_CFLAGS} ${libxml2_CFLAGS} ${freetype2_CFLAGS} ${libjpeg_CFLAGS})
 string(REPLACE ";" " " PKGCONFIG_CFLAGS "${PKGCONFIG_CFLAGS_LIST}")
-set(PKGCONFIG_LDFLAGS_LIST -L${CMAKE_INSTALL_PREFIX}/lib -lgeek-core -lgeek-gfx -lgeek-fonts ${sigcpp_LDFLAGS} ${libxml2_LDFLAGS} ${freetype2_LDFLAGS})
+set(PKGCONFIG_LDFLAGS_LIST -L${CMAKE_INSTALL_PREFIX}/lib -lgeek-core -lgeek-gfx -lgeek-fonts ${sigcpp_LDFLAGS} ${libxml2_LDFLAGS} ${freetype2_LDFLAGS} ${libjpeg_LDFLAGS})
 string(REPLACE ";" " " PKGCONFIG_LDFLAGS "${PKGCONFIG_LDFLAGS_LIST}")
 
 configure_file(libgeek.pc.in libgeek.pc @ONLY)
