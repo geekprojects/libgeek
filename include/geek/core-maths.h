@@ -98,6 +98,13 @@ struct Vector2D
         return *this;
     }
 
+    inline Vector2D& operator +=(const Vector2D rhs)
+    {
+        x += rhs.x;
+        y += rhs.y;
+        return *this;
+    }
+
     inline void clip(const Rect& r);
 };
 
@@ -231,17 +238,22 @@ struct Vector
         z = _z;
     }
 
-    inline Vector operator + (Vector& v) const
+    inline Vector operator + (const Vector v) const
     {
         return Vector(x + v.x, y + v.y, z + v.z);
     }
 
-    inline Vector operator - (Vector& v) const
+    inline Vector operator - (const Vector& v) const
     {
         return Vector(x - v.x, y - v.y, z - v.z);
     }
 
-    inline Vector operator * (Vector& v) const
+    inline Vector operator - () const
+    {
+        return Vector(-x, -y, -z);
+    }
+
+    inline Vector operator * (const Vector& v) const
     {
         return Vector(x * v.x, y * v.y, z * v.z);
     }
