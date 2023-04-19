@@ -282,11 +282,12 @@ namespace internal
 } // namespace internal
 
     /// The library API - functions intended to be called by the users
-
     // Byte order mark
-    const uint8_t bom[] = {0xef, 0xbb, 0xbf};
+    const uint8_t bom0 = 0xef;
+    const uint8_t bom1 = 0xbb;
+    const uint8_t bom2 = 0xbf;
 
-    template <typename octet_iterator>
+template <typename octet_iterator>
     octet_iterator find_invalid(octet_iterator start, octet_iterator end)
     {
         octet_iterator result = start;
@@ -308,9 +309,9 @@ namespace internal
     inline bool starts_with_bom (octet_iterator it, octet_iterator end)
     {
         return (
-            ((it != end) && (utf8::internal::mask8(*it++)) == bom[0]) &&
-            ((it != end) && (utf8::internal::mask8(*it++)) == bom[1]) &&
-            ((it != end) && (utf8::internal::mask8(*it))   == bom[2])
+            ((it != end) && (utf8::internal::mask8(*it++)) == bom0) &&
+            ((it != end) && (utf8::internal::mask8(*it++)) == bom1) &&
+            ((it != end) && (utf8::internal::mask8(*it))   == bom2)
            );
     }
 	
@@ -319,9 +320,9 @@ namespace internal
     inline bool is_bom (octet_iterator it)
     {
         return (
-            (utf8::internal::mask8(*it++)) == bom[0] &&
-            (utf8::internal::mask8(*it++)) == bom[1] &&
-            (utf8::internal::mask8(*it))   == bom[2]
+            (utf8::internal::mask8(*it++)) == bom0 &&
+            (utf8::internal::mask8(*it++)) == bom1 &&
+            (utf8::internal::mask8(*it))   == bom2
            );
     }
 } // namespace utf8
@@ -598,7 +599,12 @@ namespace utf8
 
     // The iterator class
     template <typename octet_iterator>
-    class iterator : public std::iterator <std::bidirectional_iterator_tag, uint32_t> {
+    class iterator {
+        using iterator_category = std::bidirectional_iterator_tag;
+        using value_type = uint32_t;
+        using difference_type = uint32_t;
+        using pointer = uint32_t*;
+        using reference = uint32_t&;
       octet_iterator it;
       octet_iterator range_start;
       octet_iterator range_end;

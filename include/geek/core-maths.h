@@ -369,13 +369,13 @@ struct Vector
     {
         std::string str = "";
         char buf[16];
-        sprintf(buf, "%0.2f", x);
+        snprintf(buf, 16, "%0.2f", x);
         str += buf;
         str += ",";
-        sprintf(buf, "%0.2f", y);
+        snprintf(buf, 16, "%0.2f", y);
         str += buf;
         str += ",";
-        sprintf(buf, "%0.2f", z);
+        snprintf(buf, 16, "%0.2f", z);
         str += buf;
         return str;
     }
