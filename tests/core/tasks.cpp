@@ -2,10 +2,11 @@
 #include <geek/core-tasks.h>
 #include <geek/core-random.h>
 
-#include <stdio.h>
+#include <cstdio>
+#include <cwchar>
 #include <unistd.h>
-#include <time.h>
-#include <wchar.h>
+
+#include <gtest/gtest.h>
 
 using namespace std;
 using namespace Geek::Core;
@@ -16,25 +17,23 @@ class TestTask : public Task
     int m_time;
 
  public:
-    TestTask(wstring title, int i, int time) : Task(title)
+    TestTask(const wstring& title, int i, int time) : Task(title)
     {
         m_i = i;
         m_time = time;
     }
 
-    ~TestTask()
-    {
-    }
+    ~TestTask() override = default;
 
-    void run()
+    void run() override
     {
-        printf("TestTask::run: Starting: m_i=%d, sleeping for %d seconds\n", m_i, m_time);
-        sleep(m_time);
+        printf("TestTask::run: Starting: m_i=%d, sleeping for %d micro seconds\n", m_i, m_time);
+        usleep(m_time);
         printf("TestTask::run: Done!: m_i=%d\n", m_i);
     }
 };
 
-int main(int argc, char** argv)
+TEST(Tasks, BasicTest)
 {
     Random r;
     int run;
@@ -56,17 +55,20 @@ int main(int argc, char** argv)
         {
             wchar_t title[100];
             swprintf(title, 100, L"Test Task %d-%d", run, i);
-            executor.addTask(new TestTask(wstring(title), (run * tasksPerRun) + i, r.range(1, 3)));
+            executor.addTask(new TestTask(wstring(title), (run * tasksPerRun) + i, r.range(1000, 1000000)));
         }
 
+#ifdef DEBUG
         vector<TaskInfo> tasks = executor.getTaskInfo();
         for (TaskInfo info : tasks)
         {
             printf("%ls: %d\n", info.title.c_str(), info.state);
         }
+#endif
 
         executor.wait();
+        EXPECT_EQ(0, executor.getTaskCount());
+        EXPECT_EQ(0, executor.getTaskInfo().size());
     }
-    return 0;
 }
 

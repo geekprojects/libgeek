@@ -21,15 +21,17 @@
 
 #include <geek/core-dynamicarray.h>
 
-#include <stdio.h>
-#include <stdint.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdint>
+#include <cmath>
+
+#include <gtest/gtest.h>
 
 #include <cinttypes>
 
 using namespace Geek::Core;
 
-int main(int argc, char** argv)
+TEST(DyamicArray, BasicTest)
 {
     DynamicArray<float> array(NAN);
 
@@ -109,15 +111,6 @@ printf("dynamicarray iterator: %d = %0.2f\n", it.getIndex(), *it);
         }
     }
 
-    if (checksum == readChecksum)
-    {
-        printf("dynamicarray min/max test: PASS\n");
-    }
-    else
-    {
-        printf("dynamicarray min/max test: FAIL %" PRIu64 " != %" PRIu64 "\n", checksum, readChecksum);
-    }
-
-    return 0;
+    EXPECT_EQ(checksum, readChecksum);
 }
 

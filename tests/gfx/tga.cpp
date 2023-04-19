@@ -21,24 +21,28 @@
 
 #include <geek/gfx-surface.h>
 
+#include <gtest/gtest.h>
+
 using namespace Geek;
 using namespace Geek::Gfx;
 
-int main(int argc, char** argv)
+TEST(GfxTGA, LoadTGA1)
 {
     Surface* test1 = Surface::loadImage("test.tga");
-if (test1 != NULL)
-{
-test1->saveJPEG("out1.jpg");
-delete test1;
+    if (test1 != NULL)
+    {
+        test1->saveJPEG("out1.jpg");
+        delete test1;
+    }
 }
 
-    Surface* test2 = Surface::loadImage("test2.tga");
-if (test2 != NULL)
+TEST(GfxTGA, LoadTGA2)
 {
-test2->saveJPEG("out2.jpg");
-delete test2;
-}
-    return 0;
+    Surface* test2 = Surface::loadImage("test2.tga");
+    if (test2 != NULL)
+    {
+        test2->saveJPEG("out2.jpg");
+        delete test2;
+    }
 }
 

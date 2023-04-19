@@ -2,11 +2,12 @@
 cmake_minimum_required(VERSION 3.10)
 
 include(CheckSymbolExists)
+include(FetchContent)
 
 # set the project name
 project(libgeek VERSION 1.0)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
@@ -41,6 +42,7 @@ add_subdirectory(src/core)
 add_subdirectory(src/fonts)
 add_subdirectory(src/gfx)
 add_subdirectory(include/geek)
+add_subdirectory(tests)
 
 set(PKGCONFIG_CFLAGS_LIST -I${CMAKE_INSTALL_PREFIX}/include ${sigcpp_CFLAGS} ${libxml2_CFLAGS} ${freetype2_CFLAGS} ${libjpeg_CFLAGS})
 string(REPLACE ";" " " PKGCONFIG_CFLAGS "${PKGCONFIG_CFLAGS_LIST}")
