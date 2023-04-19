@@ -21,7 +21,7 @@
 #ifndef __LIBGEEK_GFX_DRAWABLE_H_
 #define __LIBGEEK_GFX_DRAWABLE_H_
 
-#include <stdint.h>
+#include <cstdint>
 
 #include <string>
 
@@ -57,6 +57,15 @@ class Drawable
 
     uint8_t* m_drawingBuffer;
     uint32_t m_drawingBufferLength;
+
+    bool drawPixelChecked(int32_t x, int32_t y, uint32_t c)
+    {
+        if (intersects(x, y))
+        {
+            return drawPixel(x, y, c);
+        }
+        return false;
+    }
 
  public:
     Drawable(uint32_t width, uint32_t height);

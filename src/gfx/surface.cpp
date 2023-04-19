@@ -133,18 +133,18 @@ void Surface::rotate(int angle)
         return;
     }
 
-    Surface* rotated = new Surface(getHeight(), getWidth(), getBytesPerPixel());
+    auto rotated = new Surface(getHeight(), getWidth(), getBytesPerPixel());
 
-    int w = m_width;
-    int h = m_height;
+    int w = (int)getWidth();
+    int h = (int)getHeight();
 
     // Hardly the fastest rotation ever, but It Works(tm)
-    uint32_t* data = (uint32_t*)getData();
-    unsigned int y;
-    for (y = 0; y < getHeight(); y++)
+    auto data = (uint32_t*)getData();
+    int y;
+    for (y = 0; y < h; y++)
     {
-        unsigned int x;
-        for (x = 0; x < getWidth(); x++)
+        int x;
+        for (x = 0; x < w; x++)
         {
             if (angle == 90)
             {
@@ -205,7 +205,7 @@ bool Surface::swapData(Surface* other)
 
 Surface* Surface::loadJPEG(string path)
 {
-    Surface* surface = nullptr;
+    Surface* surface;
     FILE* fd;
 
     fd = fopen(path.c_str(), "r");
@@ -215,7 +215,7 @@ Surface* Surface::loadJPEG(string path)
         return nullptr;
     }
 
-    jpeg_decompress_struct cinfo;
+    jpeg_decompress_struct cinfo = {};
     memset(&cinfo, 0, sizeof(cinfo));
     jpeg_create_decompress(&cinfo);
     jpeg_stdio_src(&cinfo, fd);
@@ -226,7 +226,7 @@ Surface* Surface::loadJPEG(string path)
 
 Surface* Surface::loadJPEG(uint8_t* data, uint32_t length)
 {
-    jpeg_decompress_struct cinfo;
+    jpeg_decompress_struct cinfo = {};
     memset(&cinfo, 0, sizeof(cinfo));
     jpeg_create_decompress(&cinfo);
     jpeg_mem_src(&cinfo, data, length);
@@ -236,8 +236,8 @@ Surface* Surface::loadJPEG(uint8_t* data, uint32_t length)
 
 Surface* Surface::loadJPEGInternal(struct jpeg_decompress_struct* cinfo)
 {
-    Surface* surface = nullptr;
-    jpeg_error_mgr jerr;
+    Surface* surface;
+    jpeg_error_mgr jerr = {};
     cinfo->err = jpeg_std_error(&jerr);
     jpeg_read_header(cinfo, (boolean)1);
 
@@ -251,7 +251,7 @@ Surface* Surface::loadJPEGInternal(struct jpeg_decompress_struct* cinfo)
         cinfo->output_components);
 #endif
 
-    int row_stride = cinfo->output_width * cinfo->output_components;
+    unsigned int row_stride = cinfo->output_width * cinfo->output_components;
 
     surface = new Surface(
         cinfo->output_width,
@@ -262,7 +262,7 @@ Surface* Surface::loadJPEGInternal(struct jpeg_decompress_struct* cinfo)
     JSAMPARRAY buffer = (*cinfo->mem->alloc_sarray)
         ((j_common_ptr)cinfo, JPOOL_IMAGE, row_stride, 1);
 
-    uint32_t* data = (uint32_t*)surface->getData();
+    auto data = (uint32_t*)surface->getData();
     while (cinfo->output_scanline < cinfo->output_height)
     {
         jpeg_read_scanlines(cinfo, buffer, 1);
@@ -298,27 +298,35 @@ Surface* Surface::loadJPEGInternal(struct jpeg_decompress_struct* cinfo)
 
 static Surface* loadPNGInternal(png_structp png_ptr, png_infop info_ptr)
 {
+    if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
+    {
+        png_set_tRNS_to_alpha(png_ptr);
+        printf("loadPNGInternal: Calling png_set_tRNS_to_alpha\n");
+    }
+
     png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_EXPAND, nullptr);
 
-    int width = png_get_image_width(png_ptr, info_ptr);
-    int height = png_get_image_height(png_ptr, info_ptr);
+    unsigned int width = png_get_image_width(png_ptr, info_ptr);
+    unsigned int height = png_get_image_height(png_ptr, info_ptr);
     int channels = png_get_channels(png_ptr, info_ptr);
     png_bytep* row_pointers = png_get_rows(png_ptr, info_ptr);
 
-    Surface* surface = new Surface(width, height, 4);
+    printf("loadPNGInternal: channels=%d", channels);
+
+    auto surface = new Surface(width, height, 4);
 
     int y;
     for (y = 0; y < height; y++)
     {
-        uint8_t* src = (uint8_t*)row_pointers[y];
+        auto src = (uint8_t*)row_pointers[y];
         uint8_t* dst = surface->getDrawingBuffer() + surface->getOffset(0, y);
 
         int x;
         for (x = 0; x < width; x++)
         {
-            uint8_t b = *(src++);
-            uint8_t g = *(src++);
             uint8_t r = *(src++);
+            uint8_t g = *(src++);
+            uint8_t b = *(src++);
             *(dst++) = r;
             *(dst++) = g;
             *(dst++) = b;
@@ -630,8 +638,8 @@ Surface* Surface::loadTGA(string path)
 
     Surface* surface = new Surface(width, height, 4);
 
-    unsigned int x = 0;
-    unsigned int y = 0;
+    int x = 0;
+    int y = 0;
     if (imageType == 2)
     {
         // Uncompressed. Easy!

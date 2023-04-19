@@ -40,7 +40,7 @@ Drawable::Drawable(uint32_t width, uint32_t height)
     m_dpiX = 96;
     m_dpiY = 96;
 
-    m_drawingBuffer = NULL;
+    m_drawingBuffer = nullptr;
     m_drawingBufferLength = 0;
 }
 
@@ -109,13 +109,15 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
         return true;
     }
 
+    int w = (int)getWidth();
+    int h = (int)getHeight();
     if (x1 == x2 || y1 == y2)
     {
         int i;
 
         if (y1 == y2)
         {
-            if (y1 < 0 || y1 >= (int)getHeight())
+            if (y1 < 0 || y1 >= h)
             {
                 return true;
             }
@@ -131,12 +133,12 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
             {
                 x1 = 0;
             }
-            if (x2 >= (int)getWidth())
+            if (x2 >= w)
             {
-                x2 = getWidth() - 1;
+                x2 = w - 1;
             }
 
-            if (x1 > (int)getWidth() || x2 < 0)
+            if (x1 > w || x2 < 0)
             {
                 return true;
             }
@@ -165,7 +167,7 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
         }
         else
         {
-            if (x1 < 0 || x1 >= (int)getWidth())
+            if (x1 < 0 || x1 >= w)
             {
                 return true;
             }
@@ -181,12 +183,12 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
             {
                 y1 = 0;
             }
-            if (y2 >= (int)getHeight())
+            if (y2 >= h)
             {
-                y2 = getHeight() - 1;
+                y2 = h - 1;
             }
 
-            if (y1 > (int)getWidth() || y2 < 0)
+            if (y1 > w || y2 < 0)
             {
                 return true;
             }
@@ -196,7 +198,7 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
             auto p = (uint32_t*)(drawingBuffer + getOffset(x1, y1));
             if (alpha == 255)
             {
-                for (i = 0; i < dy; i++, p += getWidth())
+                for (i = 0; i < dy; i++, p += w)
                 {
                     *p = c;
                 }
@@ -214,7 +216,6 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
     {
         int x;
         int y;
-        int i;
 
         int dx = x2 - x1;
         int dy = y2 - y1;
@@ -244,7 +245,7 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
                 Drawable::drawPixel(x, y, c);
             }
 
-            for (i = 0; x < xe && x < (int)m_width; i++)
+            while (x < xe && x < w)
             {
                 x++;
 
@@ -292,7 +293,7 @@ bool Drawable::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t
                 Drawable::drawPixel(x, y, c);
             }
 
-            for (i = 0; y < ye && y < (int)m_width; i++)
+            while (y < ye && y < (int)m_width)
             {
                 y++;
                 if (py <= 0)
@@ -327,7 +328,7 @@ bool Drawable::drawRectFilled(int32_t x, int32_t y, uint32_t w, uint32_t h, uint
 {
     bool res;
 
-    Rect rect(x, y, w, h);
+    Rect rect(x, y, (int)w, (int)h);
     res = rect.clip(getRect());
     if (!res)
     {
@@ -370,19 +371,20 @@ bool Drawable::drawRect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c
 #endif
     c |= 0xff000000;
 
-    w--;
-    h--;
-    Drawable::drawLine(x, y, x + w, y, c);
-    Drawable::drawLine(x, y, x, h + y, c);
-    Drawable::drawLine(x + w, y, x + w, y + h + 1, c);
-    Drawable::drawLine(x, y + h, x + w, y + h, c);
+    int wi = (int)w - 1;
+    int hi = (int)h - 1;
+
+    Drawable::drawLine(x, y, x + wi, y, c);
+    Drawable::drawLine(x, y, x, y + hi, c);
+    Drawable::drawLine(x + wi, y, x + wi, y + hi + 1, c);
+    Drawable::drawLine(x, y + hi, x + wi, y + hi, c);
     return true;
 }
 
 bool Drawable::drawGrad(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c1, uint32_t c2)
 {
-    uint8_t* c1bytes = (uint8_t*)&c1;
-    uint8_t* c2bytes = (uint8_t*)&c2;
+    auto c1bytes = (uint8_t*)&c1;
+    auto c2bytes = (uint8_t*)&c2;
 
     float d[4];
     d[2] = 0.0;
@@ -396,21 +398,23 @@ bool Drawable::drawGrad(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t c
     v[1] = (float)(c1bytes[1]);
     v[0] = (float)(c1bytes[0]);
 
-    uint32_t j;
+    int wi = (int)w - 1;
+
+    int32_t j;
     for (j = 0; j < h; j++)
     {
         uint32_t out;
-        uint8_t* outbytes = (uint8_t*)&out;
-        outbytes[3] = (int)v[3];
-        outbytes[2] = (int)v[2];
-        outbytes[1] = (int)v[1];
-        outbytes[0] = (int)v[0];
+        auto outBytes = (uint8_t*)&out;
+        outBytes[3] = (int)v[3];
+        outBytes[2] = (int)v[2];
+        outBytes[1] = (int)v[1];
+        outBytes[0] = (int)v[0];
         //v[3] += d[3];
         v[2] += d[2];
         v[1] += d[1];
         v[0] += d[0];
 
-        Drawable::drawLine(x, y + j, x + (w - 1), y + j, out);
+        Drawable::drawLine(x, y + j, x + wi, y + j, out);
     }
     return true;
 }
@@ -460,7 +464,7 @@ bool Drawable::blit(
     uint32_t bytesPerPixel,
     bool alpha)
 {
-    if (data == NULL)
+    if (data == nullptr)
     {
         return false;
     }
@@ -474,7 +478,7 @@ bool Drawable::blit(
     Surface* surface,
     bool alpha)
 {
-    if (surface == NULL)
+    if (surface == nullptr)
     {
         return false;
     }
@@ -494,7 +498,7 @@ bool Drawable::blit(int32_t destX, int32_t destY, Surface* surface, int viewX, i
         getDrawingBuffer(),
         destX, destY,
         surface->getDrawingBuffer(),
-        surface->getWidth(), surface->getHeight(), surface->getBytesPerPixel(),
+        surface->getWidth(), surface->getHeight(), getBytesPerPixel(),
         viewX,
         viewY,
         viewW,
@@ -516,15 +520,15 @@ bool Drawable::blit(
     uint32_t viewHeight,
     bool forceAlpha)
 {
-    if (srcData == NULL)
+    if (srcData == nullptr)
     {
         return false;
     }
 
-    Rect destRect(0, 0, getWidth(), getHeight()); // The destination surface
-    Rect drawRect(x, y, viewWidth, viewHeight); // The rectangle we're drawing in to
-    Rect srcRect(0, 0, srcWidth, srcHeight);
-    Rect viewRect(viewX, viewY, viewWidth, viewHeight); // The area of the source we're copying from
+    Rect destRect(0, 0, (int)getWidth(), (int)getHeight()); // The destination surface
+    Rect drawRect(x, y, (int)viewWidth, (int)viewHeight); // The rectangle we're drawing in to
+    Rect srcRect(0, 0, (int)srcWidth, (int)srcHeight);
+    Rect viewRect(viewX, viewY, (int)viewWidth, (int)viewHeight); // The area of the source we're copying from
 
 #ifdef DEBUG_DRAWBLE_BLIT
     printf("blit: BEFORE destRect=%s\n", destRect.toString().c_str());
@@ -583,8 +587,8 @@ bool Drawable::blit(
     printf("Drawable::blit: viewX=%d, viewY=%d, viewWidth=%d, viewHeight=%d\n", viewX, viewY, viewWidth, viewHeight);
 #endif
 
-    int destStride = getStride();
-    if (forceAlpha)
+    unsigned int destStride = getStride();
+    if (!forceAlpha)
     {
         for (y1 = 0; y1 < (int32_t)viewRect.h; y1++, srcData += dataStride, dest += destStride)
         {
@@ -595,8 +599,8 @@ bool Drawable::blit(
     {
         for (y1 = 0; y1 < (int32_t)viewRect.h; y1++)
         {
-            uint32_t* src = (uint32_t*)srcData;
-            uint32_t* dst = (uint32_t*)dest;
+            auto src = (uint32_t*)srcData;
+            auto dst = (uint32_t*)dest;
             int32_t x1;
             for (x1 = 0; x1 < viewRect.w; x1++)
             {
@@ -637,7 +641,7 @@ static inline uint32_t clipRadius(uint32_t w, uint32_t h, uint32_t r)
 
 bool Drawable::drawCorner(int32_t x, int32_t y, Corner corner, uint32_t r, uint32_t c)
 {
-    int cx = r;
+    int cx = (int)r;
     int cy = 0;
     int err = 0;
     while (cx >= cy)
@@ -685,17 +689,20 @@ bool Drawable::drawRectRounded(int32_t x, int32_t y, uint32_t w, uint32_t h, uin
 {
     r = clipRadius(w, h, r);
 
-    int32_t xr1 = x + r;
-    int32_t xr2 = (x + w) - (r + 1);
-    int32_t yr1 = y + r;
-    int32_t yr2 = (y + h) - (r + 1);
+    int xr1 = (int)(x + r);
+    int xr2 = (int)((x + w) - (r + 1));
+    int yr1 = (int)(y + r);
+    int yr2 = (int)((y + h) - (r + 1));
+
+    int hi = (int)h - 1;
+    int wi = (int)w - 1;
 
     drawLine(xr1, y, xr2, y, c);
-    drawLine(xr1, y + h -1, xr2, y + h - 1, c);
+    drawLine(xr1, y + hi, xr2, y + hi, c);
     drawLine(x, yr1, x, yr2, c);
-    drawLine(x + w - 1, yr1, x + w - 1, yr2, c);
+    drawLine(x + wi, yr1, x + wi, yr2, c);
 
-    int cx = r;
+    int cx = (int)r;
     int cy = 0;
     int err = 0;
     while (cx >= cy)
@@ -750,18 +757,18 @@ bool Drawable::drawRectFilledRounded(int32_t x, int32_t y, uint32_t w, uint32_t 
         return drawRectFilled(x, y, w, h, c);
     }
 
-    drawRectFilled(x + r, y, w - (r * 2), h, c);
-    drawRectFilled(x, y + r, r, h - (r * 2), c);
-    drawRectFilled(x + (w - r), y + r, r - 1, h - (r * 2), c);
+    drawRectFilled(x + (int)r, y, w - (r * 2), h, c);
+    drawRectFilled(x, y + (int)r, r, h - (r * 2), c);
+    drawRectFilled(x + (int)(w - r), y + (int)r, r - 1, h - (r * 2), c);
 
-    uint32_t x2 = x + w - 1;
-    uint32_t y2 = y + h - 1;
+    int x2 = x + (int)w - 1;
+    int y2 = y + (int)h - 1;
 
     // Corners...
-    uint32_t cy;
+    int cy;
     for (cy = 0; cy < r; cy++)
     {
-        uint32_t cx;
+        int cx;
         for (cx = 0; cx < r; cx++)
         {
             uint32_t c2 = ((r - cx) * (r - cx)) + ((r - cy) * (r - cy));
@@ -787,8 +794,8 @@ bool Drawable::drawGradRounded(int32_t x, int32_t y, uint32_t w, uint32_t h, uin
         return drawGrad(x, y, w, h, c1, c2);
     }
 
-    uint8_t* c1bytes = (uint8_t*)&c1;
-    uint8_t* c2bytes = (uint8_t*)&c2;
+    auto c1bytes = (uint8_t*)&c1;
+    auto c2bytes = (uint8_t*)&c2;
 
     float d[4];
     d[2] = 0.0;
@@ -802,11 +809,11 @@ bool Drawable::drawGradRounded(int32_t x, int32_t y, uint32_t w, uint32_t h, uin
     v[1] = (float)(c1bytes[1]);
     v[0] = (float)(c1bytes[0]);
 
-    uint32_t y1;
+    int y1;
     for (y1 = 0; y1 < h; y1++)
     {
         uint32_t out;
-        uint8_t* outbytes = (uint8_t*)&out;
+        auto outbytes = (uint8_t*)&out;
         outbytes[3] = (int)v[3];
         outbytes[2] = (int)v[2];
         outbytes[1] = (int)v[1];
@@ -817,17 +824,17 @@ bool Drawable::drawGradRounded(int32_t x, int32_t y, uint32_t w, uint32_t h, uin
         v[0] += d[0];
 
         int xoff = 0;
-        int wl = w;
+        int wl = (int)w;
 
         if (y1 <= r || y1 > (h - r) - 1)
         {
             int yr = y1;
             if (y1 > (h - r) - 1)
             {
-                yr = (h - y1) - 1;
+                yr = ((int)h - y1) - 1;
             }
 
-            uint32_t i;
+            int i;
             for (i = 0; i <= r + 1; i++)
             {
                 //printf("Drawable::drawGradRounded: i=%d, y1=%d: %d + %d <= %d\n", i, y1, ((r - i) * (r - i)), ((r - y1) * (r - y1)), (r * r));
@@ -850,7 +857,7 @@ bool Drawable::drawGradRounded(int32_t x, int32_t y, uint32_t w, uint32_t h, uin
 
 bool Drawable::drawCircle(int32_t x, int32_t y, uint32_t r, uint32_t c)
 {
-    int cx = r;
+    int cx = (int)r;
     int cy = 0;
     int err = 0;
     while (cx >= cy)
@@ -878,19 +885,19 @@ bool Drawable::drawCircle(int32_t x, int32_t y, uint32_t r, uint32_t c)
 
 bool Drawable::drawCircleFilled(int32_t x, int32_t y, uint32_t r, uint32_t c)
 {
-    unsigned int y0;
+    int y0;
     for (y0 = 0; y0 < r; y0++)
     {
-        unsigned int x0;
+        int x0;
         for (x0 = 0; x0 < r; x0++)
         {
-            float d = sqrt((double)((x0 * x0) + (y0 * y0)));
+            double d = sqrt((double)((x0 * x0) + (y0 * y0)));
             if (d <= (double)r)
             {
-                Drawable::drawPixel(x - x0, y - y0, c);
-                Drawable::drawPixel(x - x0, y + y0, c);
-                Drawable::drawPixel(x + x0, y - y0, c);
-                Drawable::drawPixel(x + x0, y + y0, c);
+                Drawable::drawPixelChecked(x - x0, y - y0, c);
+                Drawable::drawPixelChecked(x - x0, y + y0, c);
+                Drawable::drawPixelChecked(x + x0, y - y0, c);
+                Drawable::drawPixelChecked(x + x0, y + y0, c);
             }
         }
     }
@@ -936,20 +943,20 @@ bool Drawable::saveJPEG(int fd)
 
 bool Drawable::saveJPEG(uint8_t** buffer, unsigned long* bufferLength)
 {
-    struct jpeg_compress_struct cinfo;
-    memset(&cinfo, 0, sizeof(cinfo));
+    jpeg_compress_struct cInfo = {};
+    memset(&cInfo, 0, sizeof(cInfo));
 
-    jpeg_create_compress(&cinfo);
+    jpeg_create_compress(&cInfo);
 
-    jpeg_mem_dest(&cinfo, buffer, bufferLength);
+    jpeg_mem_dest(&cInfo, buffer, bufferLength);
     bool res;
-    res = saveJPEG(&cinfo);
+    res = saveJPEG(&cInfo);
     return res;
 }
 
 bool Drawable::saveJPEG(struct jpeg_compress_struct* cinfo)
 {
-    struct jpeg_error_mgr jerr;
+    jpeg_error_mgr jerr = {};
     memset(&jerr, 0, sizeof(jerr));
     cinfo->err = jpeg_std_error(&jerr);
 
@@ -969,10 +976,10 @@ bool Drawable::saveJPEG(struct jpeg_compress_struct* cinfo)
     row_pointer[0] = (JSAMPROW)malloc(stride);
     memset(row_pointer[0], 0, stride);
 
-    uint32_t* data = (uint32_t*)getDrawingBuffer();
+    auto data = (uint32_t*)getDrawingBuffer();
     while (cinfo->next_scanline < cinfo->image_height)
     {
-        unsigned int x;
+        int x;
         for (x = 0; x < cinfo->image_width; x++)
         {
             uint32_t c;
@@ -982,7 +989,7 @@ bool Drawable::saveJPEG(struct jpeg_compress_struct* cinfo)
             }
             else
             {
-                c = getPixel(x, cinfo->next_scanline);
+                c = getPixel(x, (int)cinfo->next_scanline);
             }
             row_pointer[0][(x * 3) + 2] = c >> 0;
             row_pointer[0][(x * 3) + 1] = c >> 8;
