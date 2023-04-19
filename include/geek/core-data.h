@@ -15,17 +15,23 @@ enum DataCompression
     DEFLATE = 3
 };
 
+enum Endian
+{
+    NONE,
+    BIG,
+    LITTLE
+};
+
 class Data : public Geek::Logger
 {
  protected:
-    char* m_data;
-    char* m_end;
-    char* m_pos;
-    unsigned int m_length;
-    unsigned int m_bufferSize;
-    bool m_isSub;
-
-    bool m_swap;
+    char* m_data = nullptr;
+    char* m_end = nullptr;
+    char* m_pos = nullptr;
+    unsigned int m_length = 0;
+    unsigned int m_bufferSize = 0;
+    bool m_isSub = false;
+    Endian m_endian = Endian::NONE;
 
  public:
     Data();
@@ -34,9 +40,29 @@ class Data : public Geek::Logger
 
     bool load(std::string filename);
     bool loadCompressed(std::string filename, DataCompression compression);
+    bool loadCompressed(char* data, unsigned int length, DataCompression compression);
 
-    void setSwap(bool swap) { m_swap = swap; }
-    bool getSwap() const { return m_swap; }
+    void setEndian(Endian endian);
+    void setSwap(bool swap)
+    {
+        Endian endian = getMachineEndian();
+        if (swap)
+        {
+            if (endian == LITTLE)
+            {
+                m_endian = BIG;
+            }
+            else
+            {
+                m_endian = LITTLE;
+            }
+        }
+        else
+        {
+            m_endian = endian;
+        }
+    }
+    bool getSwap() const { return mustSwap(m_endian); }
 
     void clear();
     void reset();
@@ -59,8 +85,11 @@ class Data : public Geek::Logger
     uint64_t read64();
     float readFloat();
     double readDouble();
-    //Vector readVector();
     uint64_t readULEB128();
+
+    uint16_t read16(Endian endian);
+    uint32_t read32(Endian endian);
+    uint64_t read64(Endian endian);
 
     char* readStruct(size_t len);
 
@@ -84,6 +113,29 @@ class Data : public Geek::Logger
     bool writeCompressed(std::string file, DataCompression dataCompression);
 
     Data* getSubData(uint32_t pos, uint32_t length);
+
+    static inline Endian getMachineEndian()
+    {
+        union
+        {
+            uint32_t i;
+            char c[4];
+        } b = {0x01020304};
+
+        if (b.c[0] == 1)
+        {
+            return BIG;
+        }
+        else
+        {
+            return LITTLE;
+        }
+    }
+
+    static bool mustSwap(Endian endian)
+    {
+        return endian != NONE && endian != getMachineEndian();
+    }
 };
 
 }
