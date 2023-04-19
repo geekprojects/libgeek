@@ -21,7 +21,7 @@ void TaskExecutor::init(int maxWorkers)
     if (maxWorkers == 0)
     {
         int cpus = std::thread::hardware_concurrency();
-        printf("TaskExecutor::init: cpus=%d\n", cpus);
+        //printf("TaskExecutor::init: cpus=%d\n", cpus);
         maxWorkers = cpus / 2;
         if (maxWorkers < 1)
         {
@@ -105,7 +105,7 @@ void TaskExecutor::startTask(Task* task)
 void TaskExecutor::taskComplete(TaskWorker* worker)
 {
     m_workersMutex->lock();
-    printf("TaskExecutor::taskComplete: Clearing worker...\n");
+    //printf("TaskExecutor::taskComplete: Clearing worker...\n");
 
     m_tasksMutex->lock();
     vector<Task*>::iterator taskIt;
@@ -133,12 +133,12 @@ void TaskExecutor::taskComplete(TaskWorker* worker)
     m_queueMutex->lock();
     if (!m_queue.empty())
     {
-        printf("TaskExecutor::taskComplete: Queue is not empty! Workers size=%lu\n", m_workers.size());
+        //printf("TaskExecutor::taskComplete: Queue is not empty! Workers size=%lu\n", m_workers.size());
         if (m_workers.size() < m_maxWorkers)
         {
             m_workersMutex->unlock();
 
-            printf("TaskExecutor::taskComplete: Starting another task...\n");
+            //printf("TaskExecutor::taskComplete: Starting another task...\n");
             Task* next = m_queue.front();
             m_queue.pop_front();
             m_queueMutex->unlock();
@@ -152,7 +152,7 @@ void TaskExecutor::taskComplete(TaskWorker* worker)
     }
     else
     {
-        printf("TaskExecutor::taskComplete: Queue is empty!\n");
+        //printf("TaskExecutor::taskComplete: Queue is empty!\n");
         bool workersEmpty = m_workers.empty();
         m_workersMutex->unlock();
         m_queueMutex->unlock();
@@ -164,7 +164,7 @@ void TaskExecutor::taskComplete(TaskWorker* worker)
             m_queueEmpty->signal();
         }
     }
-    printf("TaskExecutor::taskComplete: Done!\n");
+    //printf("TaskExecutor::taskComplete: Done!\n");
 }
 
 unsigned int TaskExecutor::getTaskCount()
@@ -207,7 +207,7 @@ TaskWorker::~TaskWorker()
 
 bool TaskWorker::main()
 {
-    printf("TaskWorker::main: Running task...\n");
+    //printf("TaskWorker::main: Running task...\n");
     m_task->setState(TASK_RUNNING);
     m_task->startedSignal().emit(m_task);
 
@@ -218,11 +218,11 @@ bool TaskWorker::main()
 
     delete m_task;
 
-    printf("TaskWorker::main: Task complete...\n");
+    //printf("TaskWorker::main: Task complete...\n");
 
     // Tell our TaskExecutor that we're done
     m_executor->taskComplete(this);
-    printf("TaskWorker::main: Done!\n");
+    //printf("TaskWorker::main: Done!\n");
 
     return true;
 }
